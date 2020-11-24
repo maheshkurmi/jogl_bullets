@@ -41,12 +41,8 @@ import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.ui.DemoApplication;
 import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
-import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Vector3f;
-
-import static com.bulletphysics.ui.IGL.GL_COLOR_BUFFER_BIT;
-import static com.bulletphysics.ui.IGL.GL_DEPTH_BUFFER_BIT;
 
 /**
  *
@@ -102,28 +98,28 @@ public class GenericJointDemo extends DemoApplication {
 		ragdolls.add(ragDoll);
 	}
 	
-	@Override
-	public void display(GLAutoDrawable arg) {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		poll();
-		// simple dynamics world doesn't handle fixed-time-stepping
-		float ms = getDeltaTimeMicroseconds();
-		float minFPS = 1000000f / 60f;
-		if (ms > minFPS) {
-			ms = minFPS;
-		}
-
-		if (world != null) {
-			world.stepSimulation(ms / 1000000.f);
-			// optional but useful: debug drawing
-			world.debugDrawWorld();
-		}
-
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
-	}
+//	@Override
+//	public void display(GLAutoDrawable arg) {
+//		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		poll();
+//		// simple dynamics world doesn't handle fixed-time-stepping
+//		float ms = getDeltaTimeMicroseconds();
+//		float minFPS = 1000000f / 60f;
+//		if (ms > minFPS) {
+//			ms = minFPS;
+//		}
+//
+//		if (world != null) {
+//			world.stepSimulation(ms / 1000000.f);
+//			// optional but useful: debug drawing
+//			world.debugDrawWorld();
+//		}
+//
+//		renderme();
+//
+//		//glFlush();
+//		//glutSwapBuffers();
+//	}
 
 
 

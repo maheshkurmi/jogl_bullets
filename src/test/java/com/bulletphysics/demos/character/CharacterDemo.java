@@ -249,10 +249,10 @@ public class CharacterDemo extends DemoApplication {
 	@Override
 	public void updateCamera() {
 		//if (useDefaultCamera) {
-		if (false) {
-			super.updateCamera();
-			return;
-		}
+//		if (false) {
+//			super.updateCamera();
+//			return;
+//		}
 
 		gl.glMatrixMode(gl.GL_PROJECTION);
 		gl.glLoadIdentity();

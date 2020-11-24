@@ -31,6 +31,7 @@ import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.linearmath.*;
 import com.jogamp.newt.event.KeyEvent;
+import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Color3f;
 import javax.vecmath.Quat4f;
@@ -58,8 +59,17 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 		profileIterator = CProfileManager.getIterator();
 	}
 
+	@Override
+	public void display(GLAutoDrawable drawable) {
+		super.display(drawable);
 
-    @Override
+		renderVolume();
+		renderHUD();
+
+		renderme();
+	}
+
+	@Override
     public void keyboardCallbackUp(char key) {
 
 	}
@@ -434,68 +444,20 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 	protected final Color3f TEXT_COLOR = new Color3f(0f, 0f, 0f);
 	private final StringBuilder buf = new StringBuilder();
 
-	@Override
-    public void renderme() {
-		updateCamera();
 
-		if (world != null) {
-			int numObjects = world.getNumCollisionObjects();
-			wireColor.set(1f, 0f, 0f);
-			for (int i = 0; i < numObjects; i++) {
-				CollisionObject colObj = world.getCollisionObjectArray().get(i);
-				RigidBody body = RigidBody.upcast(colObj);
+    @Deprecated public void renderme() {
+	}
 
-				if (body != null && body.getMotionState() != null) {
-					DefaultMotionState myMotionState = (DefaultMotionState) body.getMotionState();
-					m.set(myMotionState.graphicsWorldTrans);
-				}
-				else {
-					colObj.getWorldTransform(m);
-				}
-
-				wireColor.set(1f, 1f, 0.5f); // wants deactivation
-				if ((i & 1) != 0) {
-					wireColor.set(0f, 0f, 1f);
-				}
-
-				// color differently for active, sleeping, wantsdeactivation states
-				if (colObj.getActivationState() == 1) // active
-				{
-					if ((i & 1) != 0) {
-						//wireColor.add(new Vector3f(1f, 0f, 0f));
-						wireColor.x += 1f;
-					}
-					else {
-						//wireColor.add(new Vector3f(0.5f, 0f, 0f));
-						wireColor.x += 0.5f;
-					}
-				}
-				if (colObj.getActivationState() == 2) // ISLAND_SLEEPING
-				{
-					if ((i & 1) != 0) {
-						//wireColor.add(new Vector3f(0f, 1f, 0f));
-						wireColor.y += 1f;
-					}
-					else {
-						//wireColor.add(new Vector3f(0f, 0.5f, 0f));
-						wireColor.y += 0.5f;
-					}
-				}
-
-				GLShapeDrawer.drawOpenGL(gl, m, colObj.getCollisionShape(), wireColor, getDebugMode());
-			}
-
+	private void renderHUD() {
+		if ((debugMode & DebugDrawModes.NO_HELP_TEXT) == 0) {
+			gl.glColor3f(0f, 0f, 0f);
 			float xOffset = 10f;
 			float yStart = 20f;
 			float yIncr = 20f;
 
-			gl.glDisable(GL_LIGHTING);
-			gl.glColor3f(0f, 0f, 0f);
+			setOrthographicProjection();
 
-			if ((debugMode & DebugDrawModes.NO_HELP_TEXT) == 0) {
-				setOrthographicProjection();
-
-				yStart = showProfileInfo(xOffset, yStart, yIncr);
+			yStart = showProfileInfo(xOffset, yStart, yIncr);
 
 //					#ifdef USE_QUICKPROF
 //					if ( getDebugMode() & btIDebugDraw::DBG_ProfileTimings)
@@ -516,148 +478,200 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 //					#endif //USE_QUICKPROF
 
 
-				String s = "mouse to interact";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			String s = "mouse to interact";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				// JAVA NOTE: added
-				s = "LMB=drag, RMB=shoot box, MIDDLE=apply impulse";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			// JAVA NOTE: added
+			s = "LMB=drag, RMB=shoot box, MIDDLE=apply impulse";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				s = "space to reset";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			s = "space to reset";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				s = "cursor keys and z,x to navigate";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			s = "cursor keys and z,x to navigate";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				s = "i to toggle simulation, s single step";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			s = "i to toggle simulation, s single step";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				s = "q to quit";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			s = "q to quit";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				s = ". to shoot box or trimesh (MovingConcaveDemo)";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			s = ". to shoot box or trimesh (MovingConcaveDemo)";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				// not yet hooked up again after refactoring...
+			// not yet hooked up again after refactoring...
 
-				s = "d to toggle deactivation";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			s = "d to toggle deactivation";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				s = "g to toggle mesh animation (ConcaveDemo)";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			s = "g to toggle mesh animation (ConcaveDemo)";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				// JAVA NOTE: added
-				s = "e to spawn new body (GenericJointDemo)";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			// JAVA NOTE: added
+			s = "e to spawn new body (GenericJointDemo)";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				s = "h to toggle help text";
-				drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			s = "h to toggle help text";
+			drawString(s, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				//buf = "p to toggle profiling (+results to file)";
-				//drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
+			//buf = "p to toggle profiling (+results to file)";
+			//drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
 
-				//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
-				//bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
-				//glRasterPos3f(xOffset,yStart,0);
-				//sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
-				//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				//yStart += yIncr;
+			//bool useBulletLCP = !(getDebugMode() & btIDebugDraw::DBG_DisableBulletLCP);
+			//bool useCCD = (getDebugMode() & btIDebugDraw::DBG_EnableCCD);
+			//glRasterPos3f(xOffset,yStart,0);
+			//sprintf(buf,"1 CCD mode (adhoc) = %i",useCCD);
+			//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			//yStart += yIncr;
 
-				//glRasterPos3f(xOffset, yStart, 0);
-				//buf = String.format(%10.2f", ShootBoxInitialSpeed);
+			//glRasterPos3f(xOffset, yStart, 0);
+			//buf = String.format(%10.2f", ShootBoxInitialSpeed);
+			buf.setLength(0);
+			buf.append("+- shooting speed = ");
+			FastFormat.append(buf, ShootBoxInitialSpeed);
+			drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
+
+			//#ifdef SHOW_NUM_DEEP_PENETRATIONS
+			buf.setLength(0);
+			buf.append("gNumDeepPenetrationChecks = ");
+			FastFormat.append(buf, BulletStats.gNumDeepPenetrationChecks);
+			drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
+
+			buf.setLength(0);
+			buf.append("gNumGjkChecks = ");
+			FastFormat.append(buf, BulletStats.gNumGjkChecks);
+			drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
+
+			buf.setLength(0);
+			buf.append("gNumSplitImpulseRecoveries = ");
+			FastFormat.append(buf, BulletStats.gNumSplitImpulseRecoveries);
+			drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+			yStart += yIncr;
+
+			//buf = String.format("gNumAlignedAllocs = %d", BulletGlobals.gNumAlignedAllocs);
+			// TODO: BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			//yStart += yIncr;
+
+			//buf = String.format("gNumAlignedFree= %d", BulletGlobals.gNumAlignedFree);
+			// TODO: BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			//yStart += yIncr;
+
+			//buf = String.format("# alloc-free = %d", BulletGlobals.gNumAlignedAllocs - BulletGlobals.gNumAlignedFree);
+			// TODO: BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			//yStart += yIncr;
+
+			//enable BT_DEBUG_MEMORY_ALLOCATIONS define in Bullet/src/LinearMath/btAlignedAllocator.h for memory leak detection
+			//#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
+			//glRasterPos3f(xOffset,yStart,0);
+			//sprintf(buf,"gTotalBytesAlignedAllocs = %d",gTotalBytesAlignedAllocs);
+			//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
+			//yStart += yIncr;
+			//#endif //BT_DEBUG_MEMORY_ALLOCATIONS
+
+			if (getWorld() != null) {
 				buf.setLength(0);
-				buf.append("+- shooting speed = ");
-				FastFormat.append(buf, ShootBoxInitialSpeed);
+				buf.append("# objects = ");
+				FastFormat.append(buf, getWorld().getNumCollisionObjects());
 				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
-				//#ifdef SHOW_NUM_DEEP_PENETRATIONS
 				buf.setLength(0);
-				buf.append("gNumDeepPenetrationChecks = ");
-				FastFormat.append(buf, BulletStats.gNumDeepPenetrationChecks);
+				buf.append("# pairs = ");
+				FastFormat.append(buf, getWorld().getBroadphase().getOverlappingPairCache().getNumOverlappingPairs());
 				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
-				buf.setLength(0);
-				buf.append("gNumGjkChecks = ");
-				FastFormat.append(buf, BulletStats.gNumGjkChecks);
-				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
-
-				buf.setLength(0);
-				buf.append("gNumSplitImpulseRecoveries = ");
-				FastFormat.append(buf, BulletStats.gNumSplitImpulseRecoveries);
-				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-				yStart += yIncr;
-
-				//buf = String.format("gNumAlignedAllocs = %d", BulletGlobals.gNumAlignedAllocs);
-				// TODO: BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				//yStart += yIncr;
-
-				//buf = String.format("gNumAlignedFree= %d", BulletGlobals.gNumAlignedFree);
-				// TODO: BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				//yStart += yIncr;
-
-				//buf = String.format("# alloc-free = %d", BulletGlobals.gNumAlignedAllocs - BulletGlobals.gNumAlignedFree);
-				// TODO: BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				//yStart += yIncr;
-
-				//enable BT_DEBUG_MEMORY_ALLOCATIONS define in Bullet/src/LinearMath/btAlignedAllocator.h for memory leak detection
-				//#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
-				//glRasterPos3f(xOffset,yStart,0);
-				//sprintf(buf,"gTotalBytesAlignedAllocs = %d",gTotalBytesAlignedAllocs);
-				//BMF_DrawString(BMF_GetFont(BMF_kHelvetica10),buf);
-				//yStart += yIncr;
-				//#endif //BT_DEBUG_MEMORY_ALLOCATIONS
-
-				if (getWorld() != null) {
-					buf.setLength(0);
-					buf.append("# objects = ");
-					FastFormat.append(buf, getWorld().getNumCollisionObjects());
-					drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-					yStart += yIncr;
-
-					buf.setLength(0);
-					buf.append("# pairs = ");
-					FastFormat.append(buf, getWorld().getBroadphase().getOverlappingPairCache().getNumOverlappingPairs());
-					drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-					yStart += yIncr;
-
-				}
-				//#endif //SHOW_NUM_DEEP_PENETRATIONS
-
-				// JAVA NOTE: added
-				int free = (int)Runtime.getRuntime().freeMemory();
-				int total = (int)Runtime.getRuntime().totalMemory();
-				buf.setLength(0);
-				buf.append("heap = ");
-				FastFormat.append(buf, (float)(total - free) / (1024*1024));
-				buf.append(" / ");
-				FastFormat.append(buf, (float)(total) / (1024*1024));
-				buf.append(" MB");
-				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
-
-				resetPerspectiveProjection();
 			}
+			//#endif //SHOW_NUM_DEEP_PENETRATIONS
 
-			gl.glEnable(GL_LIGHTING);
+			// JAVA NOTE: added
+			int free = (int)Runtime.getRuntime().freeMemory();
+			int total = (int)Runtime.getRuntime().totalMemory();
+			buf.setLength(0);
+			buf.append("heap = ");
+			FastFormat.append(buf, (float)(total - free) / (1024*1024));
+			buf.append(" / ");
+			FastFormat.append(buf, (float)(total) / (1024*1024));
+			buf.append(" MB");
+			drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
+
+			resetPerspectiveProjection();
 		}
-
-		updateCamera();
 	}
 
+	private void renderVolume() {
+
+		updateCamera();
+
+
+		// optional but useful: debug drawing
+		world.debugDrawWorld();
+
+		gl.glEnable(GL_LIGHTING);
+		int numObjects = world.getNumCollisionObjects();
+		wireColor.set(1f, 0f, 0f);
+		for (int i = 0; i < numObjects; i++) {
+			CollisionObject colObj = world.getCollisionObjectArray().get(i);
+			RigidBody body = RigidBody.upcast(colObj);
+
+			if (body != null && body.getMotionState() != null) {
+				DefaultMotionState myMotionState = (DefaultMotionState) body.getMotionState();
+				m.set(myMotionState.graphicsWorldTrans);
+			}
+			else {
+				colObj.getWorldTransform(m);
+			}
+
+			wireColor.set(1f, 1f, 0.5f); // wants deactivation
+			if ((i & 1) != 0) {
+				wireColor.set(0f, 0f, 1f);
+			}
+
+			// color differently for active, sleeping, wantsdeactivation states
+			if (colObj.getActivationState() == 1) // active
+			{
+				if ((i & 1) != 0) {
+					//wireColor.add(new Vector3f(1f, 0f, 0f));
+					wireColor.x += 1f;
+				}
+				else {
+					//wireColor.add(new Vector3f(0.5f, 0f, 0f));
+					wireColor.x += 0.5f;
+				}
+			}
+			if (colObj.getActivationState() == 2) // ISLAND_SLEEPING
+			{
+				if ((i & 1) != 0) {
+					//wireColor.add(new Vector3f(0f, 1f, 0f));
+					wireColor.y += 1f;
+				}
+				else {
+					//wireColor.add(new Vector3f(0f, 0.5f, 0f));
+					wireColor.y += 0.5f;
+				}
+			}
+
+			GLShapeDrawer.drawOpenGL(gl, m, colObj.getCollisionShape(), wireColor, getDebugMode());
+		}
+
+		gl.glDisable(GL_LIGHTING);
+	}
 
 
 }

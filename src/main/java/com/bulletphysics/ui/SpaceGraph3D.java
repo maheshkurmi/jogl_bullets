@@ -53,7 +53,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
     // keep the collision shapes, for deletion/cleanup
     protected final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
 
-    private final float fps = 60f;
+    protected final float fps = 60f;
     @Deprecated public transient IGL gl = null;
 
     public SpaceGraph3D() {
@@ -187,12 +187,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
 
         update();
 
-        if (world != null) {
-            // optional but useful: debug drawing
-            world.debugDrawWorld();
-        }
 
-        renderme();
 
     }
 
@@ -339,9 +334,13 @@ public abstract class SpaceGraph3D implements GLEventListener {
         keyboard.reset();
     }
 
-    public abstract void keyboardCallbackUp(char key);
+    public void keyboardCallbackUp(char key) {
 
-    public abstract void keyboardCallback(char key);
+    }
+
+    public void keyboardCallback(char key) {
+
+    }
 
     public int getDebugMode() {
         return debugMode;
@@ -354,9 +353,13 @@ public abstract class SpaceGraph3D implements GLEventListener {
         }
     }
 
-    public abstract void specialKeyboardUp(int key);
+    public void specialKeyboardUp(int key) {
 
-    public abstract void specialKeyboard(int key);
+    }
+
+    public void specialKeyboard(int key) {
+
+    }
 
     public Vector3f getRayTo(int x, int y) {
         float top = 1f;
@@ -549,7 +552,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         updateCamera();
     }
 
-    public abstract void renderme();
+
 
     public DynamicsWorld getWorld() {
         return world;

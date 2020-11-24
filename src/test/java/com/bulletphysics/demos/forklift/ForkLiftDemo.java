@@ -490,7 +490,6 @@ public class ForkLiftDemo extends DemoApplication {
 
 	@Override
 	public void renderme() {
-		updateCamera();
 
 		//float[] m = new float[16];
 		//int i;

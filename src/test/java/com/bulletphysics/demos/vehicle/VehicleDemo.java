@@ -42,14 +42,10 @@ import com.bulletphysics.ui.IGL;
 import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
 import com.jogamp.newt.event.KeyEvent;
-import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Vector3f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import static com.bulletphysics.ui.IGL.GL_COLOR_BUFFER_BIT;
-import static com.bulletphysics.ui.IGL.GL_DEPTH_BUFFER_BIT;
 
 /**
  * VehicleDemo shows how to setup and use the built-in raycast vehicle.
@@ -379,7 +375,6 @@ public class VehicleDemo extends DemoApplication {
 	// to be implemented by the demo
 	@Override
 	public void renderme() {
-		updateCamera();
 
 		CylinderShapeX wheelShape = new CylinderShapeX(new Vector3f(wheelWidth, wheelRadius, wheelRadius));
 		Vector3f wheelColor = new Vector3f(1, 0, 0);
@@ -392,14 +387,8 @@ public class VehicleDemo extends DemoApplication {
 			GLShapeDrawer.drawOpenGL(gl, trans, wheelShape, wheelColor, getDebugMode());
 		}
 
-		super.renderme();
-	}
-	
-	public void display(GLAutoDrawable arg) {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		poll();
 
-		{			
+		{
 			int wheelIndex = 2;
 			vehicle.applyEngineForce(gEngineForce,wheelIndex);
 			vehicle.setBrake(gBreakingForce,wheelIndex);
@@ -413,50 +402,56 @@ public class VehicleDemo extends DemoApplication {
 			vehicle.setSteeringValue(gVehicleSteering,wheelIndex);
 		}
 
-		float dt = getDeltaTimeMicroseconds() * 0.000001f;
-		
-		if (world != null)
-		{
-			// during idle mode, just run 1 simulation step maximum
-			int maxSimSubSteps = idle ? 1 : 2;
-			if (idle)
-				dt = 1f/420f;
-
-			int numSimSteps = world.stepSimulation(dt,maxSimSubSteps);
-
-			//#define VERBOSE_FEEDBACK
-			//#ifdef VERBOSE_FEEDBACK
-			//if (!numSimSteps)
-			//	printf("Interpolated transforms\n");
-			//else
-			//{
-			//	if (numSimSteps > maxSimSubSteps)
-			//	{
-			//		//detect dropping frames
-			//		printf("Dropped (%i) simulation steps out of %i\n",numSimSteps - maxSimSubSteps,numSimSteps);
-			//	} else
-			//	{
-			//		printf("Simulated (%i) steps\n",numSimSteps);
-			//	}
-			//}
-			//#endif //VERBOSE_FEEDBACK
-		}
-
-		//#ifdef USE_QUICKPROF 
-		//btProfiler::beginBlock("render"); 
-		//#endif //USE_QUICKPROF 
-
-		renderme(); 
-		
-		// optional but useful: debug drawing
-		if (world != null) {
-			world.debugDrawWorld();
-		}
-
-		//#ifdef USE_QUICKPROF 
-		//btProfiler::endBlock("render"); 
-		//#endif 
 	}
+	
+//	public void display(GLAutoDrawable arg) {
+//		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		poll();
+//
+//		float dt = getDeltaTimeMicroseconds() * 0.000001f;
+//
+//		if (world != null)
+//		{
+//			// during idle mode, just run 1 simulation step maximum
+//			int maxSimSubSteps = idle ? 1 : 2;
+//			if (idle)
+//				dt = 1f/420f;
+//
+//			int numSimSteps = world.stepSimulation(dt,maxSimSubSteps);
+//
+//			//#define VERBOSE_FEEDBACK
+//			//#ifdef VERBOSE_FEEDBACK
+//			//if (!numSimSteps)
+//			//	printf("Interpolated transforms\n");
+//			//else
+//			//{
+//			//	if (numSimSteps > maxSimSubSteps)
+//			//	{
+//			//		//detect dropping frames
+//			//		printf("Dropped (%i) simulation steps out of %i\n",numSimSteps - maxSimSubSteps,numSimSteps);
+//			//	} else
+//			//	{
+//			//		printf("Simulated (%i) steps\n",numSimSteps);
+//			//	}
+//			//}
+//			//#endif //VERBOSE_FEEDBACK
+//		}
+//
+//		//#ifdef USE_QUICKPROF
+//		//btProfiler::beginBlock("render");
+//		//#endif //USE_QUICKPROF
+//
+//		renderme();
+//
+//		// optional but useful: debug drawing
+//		if (world != null) {
+//			world.debugDrawWorld();
+//		}
+//
+//		//#ifdef USE_QUICKPROF
+//		//btProfiler::endBlock("render");
+//		//#endif
+//	}
 
 	
 	@Override

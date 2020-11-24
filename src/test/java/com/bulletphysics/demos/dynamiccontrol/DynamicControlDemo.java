@@ -28,13 +28,11 @@ import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
-import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
-import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.HingeConstraint;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
@@ -42,11 +40,10 @@ import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.ui.DemoApplication;
 import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
-import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Vector3f;
 
-import static com.bulletphysics.ui.IGL.*;
+import static com.bulletphysics.ui.IGL.GL_LINES;
 
 /**
  *
@@ -107,24 +104,20 @@ public class DynamicControlDemo extends DemoApplication {
 	}
 
 	public void spawnTestRig(DynamicsWorld world, Vector3f startOffset, boolean fixed) {
-		TestRig rig = new TestRig(world, startOffset, fixed);
-		rigs.add(rig);
+		rigs.add(new TestRig(world, startOffset, fixed));
 	}
-	
+
 	@Override
-	public void display(GLAutoDrawable arg) {
-		
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		poll();
+	public void renderme() {
 		// simple dynamics world doesn't handle fixed-time-stepping
 		float ms = getDeltaTimeMicroseconds();
-		float minFPS = 1000000f / 60f;
+		float minFPS = 1000000f / fps;
 		if (ms > minFPS) {
 			ms = minFPS;
 		}
 
 		time+=ms;
-		
+
 		//
 		// set per-frame sinusoidal position targets using angular motor (hacky?)
 		//
@@ -141,26 +134,8 @@ public class DynamicControlDemo extends DemoApplication {
 				hingeC.enableAngularMotor(true, desiredAngularVel, muscleStrength);
 			}
 		}
-		
-		if (world != null) {
-			world.stepSimulation(ms / 1000000.f);
-			// optional but useful: debug drawing
-			world.debugDrawWorld();
-		}
-
-		for (int i=2; i>=0; i--) {
-			CollisionObject obj = world.getCollisionObjectArray().get(i);
-			RigidBody body = RigidBody.upcast(obj);
-			drawFrame(body.getWorldTransform(new Transform()));
-		}
-		
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
 	}
 
-	
 	@Override
 	public void keyboardCallback(char key) {
 		switch (key) {
