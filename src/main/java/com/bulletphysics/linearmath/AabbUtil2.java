@@ -128,9 +128,8 @@ public class AabbUtil2 {
 		if (Math.min(Math.min(p1.z, p2.z), p3.z) > aabbMax.z) return false;
 		if (Math.max(Math.max(p1.z, p2.z), p3.z) < aabbMin.z) return false;
 
-		if (Math.min(Math.min(p1.y, p2.y), p3.y) > aabbMax.y) return false;
-        return !(Math.max(Math.max(p1.y, p2.y), p3.y) < aabbMin.y);
-    }
+		return !(Math.min(Math.min(p1.y, p2.y), p3.y) > aabbMax.y) && !(Math.max(Math.max(p1.y, p2.y), p3.y) < aabbMin.y);
+	}
 
 	public static void transformAabb(Vector3f halfExtents, float margin, Transform t, Vector3f aabbMinOut, Vector3f aabbMaxOut) {
 		Vector3f halfExtentsWithMargin = new Vector3f();

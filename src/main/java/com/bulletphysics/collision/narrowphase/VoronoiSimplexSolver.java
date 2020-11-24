@@ -634,11 +634,8 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		}
 
 		//check in case lastW is already removed
-		if (w.equals(lastW)) {
-			return true;
-		}
+		return w.equals(lastW) || found;
 
-		return found;
 	}
 
 	public void backup_closest(Vector3f v) {

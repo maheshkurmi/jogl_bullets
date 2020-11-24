@@ -328,11 +328,7 @@ public class RigidBody extends CollisionObject {
     }
 
     public void setCenterOfMassTransform(Transform xform) {
-        if (isStaticOrKinematicObject()) {
-            interpolationWorldTransform.set(worldTransform);
-        } else {
-            interpolationWorldTransform.set(xform);
-        }
+        interpolationWorldTransform.set(isStaticOrKinematicObject() ? worldTransform : xform);
         getLinearVelocity(interpolationLinearVelocity);
         getAngularVelocity(interpolationAngularVelocity);
         worldTransform.set(xform);
@@ -509,20 +505,18 @@ public class RigidBody extends CollisionObject {
     }
 
     public boolean wantsSleeping() {
-        if (getActivationState() == DISABLE_DEACTIVATION) {
+        final int s = getActivationState();
+        if (s == DISABLE_DEACTIVATION)
             return false;
-        }
+
 
         // disable deactivation
-        if (BulletGlobals.isDeactivationDisabled() || (BulletGlobals.getDeactivationTime() == 0f)) {
+        if (BulletGlobals.isDeactivationDisabled() || (BulletGlobals.getDeactivationTime() == 0f))
             return false;
-        }
 
-        if ((getActivationState() == ISLAND_SLEEPING) || (getActivationState() == WANTS_DEACTIVATION)) {
-            return true;
-        }
 
-        return deactivationTime > BulletGlobals.getDeactivationTime();
+        return (s == ISLAND_SLEEPING) || (s == WANTS_DEACTIVATION) || deactivationTime > BulletGlobals.getDeactivationTime();
+
     }
 
     public BroadphaseProxy getBroadphaseProxy() {

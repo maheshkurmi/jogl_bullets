@@ -232,11 +232,8 @@ public class DbvtAabbMm {
 
 		a.AddSpan(d0, s0, 0, s0, 1);
 		b.AddSpan(d1, s1, 0, s1, 1);
-		if (s0[0] > (s1[1])) {
-			return false;
-		}
-        return !(s0[1] < (s1[0]));
-    }
+		return !(s0[0] > (s1[1])) && !(s0[1] < (s1[0]));
+	}
 
 	public static boolean Intersect(DbvtAabbMm a, Vector3f b) {
 		return ((b.x >= a.mi.x) &&

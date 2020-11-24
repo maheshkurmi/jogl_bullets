@@ -310,10 +310,7 @@ public class CollisionObject {
 	}
 
 	public boolean checkCollideWith(CollisionObject co) {
-		if (checkCollideWith) {
-			return checkCollideWithOverride(co);
-		}
+		return !checkCollideWith || checkCollideWithOverride(co);
 
-		return true;
 	}
 }
