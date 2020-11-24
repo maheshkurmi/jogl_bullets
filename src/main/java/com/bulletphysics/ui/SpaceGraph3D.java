@@ -252,6 +252,8 @@ public abstract class SpaceGraph3D implements GLEventListener {
                 }
             }
 
+            wireColor.clamp(0, 1);
+
             GLShapeDrawer.drawOpenGL(gl, m, colObj.getCollisionShape(), wireColor, getDebugMode());
         }
 

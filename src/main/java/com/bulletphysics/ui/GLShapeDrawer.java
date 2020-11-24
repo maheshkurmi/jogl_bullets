@@ -239,12 +239,12 @@ public class GLShapeDrawer {
 						int upAxis = cylinder.getUpAxis();
 
 						float radius = cylinder.getRadius();
-						Vector3f halfVec = vectorsPool.get();
+						Vector3f halfVec = new Vector3f();
 						float halfHeight = VectorUtil.coord(cylinder.getHalfExtentsWithMargin(halfVec), upAxis);
 
 						gl.drawCylinder(radius, halfHeight, upAxis);
 
-						vectorsPool.release(halfVec);
+
 
 					}
 					default -> {

@@ -173,9 +173,8 @@ public abstract class DynamicsWorld extends CollisionWorld {
         //#ifdef USE_MOTIONSTATE
         DefaultMotionState myMotionState = new DefaultMotionState(startTransform);
 
-        RigidBodyConstructionInfo cInfo = new RigidBodyConstructionInfo(mass, myMotionState, shape, localInertia);
-
-        RigidBody body = new RigidBody(cInfo);
+        RigidBody body = new RigidBody(
+                new RigidBodyConstructionInfo(mass, myMotionState, shape, localInertia));
         //#else
         //btRigidBody* body = new btRigidBody(mass,0,shape,localInertia);
         //body->setWorldTransform(startTransform);
