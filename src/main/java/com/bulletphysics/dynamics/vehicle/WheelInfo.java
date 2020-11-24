@@ -44,10 +44,10 @@ public class WheelInfo {
     public final Vector3f chassisConnectionPointCS = new Vector3f(); // const
     public final Vector3f wheelDirectionCS = new Vector3f(); // const
     public final Vector3f wheelAxleCS = new Vector3f(); // const or modified by steering
-    public final float suspensionRestLength1; // const
+    private final float suspensionRestLength1; // const
     public final float maxSuspensionTravelCm;
     public final float wheelsRadius; // const
-    public final boolean bIsFrontWheel;
+    private final boolean bIsFrontWheel;
     public float suspensionStiffness; // const
     public float wheelsDampingCompression; // const
     public float wheelsDampingRelaxation; // const

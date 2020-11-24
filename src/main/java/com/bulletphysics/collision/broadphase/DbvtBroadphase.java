@@ -35,22 +35,22 @@ import javax.vecmath.Vector3f;
  */
 public class DbvtBroadphase extends BroadphaseInterface {
 
-	public static final float DBVT_BP_MARGIN = 0.05f;
+	private static final float DBVT_BP_MARGIN = 0.05f;
 
 	public static final int DYNAMIC_SET = 0; // Dynamic set index
 	public static final int FIXED_SET   = 1; // Fixed set index
-	public static final int STAGECOUNT  = 2; // Number of stages
+	private static final int STAGECOUNT  = 2; // Number of stages
 
-	public final Dbvt[] sets = new Dbvt[2];                        // Dbvt sets
-	public final DbvtProxy[] stageRoots = new DbvtProxy[STAGECOUNT + 1]; // Stages list
+	private final Dbvt[] sets = new Dbvt[2];                        // Dbvt sets
+	private final DbvtProxy[] stageRoots = new DbvtProxy[STAGECOUNT + 1]; // Stages list
 	public final OverlappingPairCache paircache;                         // Pair cache
-	public final float predictedframes;                                  // Frames predicted
-	public int stageCurrent;                                       // Current stage
-	public final int fupdates;                                           // % of fixed updates per frame
-	public final int dupdates;                                           // % of dynamic updates per frame
-	public int pid;                                                // Parse id
-	public int gid;                                                // Gen id
-	public final boolean releasepaircache;                               // Release pair cache on delete
+	private final float predictedframes;                                  // Frames predicted
+	private int stageCurrent;                                       // Current stage
+	private final int fupdates;                                           // % of fixed updates per frame
+	private final int dupdates;                                           // % of dynamic updates per frame
+	private int pid;                                                // Parse id
+	private int gid;                                                // Gen id
+	private final boolean releasepaircache;                               // Release pair cache on delete
 
 	//#if DBVT_BP_PROFILE
 	//btClock					m_clock;
@@ -67,7 +67,7 @@ public class DbvtBroadphase extends BroadphaseInterface {
 		this(null);
 	}
 
-	public DbvtBroadphase(OverlappingPairCache paircache) {
+	private DbvtBroadphase(OverlappingPairCache paircache) {
 		sets[0] = new Dbvt();
 		sets[1] = new Dbvt();
 
@@ -89,7 +89,7 @@ public class DbvtBroadphase extends BroadphaseInterface {
 		//#endif
 	}
 
-	public void collide(Dispatcher dispatcher) {
+	private void collide(Dispatcher dispatcher) {
 		//SPC(m_profiling.m_total);
 
 		// optimize:

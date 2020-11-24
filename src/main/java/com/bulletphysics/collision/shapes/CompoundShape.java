@@ -24,13 +24,17 @@
 package com.bulletphysics.collision.shapes;
 
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
+import com.bulletphysics.collision.shapes.mesh.BvhTriangleMeshShape;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.ObjectArrayList;
+import com.bulletphysics.util.bvh.optimized.OptimizedBvh;
 
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
+
+import static com.bulletphysics.linearmath.VectorUtil.coord;
 
 // JAVA NOTE: CompoundShape from 2.71
 
@@ -42,7 +46,7 @@ import javax.vecmath.Vector3f;
  */
 public class CompoundShape extends CollisionShape {
 
-    protected final Vector3f localScaling = new Vector3f(1f, 1f, 1f);
+    private final Vector3f localScaling = new Vector3f(1f, 1f, 1f);
     private final ObjectArrayList<CompoundShapeChild> children = new ObjectArrayList<>();
     private final Vector3f localAabbMin = new Vector3f(1e30f, 1e30f, 1e30f);
     private final Vector3f localAabbMax = new Vector3f(-1e30f, -1e30f, -1e30f);
@@ -90,7 +94,8 @@ public class CompoundShape extends CollisionShape {
         do {
             done_removing = true;
 
-            for (int i = 0; i < children.size(); i++) {
+            final int n = children.size();
+            for (int i = 0; i < n; i++) {
                 if (children.get(i).childShape == shape) {
                     children.removeQuick(i);
                     done_removing = false;  // Do another iteration pass after removing from the vector
@@ -116,9 +121,9 @@ public class CompoundShape extends CollisionShape {
         return out;
     }
 
-    public ObjectArrayList<CompoundShapeChild> getChildList() {
-        return children;
-    }
+//    public ObjectArrayList<CompoundShapeChild> getChildList() {
+//        return children;
+//    }
 
     /**
      * getAabb's default implementation is brute force, expected derived classes to implement a fast dedicated version.
@@ -128,9 +133,10 @@ public class CompoundShape extends CollisionShape {
         Vector3f localHalfExtents = new Vector3f();
         localHalfExtents.sub(localAabbMax, localAabbMin);
         localHalfExtents.scale(0.5f);
-        localHalfExtents.x += getMargin();
-        localHalfExtents.y += getMargin();
-        localHalfExtents.z += getMargin();
+        final float margin = getMargin();
+        localHalfExtents.x += margin;
+        localHalfExtents.y += margin;
+        localHalfExtents.z += margin;
 
         Vector3f localCenter = new Vector3f();
         localCenter.add(localAabbMax, localAabbMin);
@@ -160,7 +166,7 @@ public class CompoundShape extends CollisionShape {
      * Re-calculate the local Aabb. Is called at the end of removeChildShapes.
      * Use this yourself if you modify the children or their transforms.
      */
-    public void recalculateLocalAabb() {
+    private void recalculateLocalAabb() {
         // Recalculate the local aabb
         // Brute force, it iterates over all the shapes left.
         localAabbMin.set(1e30f, 1e30f, 1e30f);
@@ -170,15 +176,16 @@ public class CompoundShape extends CollisionShape {
         Vector3f tmpLocalAabbMax = new Vector3f();
 
         // extend the local aabbMin/aabbMax
-        for (int j = 0; j < children.size(); j++) {
+        final int n = children.size();
+        for (int j = 0; j < n; j++) {
             children.get(j).childShape.getAabb(children.get(j).transform, tmpLocalAabbMin, tmpLocalAabbMax);
 
             for (int i = 0; i < 3; i++) {
-                if (VectorUtil.getCoord(localAabbMin, i) > VectorUtil.getCoord(tmpLocalAabbMin, i)) {
-                    VectorUtil.setCoord(localAabbMin, i, VectorUtil.getCoord(tmpLocalAabbMin, i));
+                if (coord(localAabbMin, i) > coord(tmpLocalAabbMin, i)) {
+                    coord(localAabbMin, i, coord(tmpLocalAabbMin, i));
                 }
-                if (VectorUtil.getCoord(localAabbMax, i) < VectorUtil.getCoord(tmpLocalAabbMax, i)) {
-                    VectorUtil.setCoord(localAabbMax, i, VectorUtil.getCoord(tmpLocalAabbMax, i));
+                if (coord(localAabbMax, i) < coord(tmpLocalAabbMax, i)) {
+                    coord(localAabbMax, i, coord(tmpLocalAabbMax, i));
                 }
             }
         }
@@ -328,4 +335,38 @@ public class CompoundShape extends CollisionShape {
         inertia.set(tensor.m00, tensor.m11, tensor.m22);
     }
 
+    /**
+     * Compound shape child.
+     *
+     * @author jezek2
+     */
+    static class CompoundShapeChild {
+
+        final Transform transform = new Transform();
+        CollisionShape childShape;
+        BroadphaseNativeType childShapeType;
+        float childMargin;
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this==obj) return true;
+            if (!(obj instanceof CompoundShapeChild)) return false;
+            CompoundShapeChild child = (CompoundShapeChild)obj;
+            return transform.equals(child.transform) &&
+                   childShape == child.childShape &&
+                   childShapeType == child.childShapeType &&
+                   childMargin == child.childMargin;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 19 * hash + transform.hashCode();
+            hash = 19 * hash + childShape.hashCode();
+            hash = 19 * hash + childShapeType.hashCode();
+            hash = 19 * hash + Float.floatToIntBits(childMargin);
+            return hash;
+        }
+
+    }
 }

@@ -29,8 +29,8 @@ import com.bulletphysics.collision.broadphase.Dispatcher;
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.TriangleCallback;
-import com.bulletphysics.collision.shapes.TriangleShape;
+import com.bulletphysics.collision.shapes.simple.TriangleShape;
+import com.bulletphysics.collision.shapes.util.TriangleCallback;
 import com.bulletphysics.linearmath.Transform;
 
 import javax.vecmath.Vector3f;

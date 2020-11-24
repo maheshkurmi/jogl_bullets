@@ -27,7 +27,7 @@ import java.awt.*;
  *
  * @author jezek2
  */
-public class LookUtil {
+class LookUtil {
 	
 	private static Object oldAA = null;
 	
@@ -50,7 +50,7 @@ public class LookUtil {
 		return false;
 	}
 	
-	public static boolean isWindows() {
+	private static boolean isWindows() {
 		Object laf = UIManager.getLookAndFeel();
 		return laf.getClass().getName().equals("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 	}

@@ -560,7 +560,7 @@ public class HingeConstraint extends TypedConstraint {
         setLimit(low, high, 0.9f, 0.3f, 1.0f);
     }
 
-    public void setLimit(float low, float high, float _softness, float _biasFactor, float _relaxationFactor) {
+    private void setLimit(float low, float high, float _softness, float _biasFactor, float _relaxationFactor) {
         lowerLimit = low;
         upperLimit = high;
 

@@ -44,7 +44,7 @@ public abstract class DiscreteCollisionDetectorInterface {
 		///setShapeIdentifiers provides experimental support for per-triangle material / custom material combiner
 		public abstract void setShapeIdentifiers(int partId0, int index0, int partId1, int index1);
 
-		public abstract void addContactPoint(Vector3f normalOnBInWorld, Vector3f pointInWorld, float depth);
+		protected abstract void addContactPoint(Vector3f normalOnBInWorld, Vector3f pointInWorld, float depth);
 	}
 	
 	public static class ClosestPointInput {
@@ -74,6 +74,6 @@ public abstract class DiscreteCollisionDetectorInterface {
 	 * Give either closest points (distance > 0) or penetration (distance)
 	 * the normal always points from B towards A.
 	 */
-	public abstract void getClosestPoints(ClosestPointInput input,Result output, IDebugDraw debugDraw, boolean swapResults);
+	protected abstract void getClosestPoints(ClosestPointInput input, Result output, IDebugDraw debugDraw, boolean swapResults);
 	
 }

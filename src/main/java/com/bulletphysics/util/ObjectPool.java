@@ -23,6 +23,7 @@
 
 package com.bulletphysics.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,9 +38,17 @@ public class ObjectPool<T> {
     private static final ThreadLocal<Map> threadLocal = ThreadLocal.withInitial(HashMap::new);
     private final Class<T> cls;
     private final ObjectArrayList<T> list = new ObjectArrayList<>();
+    private final Constructor<T> constructor;
 
-    public ObjectPool(Class<T> cls) {
+    private ObjectPool(Class<T> cls) {
         this.cls = cls;
+        try {
+            constructor = cls.getConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     /**
@@ -69,8 +78,8 @@ public class ObjectPool<T> {
 
     private T create() {
         try {
-            return cls.getConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            return constructor.newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException(e);
         }
     }

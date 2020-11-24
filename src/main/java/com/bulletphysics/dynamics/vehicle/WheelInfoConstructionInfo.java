@@ -28,7 +28,7 @@ import javax.vecmath.Vector3f;
 /**
  * @author jezek2
  */
-public class WheelInfoConstructionInfo {
+class WheelInfoConstructionInfo {
 
     public final Vector3f chassisConnectionCS = new Vector3f();
     public final Vector3f wheelDirectionCS = new Vector3f();

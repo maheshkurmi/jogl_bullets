@@ -45,11 +45,11 @@ import javax.vecmath.Vector3f;
  */
 public abstract class DynamicsWorld extends CollisionWorld {
 
-    protected final ContactSolverInfo solverInfo = new ContactSolverInfo();
-    protected InternalTickCallback internalTickCallback;
-    protected Object worldUserInfo;
+    private final ContactSolverInfo solverInfo = new ContactSolverInfo();
+    InternalTickCallback internalTickCallback;
+    private Object worldUserInfo;
 
-    public DynamicsWorld(Dispatcher dispatcher, BroadphaseInterface broadphasePairCache, CollisionConfiguration collisionConfiguration) {
+    DynamicsWorld(Dispatcher dispatcher, BroadphaseInterface broadphasePairCache, CollisionConfiguration collisionConfiguration) {
         super(dispatcher, broadphasePairCache, collisionConfiguration);
     }
 
@@ -74,7 +74,7 @@ public abstract class DynamicsWorld extends CollisionWorld {
      * as second argument to stepSimulation, but in that case you have to keep the
      * timeStep constant.
      */
-    public abstract int stepSimulation(float timeStep, int maxSubSteps, float fixedTimeStep);
+    protected abstract int stepSimulation(float timeStep, int maxSubSteps, float fixedTimeStep);
 
     public abstract void debugDrawWorld();
 
@@ -154,7 +154,7 @@ public abstract class DynamicsWorld extends CollisionWorld {
         this.worldUserInfo = worldUserInfo;
     }
 
-    public ContactSolverInfo getSolverInfo() {
+    ContactSolverInfo getSolverInfo() {
         return solverInfo;
     }
 

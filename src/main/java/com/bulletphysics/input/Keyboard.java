@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class Keyboard implements KeyListener {
 	/** The keys */
-	public final Map<Integer, InputKey> keys = new HashMap<>();
+	private final Map<Integer, InputKey> keys = new HashMap<>();
 
 	private boolean consumed=true;
 	

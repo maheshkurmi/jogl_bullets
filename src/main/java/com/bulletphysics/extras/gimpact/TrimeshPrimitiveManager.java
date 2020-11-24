@@ -27,8 +27,8 @@
 
 package com.bulletphysics.extras.gimpact;
 
-import com.bulletphysics.collision.shapes.StridingMeshInterface;
-import com.bulletphysics.collision.shapes.VertexData;
+import com.bulletphysics.collision.shapes.mesh.StridingMeshInterface;
+import com.bulletphysics.collision.shapes.util.VertexData;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.VectorUtil;
 
@@ -37,14 +37,14 @@ import javax.vecmath.Vector3f;
 /**
  * @author jezek2
  */
-class TrimeshPrimitiveManager extends PrimitiveManagerBase {
+public class TrimeshPrimitiveManager extends PrimitiveManagerBase {
 
     public final Vector3f scale = new Vector3f();
     private final int[] tmpIndices = new int[3];
     public float margin;
     public StridingMeshInterface meshInterface;
     public int part;
-    public int lock_count;
+    private int lock_count;
     private VertexData vertexData;
 
     public TrimeshPrimitiveManager() {
@@ -108,7 +108,7 @@ class TrimeshPrimitiveManager extends PrimitiveManagerBase {
         return vertexData.getVertexCount();
     }
 
-    public void get_indices(int face_index, int[] out) {
+    private void get_indices(int face_index, int[] out) {
         out[0] = vertexData.getIndex(face_index * 3 + 0);
         out[1] = vertexData.getIndex(face_index * 3 + 1);
         out[2] = vertexData.getIndex(face_index * 3 + 2);

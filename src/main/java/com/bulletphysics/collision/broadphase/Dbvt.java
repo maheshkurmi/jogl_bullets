@@ -40,14 +40,14 @@ import java.util.Collections;
  */
 public class Dbvt {
 	
-	public static final int SIMPLE_STACKSIZE = 64;
-	public static final int DOUBLE_STACKSIZE = SIMPLE_STACKSIZE * 2;
+	private static final int SIMPLE_STACKSIZE = 64;
+	private static final int DOUBLE_STACKSIZE = SIMPLE_STACKSIZE * 2;
 	
 	public Node root = null;
-	public Node free = null;
-	public final int lkhd = -1;
+	private Node free = null;
+	private final int lkhd = -1;
 	public int leaves = 0;
-	public /*unsigned*/ int opath = 0;
+	private/*unsigned*/ int opath = 0;
 
 	public Dbvt() {
 	}
@@ -77,7 +77,7 @@ public class Dbvt {
 		optimizeTopDown(128);
 	}
 
-	public void optimizeTopDown(int bu_treshold) {
+	private void optimizeTopDown(int bu_treshold) {
 		if (root != null) {
 			ObjectArrayList<Node> leaves = new ObjectArrayList<>(this.leaves);
 			fetchleaves(this, root, leaves);
@@ -116,11 +116,11 @@ public class Dbvt {
 		return leaf;
 	}
 
-	public void update(Node leaf) {
+	private void update(Node leaf) {
 		update(leaf, -1);
 	}
 
-	public void update(Node leaf, int lookahead) {
+	private void update(Node leaf, int lookahead) {
 		Node root = removeleaf(this, leaf);
 		if (root != null) {
 			if (lookahead >= 0) {
@@ -197,11 +197,11 @@ public class Dbvt {
 		clone(dest, null);
 	}
 
-	public static void clone(Dbvt dest, IClone iclone) {
+	private static void clone(Dbvt dest, IClone iclone) {
 		throw new UnsupportedOperationException();
 	}
 
-	public static int countLeaves(Node node) {
+	private static int countLeaves(Node node) {
 		if (node.isinternal()) {
 			return countLeaves(node.childs[0]) + countLeaves(node.childs[1]);
 		}
@@ -210,7 +210,7 @@ public class Dbvt {
 		}
 	}
 
-	public static void extractLeaves(Node node, ObjectArrayList<Node> leaves) {
+	private static void extractLeaves(Node node, ObjectArrayList<Node> leaves) {
 		if (node.isinternal()) {
 			extractLeaves(node.childs[0], leaves);
 			extractLeaves(node.childs[1], leaves);
@@ -220,23 +220,23 @@ public class Dbvt {
 		}
 	}
 
-	public static void enumNodes(Node root, ICollide policy) {
+	private static void enumNodes(Node root, ICollide policy) {
 		//DBVT_CHECKTYPE
-		policy.Process(root);
+		policy.accept(root);
 		if (root.isinternal()) {
 			enumNodes(root.childs[0], policy);
 			enumNodes(root.childs[1], policy);
 		}
 	}
 
-	public static void enumLeaves(Node root, ICollide policy) {
+	private static void enumLeaves(Node root, ICollide policy) {
 		//DBVT_CHECKTYPE
 		if (root.isinternal()) {
 			enumLeaves(root.childs[0], policy);
 			enumLeaves(root.childs[1], policy);
 		}
 		else {
-			policy.Process(root);
+			policy.accept(root);
 		}
 	}
 
@@ -273,7 +273,7 @@ public class Dbvt {
 							stack.add(new sStkNN(p.a, p.b.childs[1]));
 						}
 						else {
-							policy.Process(p.a, p.b);
+							policy.accept(p.a, p.b);
 						}
 					}
 				}
@@ -282,7 +282,7 @@ public class Dbvt {
 		}
 	}
 
-	public static void collideTT(Node root0, Node root1, Transform xform, ICollide policy) {
+	private static void collideTT(Node root0, Node root1, Transform xform, ICollide policy) {
 		//DBVT_CHECKTYPE
 		if (root0 != null && root1 != null) {
 			ObjectArrayList<sStkNN> stack = new ObjectArrayList<>(DOUBLE_STACKSIZE);
@@ -315,7 +315,7 @@ public class Dbvt {
 							stack.add(new sStkNN(p.a, p.b.childs[1]));
 						}
 						else {
-							policy.Process(p.a, p.b);
+							policy.accept(p.a, p.b);
 						}
 					}
 				}
@@ -344,7 +344,7 @@ public class Dbvt {
 						stack.add(n.childs[1]);
 					}
 					else {
-						policy.Process(n);
+						policy.accept(n);
 					}
 				}
 			}
@@ -370,7 +370,7 @@ public class Dbvt {
 						stack.add(node.childs[1]);
 					}
 					else {
-						policy.Process(node);
+						policy.accept(node);
 					}
 				}
 			}
@@ -423,7 +423,7 @@ public class Dbvt {
 		collideOCL(root, normals, offsets, sortaxis, count, policy, true);
 	}
 
-	public static void collideOCL(Node root, Vector3f[] normals, float[] offsets, Vector3f sortaxis, int count, ICollide policy, boolean fullsort) {
+	private static void collideOCL(Node root, Vector3f[] normals, float[] offsets, Vector3f sortaxis, int count, ICollide policy, boolean fullsort) {
 		//DBVT_CHECKTYPE
 		if (root != null) {
 			int srtsgns = (sortaxis.x >= 0 ? 1 : 0) +
@@ -502,7 +502,7 @@ public class Dbvt {
 						}
 					}
 					else {
-						policy.Process(se.node, se.value);
+						policy.accept(se.node, se.value);
 					}
 				}
 			}
@@ -523,7 +523,7 @@ public class Dbvt {
 						stack.add(n.childs[1]);
 					}
 					else {
-						policy.Process(n);
+						policy.accept(n);
 					}
 				}
 			}
@@ -531,7 +531,7 @@ public class Dbvt {
 		}
 	}
 	
-	public static int nearest(IntArrayList i, ObjectArrayList<sStkNPS> a, float v, int l, int h) {
+	private static int nearest(IntArrayList i, ObjectArrayList<sStkNPS> a, float v, int l, int h) {
 		int m;
 		while (l < h) {
 			m = (l + h) >> 1;
@@ -545,7 +545,7 @@ public class Dbvt {
 		return h;
 	}
 	
-	public static int allocate(IntArrayList ifree, ObjectArrayList<sStkNPS> stock, sStkNPS value) {
+	private static int allocate(IntArrayList ifree, ObjectArrayList<sStkNPS> stock, sStkNPS value) {
 		int i;
 		if (ifree.size() > 0) {
 			i = ifree.get(ifree.size() - 1);
@@ -863,64 +863,64 @@ public class Dbvt {
 	
 	public static class Node {
 		public final DbvtAabbMm volume = new DbvtAabbMm();
-		public Node parent;
-		public final Node[] childs = new Node[2];
+		Node parent;
+		final Node[] childs = new Node[2];
 		public Object data;
 
-		public boolean isleaf() {
+		boolean isleaf() {
 			return childs[1] == null;
 		}
 
-		public boolean isinternal() {
+		boolean isinternal() {
 			return !isleaf();
 		}
 	}
 	
 	/** Stack element */
-	public static class sStkNN {
-		public final Node a;
-		public final Node b;
+	static class sStkNN {
+		final Node a;
+		final Node b;
 
-		public sStkNN(Node na, Node nb) {
+		sStkNN(Node na, Node nb) {
 			a = na;
 			b = nb;
 		}
 	}
 
-	public static class sStkNP {
-		public final Node node;
-		public int mask;
+	static class sStkNP {
+		final Node node;
+		int mask;
 
-		public sStkNP(Node n, int m) {
+		sStkNP(Node n, int m) {
 			node = n;
 			mask = m;
 		}
 	}
 
-	public static class sStkNPS {
-		public Node node;
-		public int mask;
-		public float value;
+	static class sStkNPS {
+		Node node;
+		int mask;
+		float value;
 
 		public sStkNPS() {
 		}
 
-		public sStkNPS(Node n, int m, float v) {
+		sStkNPS(Node n, int m, float v) {
 			node = n;
 			mask = m;
 			value = v;
 		}
 		
-		public void set(sStkNPS o) {
+		void set(sStkNPS o) {
 			node = o.node;
 			mask = o.mask;
 			value = o.value;
 		}
 	}
 	
-	public static class sStkCLN {
-		public final Node node;
-		public final Node parent;
+	static class sStkCLN {
+		final Node node;
+		final Node parent;
 
 		public sStkCLN(Node n, Node p) {
 			node = n;
@@ -929,21 +929,21 @@ public class Dbvt {
 	}
 
 	public static class ICollide {
-		public void Process(Node n1, Node n2) {
+		void accept(Node n1, Node n2) {
 		}
 
-		public void Process(Node n) {
+		void accept(Node n) {
 		}
 
-		public void Process(Node n, float f) {
-			Process(n);
+		void accept(Node n, float f) {
+			accept(n);
 		}
 
-		public static boolean Descent(Node n) {
+		static boolean Descent(Node n) {
 			return true;
 		}
 
-		public static boolean AllLeaves(Node n) {
+		static boolean AllLeaves(Node n) {
 			return true;
 		}
 	}
@@ -954,7 +954,7 @@ public class Dbvt {
 		public abstract void WriteLeaf(Node n, int index, int parent);
 	}
 	
-	public static class IClone {
+	private static class IClone {
 		public void CloneLeaf(Node n) {
 		}
 	}

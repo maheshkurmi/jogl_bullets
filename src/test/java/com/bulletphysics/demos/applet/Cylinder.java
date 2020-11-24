@@ -38,7 +38,7 @@ package com.bulletphysics.demos.applet;
  * Created 23-dec-2003
  * @author Erik Duijs
  */
-public class Cylinder extends Quadric {
+class Cylinder extends Quadric {
 
 	/**
 	 * Constructor for Cylinder.

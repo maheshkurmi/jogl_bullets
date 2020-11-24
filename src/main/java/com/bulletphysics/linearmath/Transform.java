@@ -23,7 +23,7 @@
 
 package com.bulletphysics.linearmath;
 
-import com.bulletphysics.collision.shapes.UniformScalingShape;
+import com.bulletphysics.collision.shapes.convex.UniformScalingShape;
 
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
@@ -74,7 +74,7 @@ public class Transform {
 		origin.set(0f, 0f, 0f);
 	}
 
-	public void set(Matrix4f mat) {
+	private void set(Matrix4f mat) {
 		mat.getRotationScale(basis);
 		origin.set(mat.m03, mat.m13, mat.m23);
 	}

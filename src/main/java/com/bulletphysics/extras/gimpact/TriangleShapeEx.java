@@ -27,7 +27,7 @@
 
 package com.bulletphysics.extras.gimpact;
 
-import com.bulletphysics.collision.shapes.TriangleShape;
+import com.bulletphysics.collision.shapes.simple.TriangleShape;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.Transform;
 
@@ -69,7 +69,7 @@ public class TriangleShapeEx extends TriangleShape {
         t.transform(vertices1[2]);
     }
 
-    public void buildTriPlane(Vector4f plane) {
+    private void buildTriPlane(Vector4f plane) {
         Vector3f tmp1 = new Vector3f();
         Vector3f tmp2 = new Vector3f();
 

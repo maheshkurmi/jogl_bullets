@@ -46,12 +46,12 @@ public class JacobianEntry {
     //protected final BulletStack stack = BulletStack.get();
 
     public final Vector3f linearJointAxis = new Vector3f();
-    public final Vector3f aJ = new Vector3f();
-    public final Vector3f bJ = new Vector3f();
-    public final Vector3f m_0MinvJt = new Vector3f();
-    public final Vector3f m_1MinvJt = new Vector3f();
+    private final Vector3f aJ = new Vector3f();
+    private final Vector3f bJ = new Vector3f();
+    private final Vector3f m_0MinvJt = new Vector3f();
+    private final Vector3f m_1MinvJt = new Vector3f();
     // Optimization: can be stored in the w/last component of one of the vectors
-    public float Adiag;
+    private float Adiag;
 
     public JacobianEntry() {
     }

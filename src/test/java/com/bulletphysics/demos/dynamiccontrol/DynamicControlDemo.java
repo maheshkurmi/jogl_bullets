@@ -29,8 +29,8 @@ import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
@@ -57,7 +57,7 @@ public class DynamicControlDemo extends DemoApplication {
 	
 	private final ObjectArrayList<TestRig> rigs = new ObjectArrayList<>();
 	
-	public DynamicControlDemo() {
+	private DynamicControlDemo() {
 		super();
 	}
 
@@ -103,7 +103,7 @@ public class DynamicControlDemo extends DemoApplication {
 		return world;
 	}
 
-	public void spawnTestRig(DynamicsWorld world, Vector3f startOffset, boolean fixed) {
+	private void spawnTestRig(DynamicsWorld world, Vector3f startOffset, boolean fixed) {
 		rigs.add(new TestRig(world, startOffset, fixed));
 	}
 

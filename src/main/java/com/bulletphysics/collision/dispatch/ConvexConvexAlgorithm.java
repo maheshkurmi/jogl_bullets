@@ -28,8 +28,8 @@ import com.bulletphysics.collision.broadphase.CollisionAlgorithmConstructionInfo
 import com.bulletphysics.collision.broadphase.DispatcherInfo;
 import com.bulletphysics.collision.narrowphase.*;
 import com.bulletphysics.collision.narrowphase.DiscreteCollisionDetectorInterface.ClosestPointInput;
-import com.bulletphysics.collision.shapes.ConvexShape;
-import com.bulletphysics.collision.shapes.SphereShape;
+import com.bulletphysics.collision.shapes.convex.ConvexShape;
+import com.bulletphysics.collision.shapes.simple.SphereShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.util.ObjectPool;
@@ -44,15 +44,15 @@ import javax.vecmath.Vector3f;
  */
 public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 	
-	protected final ObjectPool<ClosestPointInput> pointInputsPool = ObjectPool.get(ClosestPointInput.class);
+	private final ObjectPool<ClosestPointInput> pointInputsPool = ObjectPool.get(ClosestPointInput.class);
 
 	private final GjkPairDetector gjkPairDetector = new GjkPairDetector();
 
-	public boolean ownManifold;
-	public PersistentManifold manifoldPtr;
-	public boolean lowLevelOfDetail;
+	private boolean ownManifold;
+	private PersistentManifold manifoldPtr;
+	private boolean lowLevelOfDetail;
 	
-	public void init(PersistentManifold mf, CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1, SimplexSolverInterface simplexSolver, ConvexPenetrationDepthSolver pdSolver) {
+	private void init(PersistentManifold mf, CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1, SimplexSolverInterface simplexSolver, ConvexPenetrationDepthSolver pdSolver) {
 		super.init(ci);
 		gjkPairDetector.init(null, null, simplexSolver, pdSolver);
 		this.manifoldPtr = mf;
@@ -246,8 +246,8 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 	public static class CreateFunc extends CollisionAlgorithmCreateFunc {
 		private final ObjectPool<ConvexConvexAlgorithm> pool = ObjectPool.get(ConvexConvexAlgorithm.class);
 
-		public final ConvexPenetrationDepthSolver pdSolver;
-		public final SimplexSolverInterface simplexSolver;
+		final ConvexPenetrationDepthSolver pdSolver;
+		final SimplexSolverInterface simplexSolver;
 
 		public CreateFunc(SimplexSolverInterface simplexSolver, ConvexPenetrationDepthSolver pdSolver) {
 			this.simplexSolver = simplexSolver;

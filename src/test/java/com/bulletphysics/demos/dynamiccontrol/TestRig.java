@@ -25,8 +25,8 @@
 package com.bulletphysics.demos.dynamiccontrol;
 
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.collision.shapes.CapsuleShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.simple.CapsuleShape;
 import com.bulletphysics.demos.genericjoint.RagDoll.BodyPart;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -45,7 +45,7 @@ import javax.vecmath.Vector3f;
  *
  * @author LvR
  */
-public class TestRig {
+class TestRig {
 	
 	//protected final BulletStack stack = BulletStack.get();
 

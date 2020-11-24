@@ -27,7 +27,7 @@
 
 package com.bulletphysics.extras.gimpact;
 
-import com.bulletphysics.collision.shapes.StaticPlaneShape;
+import com.bulletphysics.collision.shapes.simple.StaticPlaneShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 
@@ -39,7 +39,7 @@ import javax.vecmath.Vector4f;
  */
 class PlaneShape {
 
-    public static void get_plane_equation(StaticPlaneShape shape, Vector4f equation) {
+    private static void get_plane_equation(StaticPlaneShape shape, Vector4f equation) {
         Vector3f tmp = new Vector3f();
         equation.set(shape.getPlaneNormal(tmp));
         equation.w = shape.getPlaneConstant();

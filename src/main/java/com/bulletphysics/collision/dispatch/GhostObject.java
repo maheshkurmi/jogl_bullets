@@ -25,7 +25,7 @@ package com.bulletphysics.collision.dispatch;
 
 import com.bulletphysics.collision.broadphase.BroadphaseProxy;
 import com.bulletphysics.collision.broadphase.Dispatcher;
-import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.convex.ConvexShape;
 import com.bulletphysics.linearmath.AabbUtil2;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
@@ -43,9 +43,9 @@ import javax.vecmath.Vector3f;
  */
 public class GhostObject extends CollisionObject {
 
-	protected final ObjectArrayList<CollisionObject> overlappingObjects = new ObjectArrayList<>();
+	final ObjectArrayList<CollisionObject> overlappingObjects = new ObjectArrayList<>();
 
-	public GhostObject() {
+	GhostObject() {
 		this.internalType = CollisionObjectType.GHOST_OBJECT;
 	}
 

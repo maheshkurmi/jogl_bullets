@@ -26,7 +26,7 @@ import javax.vecmath.*;
  *
  * @author jezek2
  */
-public class Graphics3D {
+class Graphics3D {
 
 	public static final int COLOR_BUFFER = Rasterizer.COLOR_BUFFER;
 	public static final int DEPTH_BUFFER = Rasterizer.DEPTH_BUFFER;
@@ -63,7 +63,6 @@ public class Graphics3D {
 	private boolean lightingEnabled = false;
 	private final Light[] lights = new Light[4];
 	
-	private Vector3f origColor = new Vector3f();
 	private final Vector3f tmpVec3 = new Vector3f();
 	private final Vector3f[] lightResult = new Vector3f[lights.length];
 

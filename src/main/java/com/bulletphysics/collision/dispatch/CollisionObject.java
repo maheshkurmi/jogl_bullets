@@ -56,39 +56,39 @@ public class CollisionObject {
 	protected final Vector3f interpolationLinearVelocity = new Vector3f();
 	protected final Vector3f interpolationAngularVelocity = new Vector3f();
 	protected BroadphaseProxy broadphaseHandle;
-	protected CollisionShape collisionShape;
+	private CollisionShape collisionShape;
 	
 	// rootCollisionShape is temporarily used to store the original collision shape
 	// The collisionShape might be temporarily replaced by a child collision shape during collision detection purposes
 	// If it is null, the collisionShape is not temporarily replaced.
-	protected CollisionShape rootCollisionShape;
+    private CollisionShape rootCollisionShape;
 	
 	protected int collisionFlags;
-	protected int islandTag1;
-	protected int companionId;
-	protected int activationState1;
+	private int islandTag1;
+	private int companionId;
+	private int activationState1;
 	protected float deactivationTime;
 	protected float friction;
 	protected float restitution;
 
 	///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
-	protected Object userObjectPointer;
+    private Object userObjectPointer;
 
 	// internalType is reserved to distinguish Bullet's CollisionObject, RigidBody, SoftBody etc.
 	// do not assign your own internalType unless you write a new dynamics object class.
 	protected CollisionObjectType internalType = CollisionObjectType.COLLISION_OBJECT;
 
 	///time of impact calculation
-	protected float hitFraction;
+    private float hitFraction;
 	///Swept sphere radius (0.0 by default), see btConvexConvexAlgorithm::
-	protected float ccdSweptSphereRadius;
+    private float ccdSweptSphereRadius;
 
 	/// Don't do continuous collision detection if the motion (in one step) is less then ccdMotionThreshold
-	protected float ccdMotionThreshold = 0f;
+    private float ccdMotionThreshold = 0f;
 	/// If some object should have elaborate collision filtering by sub-classes
 	protected boolean checkCollideWith;
 
-	public CollisionObject() {
+	protected CollisionObject() {
 		this.collisionFlags = CollisionFlags.STATIC_OBJECT;
 		this.islandTag1 = -1;
 		this.companionId = -1;
@@ -97,7 +97,7 @@ public class CollisionObject {
 		this.hitFraction = 1f;
 	}
 
-	public boolean checkCollideWithOverride(CollisionObject co) {
+	protected boolean checkCollideWithOverride(CollisionObject co) {
 		return true;
 	}
 
@@ -169,7 +169,7 @@ public class CollisionObject {
 		activate(false);
 	}
 
-	public void activate(boolean forceActivation) {
+	private void activate(boolean forceActivation) {
 		if (forceActivation || (collisionFlags & (CollisionFlags.STATIC_OBJECT | CollisionFlags.KINEMATIC_OBJECT)) == 0) {
 			setActivationState(ACTIVE_TAG);
 			deactivationTime = 0f;

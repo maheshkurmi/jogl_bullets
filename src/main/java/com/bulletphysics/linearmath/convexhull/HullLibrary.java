@@ -26,7 +26,7 @@
 package com.bulletphysics.linearmath.convexhull;
 
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.collision.shapes.ShapeHull;
+import com.bulletphysics.collision.shapes.convex.ShapeHull;
 import com.bulletphysics.linearmath.MiscUtil;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.IntArrayList;
@@ -43,7 +43,7 @@ import javax.vecmath.Vector3f;
  */
 public class HullLibrary {
 
-	public final IntArrayList vertexIndexMapping = new IntArrayList();
+	private final IntArrayList vertexIndexMapping = new IntArrayList();
 
 	private final ObjectArrayList<Tri> tris = new ObjectArrayList<>();
 	
@@ -586,11 +586,11 @@ public class HullLibrary {
 				vtx_idx +=/*stride*/ 1;
 
 				for (int j=0; j<3; j++) {
-					if (VectorUtil.getCoord(p, j) < bmin[j]) {
-						bmin[j] = VectorUtil.getCoord(p, j);
+					if (VectorUtil.coord(p, j) < bmin[j]) {
+						bmin[j] = VectorUtil.coord(p, j);
 					}
-					if (VectorUtil.getCoord(p, j) > bmax[j]) {
-						bmax[j] = VectorUtil.getCoord(p, j);
+					if (VectorUtil.coord(p, j) > bmax[j]) {
+						bmax[j] = VectorUtil.coord(p, j);
 					}
 				}
 			}
@@ -731,11 +731,11 @@ public class HullLibrary {
 			for (int i=0; i<vcount[0]; i++) {
 				Vector3f p = vertices.get(i);
 				for (int j = 0; j < 3; j++) {
-					if (VectorUtil.getCoord(p, j) < bmin[j]) {
-						bmin[j] = VectorUtil.getCoord(p, j);
+					if (VectorUtil.coord(p, j) < bmin[j]) {
+						bmin[j] = VectorUtil.coord(p, j);
 					}
-					if (VectorUtil.getCoord(p, j) > bmax[j]) {
-						bmax[j] = VectorUtil.getCoord(p, j);
+					if (VectorUtil.coord(p, j) > bmax[j]) {
+						bmax[j] = VectorUtil.coord(p, j);
 					}
 				}
 			}

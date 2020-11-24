@@ -38,7 +38,7 @@ import javax.vecmath.Vector3f;
 public class VoronoiSimplexSolver extends SimplexSolverInterface {
 
 	//protected final BulletStack stack = BulletStack.get();
-	protected final ObjectPool<SubSimplexClosestResult> subsimplexResultsPool = ObjectPool.get(SubSimplexClosestResult.class);
+	private final ObjectPool<SubSimplexClosestResult> subsimplexResultsPool = ObjectPool.get(SubSimplexClosestResult.class);
 	
 	private static final int VORONOI_SIMPLEX_MAX_VERTS = 5;
 	
@@ -47,21 +47,21 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 	private static final int VERTC = 2;
 	private static final int VERTD = 3;
 
-	public int numVertices;
+	private int numVertices;
 
-	public final Vector3f[] simplexVectorW = new Vector3f[VORONOI_SIMPLEX_MAX_VERTS];
-	public final Vector3f[] simplexPointsP = new Vector3f[VORONOI_SIMPLEX_MAX_VERTS];
-	public final Vector3f[] simplexPointsQ = new Vector3f[VORONOI_SIMPLEX_MAX_VERTS];
+	private final Vector3f[] simplexVectorW = new Vector3f[VORONOI_SIMPLEX_MAX_VERTS];
+	private final Vector3f[] simplexPointsP = new Vector3f[VORONOI_SIMPLEX_MAX_VERTS];
+	private final Vector3f[] simplexPointsQ = new Vector3f[VORONOI_SIMPLEX_MAX_VERTS];
 
-	public final Vector3f cachedP1 = new Vector3f();
-	public final Vector3f cachedP2 = new Vector3f();
-	public final Vector3f cachedV = new Vector3f();
-	public final Vector3f lastW = new Vector3f();
-	public boolean cachedValidClosest;
+	private final Vector3f cachedP1 = new Vector3f();
+	private final Vector3f cachedP2 = new Vector3f();
+	private final Vector3f cachedV = new Vector3f();
+	private final Vector3f lastW = new Vector3f();
+	private boolean cachedValidClosest;
 
-	public final SubSimplexClosestResult cachedBC = new SubSimplexClosestResult();
+	private final SubSimplexClosestResult cachedBC = new SubSimplexClosestResult();
 
-	public boolean needsUpdate;
+	private boolean needsUpdate;
 	
 	{
 		for (int i=0; i<VORONOI_SIMPLEX_MAX_VERTS; i++) {
@@ -71,7 +71,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		}
 	}
 
-	public void removeVertex(int index) {
+	private void removeVertex(int index) {
 		assert(numVertices>0);
 		numVertices--;
 		simplexVectorW[index].set(simplexVectorW[numVertices]);
@@ -79,7 +79,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		simplexPointsQ[index].set(simplexPointsQ[numVertices]);
 	}
 	
-	public void	reduceVertices(UsageBitfield usedVerts) {
+	private void	reduceVertices(UsageBitfield usedVerts) {
 		if ((numVertices() >= 4) && (!usedVerts.usedVertexD))
 			removeVertex(3);
 
@@ -93,7 +93,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 			removeVertex(0);
 	}
 	
-	public boolean updateClosestVectorAndPoints() {
+	private boolean updateClosestVectorAndPoints() {
 		if (needsUpdate)
 		{
 			cachedBC.reset();
@@ -251,7 +251,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		return cachedValidClosest;
 	}
 
-	public static boolean closestPtPointTriangle(Vector3f p, Vector3f a, Vector3f b, Vector3f c, SubSimplexClosestResult result) {
+	private static boolean closestPtPointTriangle(Vector3f p, Vector3f a, Vector3f b, Vector3f c, SubSimplexClosestResult result) {
 		result.usedVertices.reset();
 
 		// Check if P in vertex region outside A
@@ -367,7 +367,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 	}
 	
 	/// Test if point p and d lie on opposite sides of plane through abc
-	public static int pointOutsideOfPlane(Vector3f p, Vector3f a, Vector3f b, Vector3f c, Vector3f d)
+	private static int pointOutsideOfPlane(Vector3f p, Vector3f a, Vector3f b, Vector3f c, Vector3f d)
 	{
 		Vector3f tmp = new Vector3f();
 
@@ -401,7 +401,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 		return (signp * signd < 0f)? 1 : 0;
 	}
 	
-	public boolean closestPtPointTetrahedron(Vector3f p, Vector3f a, Vector3f b, Vector3f c, Vector3f d, SubSimplexClosestResult finalResult) {
+	private boolean closestPtPointTetrahedron(Vector3f p, Vector3f a, Vector3f b, Vector3f c, Vector3f d, SubSimplexClosestResult finalResult) {
 		SubSimplexClosestResult tempResult = subsimplexResultsPool.get();
 		tempResult.reset();
 		try {
@@ -658,12 +658,12 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 	////////////////////////////////////////////////////////////////////////////
 	
 	public static class UsageBitfield {
-		public boolean usedVertexA;
-		public boolean usedVertexB;
-		public boolean usedVertexC;
-		public boolean usedVertexD;
+		boolean usedVertexA;
+		boolean usedVertexB;
+		boolean usedVertexC;
+		boolean usedVertexD;
 		
-		public void reset() {
+		void reset() {
 			usedVertexA = false;
 			usedVertexB = false;
 			usedVertexC = false;
@@ -672,28 +672,28 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 	}
 	
 	public static class SubSimplexClosestResult {
-		public final Vector3f closestPointOnSimplex = new Vector3f();
+		final Vector3f closestPointOnSimplex = new Vector3f();
 		//MASK for m_usedVertices
 		//stores the simplex vertex-usage, using the MASK, 
 		// if m_usedVertices & MASK then the related vertex is used
-		public final UsageBitfield usedVertices = new UsageBitfield();
-		public final float[] barycentricCoords = new float[4];
-		public boolean degenerate;
+		final UsageBitfield usedVertices = new UsageBitfield();
+		final float[] barycentricCoords = new float[4];
+		boolean degenerate;
 		
-		public void reset() {
+		void reset() {
 			degenerate = false;
 			setBarycentricCoordinates(0f, 0f, 0f, 0f);
 			usedVertices.reset();
 		}
 
-		public boolean isValid() {
+		boolean isValid() {
 			return (barycentricCoords[0] >= 0f) &&
 					(barycentricCoords[1] >= 0f) &&
 					(barycentricCoords[2] >= 0f) &&
 					(barycentricCoords[3] >= 0f);
 		}
 
-		public void setBarycentricCoordinates(float a, float b, float c, float d) {
+		void setBarycentricCoordinates(float a, float b, float c, float d) {
 			barycentricCoords[0] = a;
 			barycentricCoords[1] = b;
 			barycentricCoords[2] = c;

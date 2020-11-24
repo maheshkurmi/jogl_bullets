@@ -38,21 +38,21 @@ public abstract class TypedConstraint {
 
     // TODO: stack allocation
     private static /*final*/ RigidBody s_fixed;// = new RigidBody(0, null, null);
-    protected final RigidBody rbA;
-    protected final RigidBody rbB;
+    final RigidBody rbA;
+    final RigidBody rbB;
     private final TypedConstraintType constraintType;
-    protected float appliedImpulse = 0f;
+    float appliedImpulse = 0f;
     private int userConstraintType = -1;
     private int userConstraintId = -1;
     public TypedConstraint(TypedConstraintType type) {
         this(type, getFixed(), getFixed());
     }
 
-    public TypedConstraint(TypedConstraintType type, RigidBody rbA) {
+    TypedConstraint(TypedConstraintType type, RigidBody rbA) {
         this(type, rbA, getFixed());
     }
 
-    public TypedConstraint(TypedConstraintType type, RigidBody rbA, RigidBody rbB) {
+    TypedConstraint(TypedConstraintType type, RigidBody rbA, RigidBody rbB) {
         this.constraintType = type;
         this.rbA = rbA;
         this.rbB = rbB;

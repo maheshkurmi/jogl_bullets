@@ -42,7 +42,7 @@ import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
  *
  * @author jezek2
  */
-abstract class PrimitiveManagerBase {
+public abstract class PrimitiveManagerBase {
 
     /**
      * Determines if this manager consist on only triangles, which special case will be optimized.

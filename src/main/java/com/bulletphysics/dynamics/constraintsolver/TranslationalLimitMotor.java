@@ -46,9 +46,9 @@ public class TranslationalLimitMotor {
     public final Vector3f upperLimit = new Vector3f(); //!< the constraint upper limits
     public final Vector3f accumulatedImpulse = new Vector3f();
 
-    public final float limitSoftness; //!< Softness for linear limit
-    public final float damping; //!< Damping for linear limit
-    public final float restitution; //! Bounce parameter for linear limit
+    private final float limitSoftness; //!< Softness for linear limit
+    private final float damping; //!< Damping for linear limit
+    private final float restitution; //! Bounce parameter for linear limit
 
     public TranslationalLimitMotor() {
         lowerLimit.set(0f, 0f, 0f);
@@ -78,7 +78,7 @@ public class TranslationalLimitMotor {
      * - limitIndex: first 3 are linear, next 3 are angular
      */
     public boolean isLimited(int limitIndex) {
-        return (VectorUtil.getCoord(upperLimit, limitIndex) >= VectorUtil.getCoord(lowerLimit, limitIndex));
+        return (VectorUtil.coord(upperLimit, limitIndex) >= VectorUtil.coord(lowerLimit, limitIndex));
     }
 
     public float solveLinearAxis(float timeStep, float jacDiagABInv, RigidBody body1, Vector3f pointInA, RigidBody body2, Vector3f pointInB, int limit_index, Vector3f axis_normal_on_a, Vector3f anchorPos) {
@@ -109,8 +109,8 @@ public class TranslationalLimitMotor {
         float lo = -1e30f;
         float hi = 1e30f;
 
-        float minLimit = VectorUtil.getCoord(lowerLimit, limit_index);
-        float maxLimit = VectorUtil.getCoord(upperLimit, limit_index);
+        float minLimit = VectorUtil.coord(lowerLimit, limit_index);
+        float maxLimit = VectorUtil.coord(upperLimit, limit_index);
 
         // handle the limits
         if (minLimit < maxLimit) {
@@ -132,10 +132,10 @@ public class TranslationalLimitMotor {
 
         float normalImpulse = limitSoftness * (restitution * depth / timeStep - damping * rel_vel) * jacDiagABInv;
 
-        float oldNormalImpulse = VectorUtil.getCoord(accumulatedImpulse, limit_index);
+        float oldNormalImpulse = VectorUtil.coord(accumulatedImpulse, limit_index);
         float sum = oldNormalImpulse + normalImpulse;
-        VectorUtil.setCoord(accumulatedImpulse, limit_index, sum > hi ? 0f : sum < lo ? 0f : sum);
-        normalImpulse = VectorUtil.getCoord(accumulatedImpulse, limit_index) - oldNormalImpulse;
+        VectorUtil.coord(accumulatedImpulse, limit_index, sum > hi ? 0f : sum < lo ? 0f : sum);
+        normalImpulse = VectorUtil.coord(accumulatedImpulse, limit_index) - oldNormalImpulse;
 
         Vector3f impulse_vector = new Vector3f();
         impulse_vector.scale(normalImpulse, axis_normal_on_a);

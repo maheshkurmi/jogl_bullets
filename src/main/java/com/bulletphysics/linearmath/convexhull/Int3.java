@@ -29,12 +29,14 @@ package com.bulletphysics.linearmath.convexhull;
  */
 class Int3 {
 
-	public int x, y, z;
+	private int x;
+    private int y;
+    private int z;
 
-	public Int3() {
+	Int3() {
 	}
 
-	public Int3(int x, int y, int z) {
+	Int3(int x, int y, int z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -66,7 +68,7 @@ class Int3 {
 		};
 	}
 
-	public void setCoord(int coord, int value) {
+	private void setCoord(int coord, int value) {
         switch (coord) {
             case 0 -> x = value;
             case 1 -> y = value;
@@ -78,7 +80,7 @@ class Int3 {
 		return (x == i.x && y == i.y && z == i.z);
 	}
 	
-	public IntRef getRef(final int coord) {
+	IntRef getRef(final int coord) {
 		return new IntRef() {
 			@Override
 			public int get() {

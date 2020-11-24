@@ -29,8 +29,8 @@ package com.bulletphysics.extras.gimpact;
 
 import com.bulletphysics.collision.dispatch.RayResultCallback;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.StridingMeshInterface;
-import com.bulletphysics.collision.shapes.TriangleCallback;
+import com.bulletphysics.collision.shapes.mesh.StridingMeshInterface;
+import com.bulletphysics.collision.shapes.util.TriangleCallback;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.ObjectArrayList;
@@ -42,7 +42,7 @@ import javax.vecmath.Vector3f;
  */
 public class GImpactMeshShape extends GImpactShapeInterface {
 
-    protected final ObjectArrayList<GImpactMeshShapePart> mesh_parts = new ObjectArrayList<>();
+    private final ObjectArrayList<GImpactMeshShapePart> mesh_parts = new ObjectArrayList<>();
 
     public GImpactMeshShape(StridingMeshInterface meshInterface) {
         buildMeshParts(meshInterface);
@@ -99,7 +99,7 @@ public class GImpactMeshShape extends GImpactShapeInterface {
         inertia.set(0f, 0f, 0f);
 
         int i = getMeshPartCount();
-        float partmass = mass / (float) i;
+        float partmass = mass / i;
 
         Vector3f partinertia = new Vector3f();
 
@@ -218,7 +218,7 @@ public class GImpactMeshShape extends GImpactShapeInterface {
         }
     }
 
-    protected void buildMeshParts(StridingMeshInterface meshInterface) {
+    private void buildMeshParts(StridingMeshInterface meshInterface) {
         for (int i = 0; i < meshInterface.getNumSubParts(); i++) {
             GImpactMeshShapePart newpart = new GImpactMeshShapePart(meshInterface, i);
             mesh_parts.add(newpart);

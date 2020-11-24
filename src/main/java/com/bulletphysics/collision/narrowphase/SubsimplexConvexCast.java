@@ -24,7 +24,7 @@
 package com.bulletphysics.collision.narrowphase;
 
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.convex.ConvexShape;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;

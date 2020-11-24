@@ -49,6 +49,7 @@ public class SolverBody {
     public float friction;
     public RigidBody originalBody;
 
+
     public void getVelocityInLocalPoint(Vector3f rel_pos, Vector3f velocity) {
         Vector3f tmp = new Vector3f();
         tmp.cross(angularVelocity, rel_pos);

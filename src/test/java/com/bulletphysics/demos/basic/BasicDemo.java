@@ -27,8 +27,8 @@ import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
@@ -65,7 +65,7 @@ public class BasicDemo extends DemoApplication {
 	private ConstraintSolver solver;
 	private DefaultCollisionConfiguration collisionConfiguration;
 
-	public BasicDemo() {
+	private BasicDemo() {
 		super();
 	}
 	
@@ -152,7 +152,7 @@ public class BasicDemo extends DemoApplication {
 					for (int j = 0; j < ARRAY_SIZE_Z; j++) {
 						startTransform.origin.set(
 								2f * i + start_x,
-								10f + 2f * k + (float) START_POS_Y,
+								10f + 2f * k + START_POS_Y,
 								2f * j + start_z);
 
 						// using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects

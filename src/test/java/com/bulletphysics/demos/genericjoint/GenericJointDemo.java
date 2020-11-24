@@ -31,8 +31,8 @@ import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
@@ -52,7 +52,7 @@ public class GenericJointDemo extends DemoApplication {
 
 	private final ObjectArrayList<RagDoll> ragdolls = new ObjectArrayList<>();
 
-	public GenericJointDemo() {
+	private GenericJointDemo() {
 		super();
 	}
 
@@ -93,7 +93,7 @@ public class GenericJointDemo extends DemoApplication {
 	}
 
 	
-	public void spawnRagdoll(DynamicsWorld world) {
+	private void spawnRagdoll(DynamicsWorld world) {
 		RagDoll ragDoll = new RagDoll(world, new Vector3f(0f, 0f, 10f), 5f);
 		ragdolls.add(ragDoll);
 	}

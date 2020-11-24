@@ -61,7 +61,7 @@ import java.awt.*;
  *
  * @author jezek2
  */
-public class Utils {
+class Utils {
 
 	private Utils() {}
 
@@ -77,7 +77,7 @@ public class Utils {
 	}
 	
 	// from LWJGL:
-	public static void setPerspective(Matrix4f mat, float fovy, float aspect, float zNear, float zFar) {
+	private static void setPerspective(Matrix4f mat, float fovy, float aspect, float zNear, float zFar) {
 		float sine, cotangent, deltaZ;
 		float radians = fovy / 2 * (float)Math.PI / 180;
 
@@ -105,7 +105,7 @@ public class Utils {
 		mat.mul(tmpMat);
 	}
 	
-	public static void setOrtho(Matrix4f mat, float left, float right, float bottom, float top, float near, float far) {
+	private static void setOrtho(Matrix4f mat, float left, float right, float bottom, float top, float near, float far) {
 		mat.setIdentity();
 		mat.m00 = 2f / (right - left);
 		mat.m11 = 2f / (top - bottom);
@@ -121,7 +121,7 @@ public class Utils {
 		mat.mul(tmpMat);
 	}
 	
-	public static void translate(Matrix4f mat, float x, float y, float z) {
+	private static void translate(Matrix4f mat, float x, float y, float z) {
 		Matrix4f tmpMat = new Matrix4f();
 		tmpMat.setIdentity();
 		tmpMat.m03 = x;
@@ -130,7 +130,7 @@ public class Utils {
 		mat.mul(tmpMat);
 	}
 	
-	public static void scale(Matrix4f mat, float x, float y, float z) {
+	private static void scale(Matrix4f mat, float x, float y, float z) {
 		Matrix4f tmpMat = new Matrix4f();
 		tmpMat.setIdentity();
 		tmpMat.m00 = x;

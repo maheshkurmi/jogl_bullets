@@ -47,7 +47,7 @@ class ClipPolygon {
     /**
      * Vector blending. Takes two vectors a, b, blends them together.
      */
-    public static void vec_blend(Vector3f vr, Vector3f va, Vector3f vb, float blend_factor) {
+    private static void vec_blend(Vector3f vr, Vector3f va, Vector3f vb, float blend_factor) {
         vr.scale(1f - blend_factor, va);
         vr.scaleAdd(blend_factor, vb, vr);
     }
@@ -55,7 +55,7 @@ class ClipPolygon {
     /**
      * This function calcs the distance from a 3D plane.
      */
-    public static void plane_clip_polygon_collect(Vector3f point0, Vector3f point1, float dist0, float dist1, ObjectArrayList<Vector3f> clipped, int[] clipped_count) {
+    private static void plane_clip_polygon_collect(Vector3f point0, Vector3f point1, float dist0, float dist1, ObjectArrayList<Vector3f> clipped, int[] clipped_count) {
         boolean _prevclassif = (dist0 > BulletGlobals.SIMD_EPSILON);
         boolean _classif = (dist1 > BulletGlobals.SIMD_EPSILON);
         if (_classif != _prevclassif) {

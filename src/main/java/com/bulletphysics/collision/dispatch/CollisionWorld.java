@@ -28,7 +28,13 @@ import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.broadphase.*;
 import com.bulletphysics.collision.narrowphase.*;
 import com.bulletphysics.collision.narrowphase.ConvexCast.CastResult;
-import com.bulletphysics.collision.shapes.*;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.CompoundShape;
+import com.bulletphysics.collision.shapes.convex.ConcaveShape;
+import com.bulletphysics.collision.shapes.convex.ConvexShape;
+import com.bulletphysics.collision.shapes.mesh.BvhTriangleMeshShape;
+import com.bulletphysics.collision.shapes.mesh.TriangleMeshShape;
+import com.bulletphysics.collision.shapes.simple.SphereShape;
 import com.bulletphysics.linearmath.*;
 import com.bulletphysics.util.ObjectArrayList;
 
@@ -47,9 +53,9 @@ public class CollisionWorld {
 	
 	protected final ObjectArrayList<CollisionObject> collisionObjects = new ObjectArrayList<>();
 	protected final Dispatcher dispatcher1;
-	protected final DispatcherInfo dispatchInfo = new DispatcherInfo();
+	private final DispatcherInfo dispatchInfo = new DispatcherInfo();
 	//protected btStackAlloc*	m_stackAlloc;
-	protected BroadphaseInterface broadphasePairCache;
+	private BroadphaseInterface broadphasePairCache;
 	protected IDebugDraw debugDrawer;
 	
 	/**
@@ -76,7 +82,7 @@ public class CollisionWorld {
 		}
 	}
 	
-	public void addCollisionObject(CollisionObject collisionObject) {
+	protected void addCollisionObject(CollisionObject collisionObject) {
 		addCollisionObject(collisionObject, CollisionFilterGroups.DEFAULT_FILTER, CollisionFilterGroups.ALL_FILTER);
 	}
 
@@ -105,7 +111,7 @@ public class CollisionWorld {
 				dispatcher1, null));
 	}
 
-	public void performDiscreteCollisionDetection() {
+	protected void performDiscreteCollisionDetection() {
 		BulletStats.pushProfile("performDiscreteCollisionDetection");
 		try {
 			//DispatcherInfo dispatchInfo = getDispatchInfo();
@@ -180,7 +186,7 @@ public class CollisionWorld {
 	private static boolean updateAabbs_reportMe = true;
 
 	// JAVA NOTE: ported from 2.74, missing contact threshold stuff
-	public void updateSingleAabb(CollisionObject colObj) {
+	private void updateSingleAabb(CollisionObject colObj) {
 		Vector3f minAabb = new Vector3f(), maxAabb = new Vector3f();
 		Vector3f tmp = new Vector3f();
 		Transform tmpTrans = new Transform();
@@ -214,7 +220,7 @@ public class CollisionWorld {
 		}
 	}
 
-	public void updateAabbs() {
+	protected void updateAabbs() {
 		BulletStats.pushProfile("updateAabbs");
 		try {
 			final int n = collisionObjects.size();
@@ -353,12 +359,12 @@ public class CollisionWorld {
 	}
 
 	private static class BridgeTriangleConvexcastCallback extends TriangleConvexcastCallback {
-		public final ConvexResultCallback resultCallback;
-		public final CollisionObject collisionObject;
-		public final TriangleMeshShape triangleMesh;
-		public boolean normalInWorldSpace;
+		final ConvexResultCallback resultCallback;
+		final CollisionObject collisionObject;
+		final TriangleMeshShape triangleMesh;
+		boolean normalInWorldSpace;
 
-		public BridgeTriangleConvexcastCallback(ConvexShape castShape, Transform from, Transform to, ConvexResultCallback resultCallback, CollisionObject collisionObject, TriangleMeshShape triangleMesh, Transform triangleToWorld) {
+		BridgeTriangleConvexcastCallback(ConvexShape castShape, Transform from, Transform to, ConvexResultCallback resultCallback, CollisionObject collisionObject, TriangleMeshShape triangleMesh, Transform triangleToWorld) {
 			super(castShape, from, to, triangleToWorld, triangleMesh.getMargin());
 			this.resultCallback = resultCallback;
 			this.collisionObject = collisionObject;
@@ -609,19 +615,19 @@ public class CollisionWorld {
 	 * Currently, only btTriangleMeshShape is available, so it just contains triangleIndex and subpart.
 	 */
 	public static class LocalShapeInfo {
-		public int shapePart;
-		public int triangleIndex;
+		int shapePart;
+		int triangleIndex;
 		//const btCollisionShape*	m_shapeTemp;
 		//const btTransform*	m_shapeLocalTransform;
 	}
 	
 	public static class LocalRayResult {
 		public final CollisionObject collisionObject;
-		public final LocalShapeInfo localShapeInfo;
-		public final Vector3f hitNormalLocal = new Vector3f();
-		public final float hitFraction;
+		final LocalShapeInfo localShapeInfo;
+		final Vector3f hitNormalLocal = new Vector3f();
+		final float hitFraction;
 
-		public LocalRayResult(CollisionObject collisionObject, LocalShapeInfo localShapeInfo, Vector3f hitNormalLocal, float hitFraction) {
+		LocalRayResult(CollisionObject collisionObject, LocalShapeInfo localShapeInfo, Vector3f hitNormalLocal, float hitFraction) {
 			this.collisionObject = collisionObject;
 			this.localShapeInfo = localShapeInfo;
 			this.hitNormalLocal.set(hitNormalLocal);
@@ -630,8 +636,8 @@ public class CollisionWorld {
 	}
 
 	public static class ClosestRayResultCallback extends RayResultCallback {
-		public final Vector3f rayFromWorld = new Vector3f(); //used to calculate hitPointWorld from hitFraction
-		public final Vector3f rayToWorld = new Vector3f();
+		final Vector3f rayFromWorld = new Vector3f(); //used to calculate hitPointWorld from hitFraction
+		final Vector3f rayToWorld = new Vector3f();
 
 		public final Vector3f hitNormalWorld = new Vector3f();
 		public final Vector3f hitPointWorld = new Vector3f();
@@ -664,12 +670,12 @@ public class CollisionWorld {
 	
 	public static class LocalConvexResult {
 		public final CollisionObject hitCollisionObject;
-		public final LocalShapeInfo localShapeInfo;
+		final LocalShapeInfo localShapeInfo;
 		public final Vector3f hitNormalLocal = new Vector3f();
-		public final Vector3f hitPointLocal = new Vector3f();
-		public final float hitFraction;
+		final Vector3f hitPointLocal = new Vector3f();
+		final float hitFraction;
 
-		public LocalConvexResult(CollisionObject hitCollisionObject, LocalShapeInfo localShapeInfo, Vector3f hitNormalLocal, Vector3f hitPointLocal, float hitFraction) {
+		LocalConvexResult(CollisionObject hitCollisionObject, LocalShapeInfo localShapeInfo, Vector3f hitNormalLocal, Vector3f hitPointLocal, float hitFraction) {
 			this.hitCollisionObject = hitCollisionObject;
 			this.localShapeInfo = localShapeInfo;
 			this.hitNormalLocal.set(hitNormalLocal);
@@ -693,7 +699,7 @@ public class CollisionWorld {
 			return collides;
 		}
 		
-		public abstract float addSingleResult(LocalConvexResult convexResult, boolean normalInWorldSpace);
+		protected abstract float addSingleResult(LocalConvexResult convexResult, boolean normalInWorldSpace);
 	}
 	
 	public static class ClosestConvexResultCallback extends ConvexResultCallback {
@@ -734,11 +740,11 @@ public class CollisionWorld {
 	}
 	
 	private static class BridgeTriangleRaycastCallback extends TriangleRaycastCallback {
-		public final RayResultCallback resultCallback;
-		public final CollisionObject collisionObject;
-		public final ConcaveShape triangleMesh;
+		final RayResultCallback resultCallback;
+		final CollisionObject collisionObject;
+		final ConcaveShape triangleMesh;
 
-		public BridgeTriangleRaycastCallback(Vector3f from, Vector3f to, RayResultCallback resultCallback, CollisionObject collisionObject, ConcaveShape triangleMesh) {
+		BridgeTriangleRaycastCallback(Vector3f from, Vector3f to, RayResultCallback resultCallback, CollisionObject collisionObject, ConcaveShape triangleMesh) {
 			super(from, to);
 			this.resultCallback = resultCallback;
 			this.collisionObject = collisionObject;

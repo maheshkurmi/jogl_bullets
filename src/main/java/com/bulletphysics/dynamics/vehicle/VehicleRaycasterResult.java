@@ -30,7 +30,7 @@ import javax.vecmath.Vector3f;
  *
  * @author jezek2
  */
-public class VehicleRaycasterResult {
+class VehicleRaycasterResult {
 
     public final Vector3f hitPointInWorld = new Vector3f();
     public final Vector3f hitNormalInWorld = new Vector3f();

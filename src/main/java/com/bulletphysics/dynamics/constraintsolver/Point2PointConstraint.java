@@ -77,7 +77,7 @@ public class Point2PointConstraint extends TypedConstraint {
         Transform centerOfMassB = rbB.getCenterOfMassTransform(new Transform());
 
         for (int i = 0; i < 3; i++) {
-            VectorUtil.setCoord(normal, i, 1f);
+            VectorUtil.coord(normal, i, 1f);
 
             tmpMat1.transpose(centerOfMassA.basis);
             tmpMat2.transpose(centerOfMassB.basis);
@@ -100,7 +100,7 @@ public class Point2PointConstraint extends TypedConstraint {
                     rbA.getInvMass(),
                     rbB.getInvInertiaDiagLocal(new Vector3f()),
                     rbB.getInvMass());
-            VectorUtil.setCoord(normal, i, 0f);
+            VectorUtil.coord(normal, i, 0f);
         }
     }
 
@@ -126,7 +126,7 @@ public class Point2PointConstraint extends TypedConstraint {
         //btVector3 angvelB = m_rbB.getCenterOfMassTransform().getBasis().transpose() * m_rbB.getAngularVelocity();
 
         for (int i = 0; i < 3; i++) {
-            VectorUtil.setCoord(normal, i, 1f);
+            VectorUtil.coord(normal, i, 1f);
             float jacDiagABInv = 1f / jac[i].getDiagonal();
 
             Vector3f rel_pos1 = new Vector3f();
@@ -174,7 +174,7 @@ public class Point2PointConstraint extends TypedConstraint {
             tmp2.sub(pivotBInW, rbB.getCenterOfMassPosition(tmpVec));
             rbB.applyImpulse(tmp, tmp2);
 
-            VectorUtil.setCoord(normal, i, 0f);
+            VectorUtil.coord(normal, i, 0f);
         }
     }
 
@@ -202,7 +202,7 @@ public class Point2PointConstraint extends TypedConstraint {
     ////////////////////////////////////////////////////////////////////////////
 
     public static class ConstraintSetting {
-        public final float damping = 1f;
+        final float damping = 1f;
         public float tau = 0.3f;
         public float impulseClamp = 0f;
     }

@@ -23,7 +23,7 @@
 
 package com.bulletphysics.collision.narrowphase;
 
-import com.bulletphysics.collision.shapes.TriangleCallback;
+import com.bulletphysics.collision.shapes.util.TriangleCallback;
 import com.bulletphysics.linearmath.VectorUtil;
 
 import javax.vecmath.Vector3f;
@@ -36,8 +36,8 @@ public abstract class TriangleRaycastCallback extends TriangleCallback {
 	
 	//protected final BulletStack stack = BulletStack.get();
 
-	public final Vector3f from = new Vector3f();
-	public final Vector3f to = new Vector3f();
+	private final Vector3f from = new Vector3f();
+	private final Vector3f to = new Vector3f();
 
 	public float hitFraction;
 
@@ -117,6 +117,6 @@ public abstract class TriangleRaycastCallback extends TriangleCallback {
 		}
 	}
 
-	public abstract float reportHit(Vector3f hitNormalLocal, float hitFraction, int partId, int triangleIndex );
+	protected abstract float reportHit(Vector3f hitNormalLocal, float hitFraction, int partId, int triangleIndex);
 
 }

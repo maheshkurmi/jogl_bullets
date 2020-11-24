@@ -39,6 +39,7 @@ import javax.vecmath.Vector3f;
  */
 public class ContactConstraint {
 
+
     public static final ContactSolverFunc resolveSingleCollision = new ContactSolverFunc() {
         public float resolveContact(RigidBody body1, RigidBody body2, ManifoldPoint contactPoint, ContactSolverInfo info) {
             return resolveSingleCollision(body1, body2, contactPoint, info);
@@ -62,7 +63,7 @@ public class ContactConstraint {
      */
     public static void resolveSingleBilateral(RigidBody body1, Vector3f pos1,
                                               RigidBody body2, Vector3f pos2,
-                                              float distance, Vector3f normal, float[] impulse, float timeStep) {
+                                              float distance, Vector3f normal, float[] impulse, float timeStep, float contactDamping) {
         float normalLenSqr = normal.lengthSquared();
         assert (Math.abs(normalLenSqr) < 1.1f);
         if (normalLenSqr > 1.1f) {
@@ -111,7 +112,7 @@ public class ContactConstraint {
         Vector3f tmp2 = body2.getAngularVelocity(new Vector3f());
         mat2.transform(tmp2);
 
-        float rel_vel = jac.getRelativeVelocity(
+        float rel_vel_0 = jac.getRelativeVelocity(
                 body1.getLinearVelocity(new Vector3f()),
                 tmp1,
                 body2.getLinearVelocity(new Vector3f()),
@@ -119,13 +120,14 @@ public class ContactConstraint {
 
         jacobiansPool.release(jac);
 
-        float a;
+        float rel_vel_1 = normal.dot(vel);
+
+        //System.out.println(rel_vel_0 + " " + rel_vel);
+        float rel_vel =
+                //rel_vel_1;
+                rel_vel_0;
 
 
-        rel_vel = normal.dot(vel);
-
-        // todo: move this into proper structure
-        float contactDamping = 0.2f;
 
         //#ifdef ONLY_USE_LINEAR_MASS
         //	btScalar massTerm = btScalar(1.) / (body1.getInvMass() + body2.getInvMass());
@@ -139,7 +141,7 @@ public class ContactConstraint {
     /**
      * Response between two dynamic objects with friction.
      */
-    public static float resolveSingleCollision(
+    private static float resolveSingleCollision(
             RigidBody body1,
             RigidBody body2,
             ManifoldPoint contactPoint,
@@ -209,7 +211,7 @@ public class ContactConstraint {
         return normalImpulse;
     }
 
-    public static float resolveSingleFriction(
+    private static float resolveSingleFriction(
             RigidBody body1,
             RigidBody body2,
             ManifoldPoint contactPoint,

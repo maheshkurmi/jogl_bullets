@@ -25,7 +25,7 @@ package com.bulletphysics.collision.narrowphase;
 
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
-import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.convex.ConvexShape;
 import com.bulletphysics.linearmath.IDebugDraw;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
@@ -52,10 +52,10 @@ public class GjkPairDetector extends DiscreteCollisionDetectorInterface {
 	private boolean ignoreMargin;
 	
 	// some debugging to fix degeneracy problems
-	public int lastUsedMethod;
-	public int curIter;
-	public int degenerateSimplex;
-	public int catchDegeneracies;
+	private int lastUsedMethod;
+	private int curIter;
+	private int degenerateSimplex;
+	private int catchDegeneracies;
 	
 	public void init(ConvexShape objectA, ConvexShape objectB, SimplexSolverInterface simplexSolver, ConvexPenetrationDepthSolver penetrationDepthSolver) {
 		this.cachedSeparatingAxis.set(0f, 0f, 1f);

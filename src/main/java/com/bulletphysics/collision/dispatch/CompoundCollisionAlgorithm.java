@@ -44,7 +44,7 @@ public class CompoundCollisionAlgorithm extends CollisionAlgorithm {
 	private final ObjectArrayList<CollisionAlgorithm> childCollisionAlgorithms = new ObjectArrayList<>();
 	private boolean isSwapped;
 	
-	public void init(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1, boolean isSwapped) {
+	private void init(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1, boolean isSwapped) {
 		super.init(ci);
 		
 		this.isSwapped = isSwapped;

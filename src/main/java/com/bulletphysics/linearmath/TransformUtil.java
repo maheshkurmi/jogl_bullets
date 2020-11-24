@@ -36,10 +36,10 @@ import javax.vecmath.Vector3f;
  */
 public class TransformUtil {
 	
-	public static final float SIMDSQRT12 = 0.7071067811865475244008443621048490f;
-	public static final float ANGULAR_MOTION_THRESHOLD = 0.5f*BulletGlobals.SIMD_HALF_PI;
+	private static final float SIMDSQRT12 = 0.7071067811865475244008443621048490f;
+	private static final float ANGULAR_MOTION_THRESHOLD = 0.5f*BulletGlobals.SIMD_HALF_PI;
 	
-	public static float recipSqrt(float x) {
+	private static float recipSqrt(float x) {
 		return 1f / (float)Math.sqrt(x);  /* reciprocal square root */
 	}
 
@@ -110,7 +110,7 @@ public class TransformUtil {
 		angVel.scale(angle[0] / timeStep, axis);
 	}
 	
-	public static void calculateDiffAxisAngle(Transform transform0, Transform transform1, Vector3f axis, float[] angle) {
+	private static void calculateDiffAxisAngle(Transform transform0, Transform transform1, Vector3f axis, float[] angle) {
 // #ifdef USE_QUATERNION_DIFF
 //		btQuaternion orn0 = transform0.getRotation();
 //		btQuaternion orn1a = transform1.getRotation();

@@ -38,7 +38,7 @@ import java.util.Collections;
  */
 public class CollisionDispatcher extends Dispatcher {
 	
-	protected final ObjectPool<PersistentManifold> manifoldsPool = ObjectPool.get(PersistentManifold.class);
+	private final ObjectPool<PersistentManifold> manifoldsPool = ObjectPool.get(PersistentManifold.class);
 
 	private static final int MAX_BROADPHASE_COLLISION_TYPES = BroadphaseNativeType.MAX_BROADPHASE_COLLISION_TYPES.ordinal();
 	private final int count = 0;
@@ -78,11 +78,11 @@ public class CollisionDispatcher extends Dispatcher {
 		doubleDispatch[proxyType0][proxyType1] = createFunc;
 	}
 
-	public NearCallback getNearCallback() {
+	private NearCallback getNearCallback() {
 		return nearCallback;
 	}
 
-	public void setNearCallback(NearCallback nearCallback) {
+	private void setNearCallback(NearCallback nearCallback) {
 		this.nearCallback = nearCallback;
 	}
 
@@ -221,7 +221,7 @@ public class CollisionDispatcher extends Dispatcher {
 		private DispatcherInfo dispatchInfo;
 		private CollisionDispatcher dispatcher;
 
-		public void init(DispatcherInfo dispatchInfo, CollisionDispatcher dispatcher) {
+		void init(DispatcherInfo dispatchInfo, CollisionDispatcher dispatcher) {
 			this.dispatchInfo = dispatchInfo;
 			this.dispatcher = dispatcher;
 		}

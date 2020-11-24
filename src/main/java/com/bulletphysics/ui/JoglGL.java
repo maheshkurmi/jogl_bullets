@@ -209,8 +209,8 @@ public class JoglGL implements IGL {
 
 	/** TODO use Pair<Float> */
 	@Deprecated private static class CylinderKey {
-		public float radius;
-		public float halfHeight;
+		float radius;
+		float halfHeight;
 
 		public CylinderKey() {
 		}
@@ -220,7 +220,7 @@ public class JoglGL implements IGL {
 			halfHeight = key.halfHeight;
 		}
 
-		public void set(float radius, float halfHeight) {
+		void set(float radius, float halfHeight) {
 			this.radius = radius;
 			this.halfHeight = halfHeight;
 		}

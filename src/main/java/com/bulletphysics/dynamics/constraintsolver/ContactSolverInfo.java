@@ -36,14 +36,14 @@ public class ContactSolverInfo {
     public final float linearSlop = 0f;
     public final float warmstartingFactor = 0.85f;
     public final int solverMode = SolverMode.SOLVER_RANDMIZE_ORDER | SolverMode.SOLVER_CACHE_FRIENDLY | SolverMode.SOLVER_USE_WARMSTARTING;
-    public float tau = 0.6f;
+    private float tau = 0.6f;
     public float damping = 1f;
-    public float friction = 0.3f;
+    private float friction = 0.3f;
     public float timeStep;
-    public float restitution = 0f;
+    private float restitution = 0f;
     public int numIterations = 10;
-    public float maxErrorReduction = 20f;
-    public float sor = 1.3f;
+    private float maxErrorReduction = 20f;
+    private float sor = 1.3f;
     public float erp = 0.2f; // used as Baumgarte factor
 
     public ContactSolverInfo() {

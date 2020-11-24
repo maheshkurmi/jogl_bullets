@@ -28,7 +28,7 @@ import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.ConvexHullShape;
+import com.bulletphysics.collision.shapes.convex.ConvexHullShape;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
@@ -53,13 +53,13 @@ public class BspDemo extends DemoApplication {
 	private static final float EXTRA_HEIGHT      = -20f;
 	
 	// keep the collision shapes, for deletion/cleanup
-	public final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
-	public BroadphaseInterface broadphase;
-	public CollisionDispatcher dispatcher;
-	public ConstraintSolver solver;
-	public DefaultCollisionConfiguration collisionConfiguration;
+	private final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
+	private BroadphaseInterface broadphase;
+	private CollisionDispatcher dispatcher;
+	private ConstraintSolver solver;
+	private DefaultCollisionConfiguration collisionConfiguration;
 
-	public BspDemo() {
+	private BspDemo() {
 		super();
 	}
 	

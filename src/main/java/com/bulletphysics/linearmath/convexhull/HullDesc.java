@@ -62,7 +62,7 @@ public class HullDesc {
 		this(flag, vcount, vertices, 3*4);
 	}
 	
-	public HullDesc(int flag, int vcount, ObjectArrayList<Vector3f> vertices, int stride) {
+	private HullDesc(int flag, int vcount, ObjectArrayList<Vector3f> vertices, int stride) {
 		this.flags = flag;
 		this.vcount = vcount;
 		this.vertices = vertices;

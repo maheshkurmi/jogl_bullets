@@ -28,7 +28,12 @@ import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.collision.shapes.*;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.CompoundShape;
+import com.bulletphysics.collision.shapes.mesh.BvhTriangleMeshShape;
+import com.bulletphysics.collision.shapes.mesh.TriangleIndexVertexArray;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
+import com.bulletphysics.collision.shapes.simple.CylinderShapeX;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -59,11 +64,11 @@ import static com.bulletphysics.ui.IGL.GL_LIGHTING;
  */
 public class ForkLiftDemo extends DemoApplication {
 
-	public static final float PI = 3.14159265358979323846f;
-	public static final float PI_2 = 1.57079632679489661923f;
+	private static final float PI = 3.14159265358979323846f;
+	private static final float PI_2 = 1.57079632679489661923f;
 	public static final float PI_4 = 0.785398163397448309616f;
 
-	public static final float LIFT_EPS = 0.0000001f;
+	private static final float LIFT_EPS = 0.0000001f;
 	// By default, Bullet Vehicle uses Y as up axis.
 	// You can override the up axis, for example Z-axis up. Enable this define to see how to:
 	////#define FORCE_ZAXIS_UP 1
@@ -114,47 +119,47 @@ public class ForkLiftDemo extends DemoApplication {
 	////////////////////////////////////////////////////////////////////////////
 	
 	
-	public RigidBody carChassis;
+	private RigidBody carChassis;
 
 	//----------------------------
 	
-	public RigidBody liftBody;
-	public final Vector3f liftStartPos = new Vector3f();
-	public HingeConstraint liftHinge;
+	private RigidBody liftBody;
+	private final Vector3f liftStartPos = new Vector3f();
+	private HingeConstraint liftHinge;
 
-	public RigidBody forkBody;
-	public final Vector3f forkStartPos = new Vector3f();
-	public SliderConstraint forkSlider;
+	private RigidBody forkBody;
+	private final Vector3f forkStartPos = new Vector3f();
+	private SliderConstraint forkSlider;
 
-	public RigidBody loadBody;
-	public final Vector3f loadStartPos = new Vector3f();
+	private RigidBody loadBody;
+	private final Vector3f loadStartPos = new Vector3f();
 
-	public boolean useDefaultCamera;
+	private boolean useDefaultCamera;
 
 	//----------------------------
 
-	public BroadphaseInterface overlappingPairCache;
-	public CollisionDispatcher dispatcher;
-	public ConstraintSolver constraintSolver;
-	public DefaultCollisionConfiguration collisionConfiguration;
-	public TriangleIndexVertexArray indexVertexArrays;
-	public ByteBuffer vertices;
+	private BroadphaseInterface overlappingPairCache;
+	private CollisionDispatcher dispatcher;
+	private ConstraintSolver constraintSolver;
+	private DefaultCollisionConfiguration collisionConfiguration;
+	private TriangleIndexVertexArray indexVertexArrays;
+	private ByteBuffer vertices;
 
-	public final VehicleTuning tuning = new VehicleTuning();
-	public VehicleRaycaster vehicleRayCaster;
-	public RaycastVehicle vehicle;
+	private final VehicleTuning tuning = new VehicleTuning();
+	private VehicleRaycaster vehicleRayCaster;
+	private RaycastVehicle vehicle;
 
-	public final float cameraHeight = 4f;
-	public final float minCameraDistance = 3f;
-	public final float maxCameraDistance = 10f;
+	private final float cameraHeight = 4f;
+	private final float minCameraDistance = 3f;
+	private final float maxCameraDistance = 10f;
 
-	public ForkLiftDemo() {
+	private ForkLiftDemo() {
 		super();
 		cameraPosition.set(30, 30, 30);
 		useDefaultCamera = false;
 	}
 
-	public void lockLiftHinge() {
+	private void lockLiftHinge() {
 		float hingeAngle = liftHinge.getHingeAngle();
 		float lowLim = liftHinge.getLowerLimit();
 		float hiLim = liftHinge.getUpperLimit();
@@ -170,7 +175,7 @@ public class ForkLiftDemo extends DemoApplication {
 		}
 	}
 
-	public void lockForkSlider() {
+	private void lockForkSlider() {
 		float linDepth = forkSlider.getLinearPos();
 		float lowLim = forkSlider.getLowerLinLimit();
 		float hiLim = forkSlider.getUpperLinLimit();
@@ -481,9 +486,7 @@ public class ForkLiftDemo extends DemoApplication {
 				gEngineForce = 0.f;
 				gBreakingForce = defaultBreakingForce;
 			}
-			case KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT -> {
-				lockLiftHinge();
-			}
+			case KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT -> lockLiftHinge();
 			default -> super.specialKeyboard(key);
 		}
 	}

@@ -89,7 +89,7 @@ public class DbvtAabbMm {
 		return mx;
 	}
 	
-	public static DbvtAabbMm FromCE(Vector3f c, Vector3f e, DbvtAabbMm out) {
+	private static DbvtAabbMm FromCE(Vector3f c, Vector3f e, DbvtAabbMm out) {
 		out.mi.sub(c, e);
 		out.mx.add(c, e);
 		return out;
@@ -286,9 +286,9 @@ public class DbvtAabbMm {
 
 	public static void Merge(DbvtAabbMm a, DbvtAabbMm b, DbvtAabbMm r) {
 		for (int i=0; i<3; i++) {
-			VectorUtil.setCoord(r.mi, i, Math.min(VectorUtil.getCoord(a.mi, i), VectorUtil.getCoord(b.mi, i)));
+			VectorUtil.coord(r.mi, i, Math.min(VectorUtil.coord(a.mi, i), VectorUtil.coord(b.mi, i)));
 
-			VectorUtil.setCoord(r.mx, i, Math.max(VectorUtil.getCoord(a.mx, i), VectorUtil.getCoord(b.mx, i)));
+			VectorUtil.coord(r.mx, i, Math.max(VectorUtil.coord(a.mx, i), VectorUtil.coord(b.mx, i)));
 		}
 	}
 
@@ -303,13 +303,13 @@ public class DbvtAabbMm {
 	
 	private void AddSpan(Vector3f d, float[] smi, int smi_idx, float[] smx, int smx_idx) {
 		for (int i=0; i<3; i++) {
-			if (VectorUtil.getCoord(d, i) < 0) {
-				smi[smi_idx] += VectorUtil.getCoord(mx, i) * VectorUtil.getCoord(d, i);
-				smx[smx_idx] += VectorUtil.getCoord(mi, i) * VectorUtil.getCoord(d, i);
+			if (VectorUtil.coord(d, i) < 0) {
+				smi[smi_idx] += VectorUtil.coord(mx, i) * VectorUtil.coord(d, i);
+				smx[smx_idx] += VectorUtil.coord(mi, i) * VectorUtil.coord(d, i);
 			}
 			else {
-				smi[smi_idx] += VectorUtil.getCoord(mi, i) * VectorUtil.getCoord(d, i);
-				smx[smx_idx] += VectorUtil.getCoord(mx, i) * VectorUtil.getCoord(d, i);
+				smi[smi_idx] += VectorUtil.coord(mi, i) * VectorUtil.coord(d, i);
+				smx[smx_idx] += VectorUtil.coord(mx, i) * VectorUtil.coord(d, i);
 			}
 		}
 	}

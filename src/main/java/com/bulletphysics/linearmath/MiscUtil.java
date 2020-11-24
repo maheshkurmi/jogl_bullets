@@ -29,7 +29,6 @@ import com.bulletphysics.util.ObjectArrayList;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * Miscellaneous utility functions.
@@ -38,27 +37,8 @@ import java.util.List;
  */
 public class MiscUtil {
 
-	public static int getListCapacityForHash(List<?> list) {
-		return getListCapacityForHash(list.size());
-	}
-	
-	public static int getListCapacityForHash(int size) {
-		int n = 2;
-		while (n < size) {
-			n <<= 1;
-		}
-		return n;
-	}
 
-	/**
-	 * Ensures valid index in provided list by filling list with provided values
-	 * until the index is valid.
-	 */
-	public static <T> void ensureIndex(ObjectArrayList<T> list, int index, T value) {
-		while (list.size() <= index) {
-			list.add(value);
-		}
-	}
+
 	
 	/**
 	 * Resizes list to exact size, filling with given value when expanding.
@@ -106,18 +86,7 @@ public class MiscUtil {
 			e.printStackTrace();
 		}
 	}
-	
-	/**
-	 * Searches object in array.
-	 * 
-	 * @return first index of match, or -1 when not found
-	 */
-	public static <T> int indexOf(T[] array, T obj) {
-		for (int i=0; i<array.length; i++) {
-			if (array[i] == obj) return i;
-		}
-		return -1;
-	}
+
 	
 	public static float GEN_clamped(float a, float lb, float ub) {
 		return a < lb ? lb : (Math.min(ub, a));
@@ -148,28 +117,7 @@ public class MiscUtil {
 		pArr.setQuick(k - 1, temp);
 	}
 
-	/**
-	 * Sorts list using heap sort.<p>
-	 * 
-	 * Implementation from: http://www.csse.monash.edu.au/~lloyd/tildeAlgDS/Sort/Heap/
-	 */
-	public static <T> void heapSort(ObjectArrayList<T> list, Comparator<T> comparator) {
-		/* sort a[0..N-1],  N.B. 0 to N-1 */
-		int k;
-		int n = list.size();
-		for (k = n / 2; k > 0; k--) {
-			downHeap(list, k, n, comparator);
-		}
 
-		/* a[1..N] is now a heap */
-		while (n >= 1) {
-			swap(list, 0, n - 1); /* largest of a[0..n-1] */
-
-			n = n - 1;
-			/* restore a[1..i-1] heap */
-			downHeap(list, 1, n, comparator);
-		}
-	}
 
 	private static <T> void swap(ObjectArrayList<T> list, int index0, int index1) {
 		T temp = list.get(index0);

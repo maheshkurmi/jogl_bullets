@@ -53,7 +53,7 @@ public class Input {
 	 * @param event the event id
 	 * @param holdType the hold type
 	 */
-	public Input(int event, Input.Hold holdType) {
+	private Input(int event, Input.Hold holdType) {
 		super();
 		this.event = event;
 		this.holdType = holdType;
@@ -79,7 +79,7 @@ public class Input {
 	 * Notify that the input was pressed.
 	 * @param value the number of times pressed
 	 */
-	public synchronized void press(int value) {
+	private synchronized void press(int value) {
 		if (this.state != Input.State.WAITING_FOR_RELEASE) {
 			this.value = this.value + value;
 			if (this.holdType == Input.Hold.HOLD) {
@@ -117,7 +117,7 @@ public class Input {
 	 * the input has not been released.
 	 * @return int
 	 */
-	public synchronized int getValue() {
+	private synchronized int getValue() {
 		int value = this.value;
 		// if the value is greater than 0 then this input has been used
 		// since the last check

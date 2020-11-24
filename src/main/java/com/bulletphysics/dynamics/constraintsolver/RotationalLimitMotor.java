@@ -44,18 +44,18 @@ public class RotationalLimitMotor {
 
     //protected final BulletStack stack = BulletStack.get();
 
-    public final float targetVelocity; //!< target motor velocity
-    public final float maxMotorForce; //!< max force on motor
-    public final float limitSoftness; //! Relaxation factor
-    public final float ERP; //!< Error tolerance factor when joint is at limit
-    public final float bounce; //!< restitution factor
-    public final boolean enableMotor;
+    private final float targetVelocity; //!< target motor velocity
+    private final float maxMotorForce; //!< max force on motor
+    private final float limitSoftness; //! Relaxation factor
+    private final float ERP; //!< Error tolerance factor when joint is at limit
+    private final float bounce; //!< restitution factor
+    private final boolean enableMotor;
     public float loLimit; //!< joint limit
     public float hiLimit; //!< joint limit
-    public float maxLimitForce; //!< max force on limit
-    public float damping; //!< Damping.
-    public float currentLimitError;//!  How much is violated this limit
-    public int currentLimit;//!< 0=free, 1=at lo limit, 2=at hi limit
+    private float maxLimitForce; //!< max force on limit
+    private float damping; //!< Damping.
+    private float currentLimitError;//!  How much is violated this limit
+    private int currentLimit;//!< 0=free, 1=at lo limit, 2=at hi limit
     public float accumulatedImpulse;
 
     public RotationalLimitMotor() {

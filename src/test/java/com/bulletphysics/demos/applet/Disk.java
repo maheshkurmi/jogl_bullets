@@ -38,7 +38,7 @@ package com.bulletphysics.demos.applet;
  * Created 23-dec-2003
  * @author Erik Duijs
  */
-public class Disk extends Quadric {
+class Disk extends Quadric {
 
 	/**
 	 * Constructor for Disk.

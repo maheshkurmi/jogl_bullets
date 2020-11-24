@@ -38,7 +38,7 @@ package com.bulletphysics.demos.applet;
  * Created 23-dec-2003
  * @author Erik Duijs
  */
-public class Sphere extends Quadric {
+class Sphere extends Quadric {
 
 	/**
 	 * Constructor

@@ -28,8 +28,8 @@
 package com.bulletphysics.extras.gimpact;
 
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.StridingMeshInterface;
-import com.bulletphysics.collision.shapes.TriangleCallback;
+import com.bulletphysics.collision.shapes.mesh.StridingMeshInterface;
+import com.bulletphysics.collision.shapes.util.TriangleCallback;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.util.IntArrayList;
@@ -50,7 +50,7 @@ import javax.vecmath.Vector3f;
  */
 public class GImpactMeshShapePart extends GImpactShapeInterface {
 
-    final TrimeshPrimitiveManager primitive_manager = new TrimeshPrimitiveManager();
+    private final TrimeshPrimitiveManager primitive_manager = new TrimeshPrimitiveManager();
 
     private final IntArrayList collided = new IntArrayList();
 
@@ -121,7 +121,7 @@ public class GImpactMeshShapePart extends GImpactShapeInterface {
         inertia.set(0f, 0f, 0f);
 
         int i = getVertexCount();
-        float pointmass = mass / (float) i;
+        float pointmass = mass / i;
 
         Vector3f pointintertia = new Vector3f();
 
@@ -211,7 +211,7 @@ public class GImpactMeshShapePart extends GImpactShapeInterface {
         return out;
     }
 
-    public int getPart() {
+    private int getPart() {
         return primitive_manager.part;
     }
 

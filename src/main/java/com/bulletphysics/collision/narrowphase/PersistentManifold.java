@@ -53,7 +53,7 @@ public class PersistentManifold {
 
 	//protected final BulletStack stack = BulletStack.get();
 	
-	public static final int MANIFOLD_CACHE_SIZE = 4;
+	private static final int MANIFOLD_CACHE_SIZE = 4;
 	
 	private final ManifoldPoint[] pointCache = new ManifoldPoint[MANIFOLD_CACHE_SIZE];
 	/// this two body pointers can point to the physics rigidbody class.
@@ -170,7 +170,7 @@ public class PersistentManifold {
 		this.body1 = body1;
 	}
 	
-	public static void clearUserCache(ManifoldPoint pt) {
+	private static void clearUserCache(ManifoldPoint pt) {
 		Object oldPtr = pt.userPersistentData;
 		if (oldPtr != null) {
 //#ifdef DEBUG_PERSISTENCY
@@ -256,7 +256,7 @@ public class PersistentManifold {
 		return insertIndex;
 	}
 
-	public void removeContactPoint(int index) {
+	private void removeContactPoint(int index) {
 		clearUserCache(pointCache[index]);
 
 		int lastUsedIndex = getNumContacts() - 1;

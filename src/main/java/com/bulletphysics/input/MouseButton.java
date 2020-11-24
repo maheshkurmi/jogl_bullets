@@ -39,13 +39,13 @@ public class MouseButton {
 		this.modifiers=modifiers;
 	}
 	
-	int prevId=-1;
+	private int prevId=-1;
 	/**
 	 * updates AWT data(needed for gui)
 	 * @param eventID AWT Mouse event id
 	 * @param modifiers shift modifiers for mouse event 
 	 */
-	protected void updateEventData(int eventID, int modifiers){
+	void updateEventData(int eventID, int modifiers){
 		if(this.prevId!=java.awt.event.MouseEvent.MOUSE_DRAGGED && eventID==java.awt.event.MouseEvent.MOUSE_DRAGGED){
 			//before 12/4/19
 			//this.id=java.awt.event.MouseEvent.MOUSE_PRESSED;

@@ -31,16 +31,15 @@ package com.bulletphysics.collision.broadphase;
  */
 public class DbvtTreeCollider extends Dbvt.ICollide {
 
-	public final DbvtBroadphase pbp;
+	private final OverlappingPairCache pbp;
 
 	public DbvtTreeCollider(DbvtBroadphase p) {
-		this.pbp = p;
+		this.pbp = p.paircache;
 	}
 
 	@Override
-	public void Process(Dbvt.Node na, Dbvt.Node nb) {
-		DbvtProxy pa = (DbvtProxy) na.data;
-		DbvtProxy pb = (DbvtProxy) nb.data;
+	public void accept(Dbvt.Node na, Dbvt.Node nb) {
+		DbvtProxy pa = (DbvtProxy) na.data, pb = (DbvtProxy) nb.data;
 		//#if DBVT_BP_DISCRETPAIRS
 		if (DbvtAabbMm.Intersect(pa.aabb, pb.aabb))
 		//#endif
@@ -51,7 +50,7 @@ public class DbvtTreeCollider extends Dbvt.ICollide {
 				pa = pb;
 				pb = tmp;
 			}
-			pbp.paircache.addOverlappingPair(pa, pb);
+			pbp.addOverlappingPair(pa, pb);
 		}
 	}
 

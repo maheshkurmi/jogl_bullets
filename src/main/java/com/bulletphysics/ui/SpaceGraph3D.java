@@ -29,26 +29,28 @@ import static com.bulletphysics.ui.IGL.*;
 
 public abstract class SpaceGraph3D implements GLEventListener {
     private static final float STEPSIZE = 5;
-    public static RigidBody pickedBody = null; // for deactivation state
+    private static RigidBody pickedBody = null; // for deactivation state
     private static final float mousePickClamping = 3f;
     protected final Vector3f cameraPosition = new Vector3f(0f, 0f, 0f);
     protected final Vector3f cameraTargetPosition = new Vector3f(0f, 0f, 0f); // look at
     protected final Vector3f cameraUp = new Vector3f(0f, 1f, 0f);
-    protected final Mouse mouse;
-    protected final Keyboard keyboard;
-    protected final Clock clock = new Clock();
+    final Mouse mouse;
+    final Keyboard keyboard;
+    private final Clock clock = new Clock();
     public DynamicsWorld world;
-    protected TypedConstraint pickConstraint = null;
-    protected float cameraDistance = 15f;
-    protected int debugMode = 0;
-    protected float ele = 20f;
-    protected float azi = 0f;
+    private TypedConstraint pickConstraint = null;
+    private float cameraDistance = 15f;
+    int debugMode = 0;
+    private float ele = 20f;
+    private float azi = 0f;
     @Deprecated
     protected int forwardAxis = 2;
-    protected int glutScreenWidth = 0;
-    protected int glutScreenHeight = 0;
-    protected boolean stepping = true;
+    private int glutScreenWidth = 0;
+    private int glutScreenHeight = 0;
+    boolean stepping = true;
     protected boolean idle = false;
+    private final Transform m = new Transform();
+    private final Vector3f wireColor = new Vector3f();
 
     // keep the collision shapes, for deletion/cleanup
     protected final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
@@ -164,7 +166,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         updateCamera();
     }
 
-    public void update() {
+    private void update() {
         poll();
         if (!isIdle()) {
             // simple dynamics world doesn't handle fixed-time-stepping
@@ -188,8 +190,74 @@ public abstract class SpaceGraph3D implements GLEventListener {
         update();
 
 
+        renderVolume();
+
+        setOrthographicProjection();
+        renderHUD();
+    }
+
+    void renderHUD() {
 
     }
+
+    private void renderVolume() {
+
+        updateCamera();
+
+
+        // optional but useful: debug drawing
+        world.debugDrawWorld();
+
+        gl.glEnable(GL_LIGHTING);
+        int numObjects = world.getNumCollisionObjects();
+        wireColor.set(1f, 0f, 0f);
+        for (int i = 0; i < numObjects; i++) {
+            CollisionObject colObj = world.getCollisionObjectArray().get(i);
+            RigidBody body = RigidBody.upcast(colObj);
+
+            if (body != null && body.getMotionState() != null) {
+                DefaultMotionState myMotionState = (DefaultMotionState) body.getMotionState();
+                m.set(myMotionState.graphicsWorldTrans);
+            }
+            else {
+                colObj.getWorldTransform(m);
+            }
+
+            wireColor.set(1f, 1f, 0.5f); // wants deactivation
+            if ((i & 1) != 0) {
+                wireColor.set(0f, 0f, 1f);
+            }
+
+            // color differently for active, sleeping, wantsdeactivation states
+            if (colObj.getActivationState() == 1) // active
+            {
+                if ((i & 1) != 0) {
+                    //wireColor.add(new Vector3f(1f, 0f, 0f));
+                    wireColor.x += 1f;
+                }
+                else {
+                    //wireColor.add(new Vector3f(0.5f, 0f, 0f));
+                    wireColor.x += 0.5f;
+                }
+            }
+            if (colObj.getActivationState() == 2) // ISLAND_SLEEPING
+            {
+                if ((i & 1) != 0) {
+                    //wireColor.add(new Vector3f(0f, 1f, 0f));
+                    wireColor.y += 1f;
+                }
+                else {
+                    //wireColor.add(new Vector3f(0f, 0.5f, 0f));
+                    wireColor.y += 0.5f;
+                }
+            }
+
+            GLShapeDrawer.drawOpenGL(gl, m, colObj.getCollisionShape(), wireColor, getDebugMode());
+        }
+
+        gl.glDisable(GL_LIGHTING);
+    }
+
 
     public void setCameraDistance(float dist) {
         cameraDistance = dist;
@@ -199,7 +267,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         return cameraDistance;
     }
 
-    public void toggleIdle() {
+    void toggleIdle() {
         idle = !idle;
     }
 
@@ -214,7 +282,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
 
         Vector3f eyePos = new Vector3f();
         eyePos.set(0f, 0f, 0f);
-        VectorUtil.setCoord(eyePos, forwardAxis, -cameraDistance);
+        VectorUtil.coord(eyePos, forwardAxis, -cameraDistance);
 
         Vector3f forward = new Vector3f();
         forward.set(eyePos.x, eyePos.y, eyePos.z);
@@ -250,7 +318,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
                 cameraUp.x, cameraUp.y, cameraUp.z);
     }
 
-    public void stepLeft() {
+    void stepLeft() {
         azi -= STEPSIZE;
         if (azi < 0) {
             azi += 360;
@@ -258,7 +326,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         //updateCamera();
     }
 
-    public void stepRight() {
+    void stepRight() {
         azi += STEPSIZE;
         if (azi >= 360) {
             azi -= 360;
@@ -266,7 +334,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         //updateCamera();
     }
 
-    public void stepFront() {
+    void stepFront() {
         ele += STEPSIZE;
         if (ele >= 360) {
             ele -= 360;
@@ -274,7 +342,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         //updateCamera();
     }
 
-    public void stepBack() {
+    void stepBack() {
         ele -= STEPSIZE;
         if (ele < 0) {
             ele += 360;
@@ -282,7 +350,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         //updateCamera();
     }
 
-    public void zoomIn() {
+    void zoomIn() {
         cameraDistance -= 0.4f;
         //updateCamera();
         if (cameraDistance < 0.1f) {
@@ -290,7 +358,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         }
     }
 
-    public void zoomOut() {
+    void zoomOut() {
         cameraDistance += 0.4f;
         //updateCamera();
     }
@@ -334,15 +402,15 @@ public abstract class SpaceGraph3D implements GLEventListener {
         keyboard.reset();
     }
 
-    public void keyboardCallbackUp(char key) {
+    void keyboardCallbackUp(char key) {
 
     }
 
-    public void keyboardCallback(char key) {
+    void keyboardCallback(char key) {
 
     }
 
-    public int getDebugMode() {
+    protected int getDebugMode() {
         return debugMode;
     }
 
@@ -353,15 +421,15 @@ public abstract class SpaceGraph3D implements GLEventListener {
         }
     }
 
-    public void specialKeyboardUp(int key) {
+    void specialKeyboardUp(int key) {
 
     }
 
-    public void specialKeyboard(int key) {
+    void specialKeyboard(int key) {
 
     }
 
-    public Vector3f getRayTo(int x, int y) {
+    private Vector3f getRayTo(int x, int y) {
         float top = 1f;
         float bottom = -1f;
         float nearPlane = 1f;
@@ -402,9 +470,9 @@ public abstract class SpaceGraph3D implements GLEventListener {
         Vector3f rayToCenter = new Vector3f();
         rayToCenter.add(rayFrom, rayForward);
         Vector3f dHor = new Vector3f(hor);
-        dHor.scale(1f / (float) glutScreenWidth);
+        dHor.scale(1f / glutScreenWidth);
         Vector3f dVert = new Vector3f(vertical);
-        dVert.scale(1.f / (float) glutScreenHeight);
+        dVert.scale(1.f / glutScreenHeight);
 
         Vector3f tmp1 = new Vector3f();
         Vector3f tmp2 = new Vector3f();
@@ -429,7 +497,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
 
     }
 
-    public void mouseFunc(int button, int state, int x, int y) {
+    private void mouseFunc(int button, int state, int x, int y) {
         //printf("button %i, state %i, x=%i,y=%i\n",button,state,x,y);
         //button 0, state 0 means left mouse down
 
@@ -523,7 +591,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         }
     }
 
-    public void mouseMotionFunc(int x, int y) {
+    private void mouseMotionFunc(int x, int y) {
         if (pickConstraint != null) {
             // move the constraint pivot
             Point2PointConstraint p2p = (Point2PointConstraint) pickConstraint;
@@ -545,7 +613,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
     }
 
 
-    public void resetPerspectiveProjection() {
+    protected void resetPerspectiveProjection() {
         gl.glMatrixMode(GL_PROJECTION);
         gl.glPopMatrix();
         gl.glMatrixMode(GL_MODELVIEW);
@@ -554,7 +622,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
 
 
 
-    public DynamicsWorld getWorld() {
+    protected DynamicsWorld getWorld() {
         return world;
     }
 
@@ -566,15 +634,15 @@ public abstract class SpaceGraph3D implements GLEventListener {
         forwardAxis = axis;
     }
 
-    public Vector3f getCameraPosition() {
+    protected Vector3f getCameraPosition() {
         return cameraPosition;
     }
 
-    public Vector3f getCameraTargetPosition() {
+    protected Vector3f getCameraTargetPosition() {
         return cameraTargetPosition;
     }
 
-    public float getDeltaTimeMicroseconds() {
+    protected float getDeltaTimeMicroseconds() {
         //#ifdef USE_BT_CLOCK
         float dt = clock.getTimeMicroseconds();
         clock.reset();
@@ -584,7 +652,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         //#endif
     }
 
-    public boolean isIdle() {
+    private boolean isIdle() {
         return idle;
     }
 
@@ -592,7 +660,30 @@ public abstract class SpaceGraph3D implements GLEventListener {
         this.idle = idle;
     }
 
-    public void drawString(CharSequence s, int x, int y, Color3f color) {
+    protected void drawString(CharSequence s, int x, int y, Color3f color) {
         gl.drawString(s, x, y, color.x, color.y, color.z);
     }
+
+    // See http://www.lighthouse3d.com/opengl/glut/index.php?bmpfontortho
+    protected void setOrthographicProjection() {
+        // switch to projection mode
+        gl.glMatrixMode(GL_PROJECTION);
+
+        // save previous matrix which contains the
+        //settings for the perspective projection
+        gl.glPushMatrix();
+        // reset matrix
+        gl.glLoadIdentity();
+        // set a 2D orthographic projection
+        gl.gluOrtho2D(0f, glutScreenWidth, 0f, glutScreenHeight);
+        gl.glMatrixMode(GL_MODELVIEW);
+        gl.glLoadIdentity();
+
+        // invert the y axis, down is positive
+        gl.glScalef(1f, -1f, 1f);
+        // mover the origin from the bottom left corner
+        // to the upper left corner
+        gl.glTranslatef(0f, -glutScreenHeight, 0f);
+    }
+
 }

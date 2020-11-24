@@ -24,7 +24,18 @@
 package com.bulletphysics.ui;
 
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
-import com.bulletphysics.collision.shapes.*;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.CompoundShape;
+import com.bulletphysics.collision.shapes.convex.ConcaveShape;
+import com.bulletphysics.collision.shapes.convex.ConvexShape;
+import com.bulletphysics.collision.shapes.convex.PolyhedralConvexShape;
+import com.bulletphysics.collision.shapes.convex.ShapeHull;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
+import com.bulletphysics.collision.shapes.simple.CylinderShape;
+import com.bulletphysics.collision.shapes.simple.SphereShape;
+import com.bulletphysics.collision.shapes.simple.StaticPlaneShape;
+import com.bulletphysics.collision.shapes.util.InternalTriangleIndexCallback;
+import com.bulletphysics.collision.shapes.util.TriangleCallback;
 import com.bulletphysics.linearmath.DebugDrawModes;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.TransformUtil;
@@ -229,7 +240,7 @@ public class GLShapeDrawer {
 
 						float radius = cylinder.getRadius();
 						Vector3f halfVec = vectorsPool.get();
-						float halfHeight = VectorUtil.getCoord(cylinder.getHalfExtentsWithMargin(halfVec), upAxis);
+						float halfHeight = VectorUtil.coord(cylinder.getHalfExtentsWithMargin(halfVec), upAxis);
 
 						gl.drawCylinder(radius, halfHeight, upAxis);
 
@@ -501,9 +512,9 @@ public class GLShapeDrawer {
 	
 	private static class GlDrawcallback extends TriangleCallback {
 		private final IGL gl;
-		public boolean wireframe = false;
+		boolean wireframe = false;
 
-		public GlDrawcallback(IGL gl) {
+		GlDrawcallback(IGL gl) {
 			this.gl = gl;
 		}
 		

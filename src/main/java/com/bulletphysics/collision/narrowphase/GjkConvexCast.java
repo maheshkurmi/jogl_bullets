@@ -24,7 +24,7 @@
 package com.bulletphysics.collision.narrowphase;
 
 import com.bulletphysics.collision.narrowphase.DiscreteCollisionDetectorInterface.ClosestPointInput;
-import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.convex.ConvexShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.ObjectPool;
@@ -39,7 +39,7 @@ import javax.vecmath.Vector3f;
 public class GjkConvexCast extends ConvexCast {
 
 	//protected final BulletStack stack = BulletStack.get();
-	protected final ObjectPool<ClosestPointInput> pointInputsPool = ObjectPool.get(ClosestPointInput.class);
+	private final ObjectPool<ClosestPointInput> pointInputsPool = ObjectPool.get(ClosestPointInput.class);
 
 //#ifdef BT_USE_DOUBLE_PRECISION
 //	private static final int MAX_ITERATIONS = 64;

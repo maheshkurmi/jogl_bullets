@@ -34,9 +34,9 @@ import javax.vecmath.Vector4f;
  * 
  * @author jezek2
  */
-public class GeometryUtil {
+class GeometryUtil {
 
-	public static boolean isPointInsidePlanes(ObjectArrayList<Vector4f> planeEquations, Vector3f point, float margin) {
+	private static boolean isPointInsidePlanes(ObjectArrayList<Vector4f> planeEquations, Vector3f point, float margin) {
 		int numbrushes = planeEquations.size();
 		for (int i = 0; i < numbrushes; i++) {
 			Vector4f N1 = planeEquations.get(i);
@@ -48,7 +48,7 @@ public class GeometryUtil {
 		return true;
 	}
 	
-	public static boolean areVerticesBehindPlane(Vector4f planeNormal, ObjectArrayList<Vector3f> vertices, float margin) {
+	private static boolean areVerticesBehindPlane(Vector4f planeNormal, ObjectArrayList<Vector3f> vertices, float margin) {
 		int numvertices = vertices.size();
 		for (int i = 0; i < numvertices; i++) {
 			Vector3f N1 = vertices.get(i);

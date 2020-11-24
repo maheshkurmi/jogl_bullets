@@ -38,10 +38,10 @@ import javax.vecmath.Vector4f;
  */
 class GeometryOperations {
 
-    public static final float PLANEDIREPSILON = 0.0000001f;
+    private static final float PLANEDIREPSILON = 0.0000001f;
     public static final float PARALELENORMALS = 0.000001f;
 
-    public static float CLAMP(float number, float minval, float maxval) {
+    private static float CLAMP(float number, float minval, float maxval) {
         return (number < minval ? minval : (Math.min(number, maxval)));
     }
 
@@ -61,7 +61,7 @@ class GeometryOperations {
     /**
      * Finds the closest point(cp) to (v) on a segment (e1,e2).
      */
-    public static void closest_point_on_segment(Vector3f cp, Vector3f v, Vector3f e1, Vector3f e2) {
+    private static void closest_point_on_segment(Vector3f cp, Vector3f v, Vector3f e1, Vector3f e2) {
         Vector3f n = new Vector3f();
         n.sub(e2, e1);
         cp.sub(v, e1);
@@ -78,7 +78,7 @@ class GeometryOperations {
      *
      * @return -0 if the ray never intersects, -1 if the ray collides in front, -2 if the ray collides in back
      */
-    public static int line_plane_collision(Vector4f plane, Vector3f vDir, Vector3f vPoint, Vector3f pout, float[] tparam, float tmin, float tmax) {
+    private static int line_plane_collision(Vector4f plane, Vector3f vDir, Vector3f vPoint, Vector3f pout, float[] tparam, float tmin, float tmax) {
         float _dotdir = VectorUtil.dot3(vDir, plane);
 
         if (Math.abs(_dotdir) < PLANEDIREPSILON) {

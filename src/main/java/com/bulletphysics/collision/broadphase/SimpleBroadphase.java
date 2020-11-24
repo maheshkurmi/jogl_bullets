@@ -48,7 +48,7 @@ public class SimpleBroadphase extends BroadphaseInterface {
 		this(maxProxies, null);
 	}
 	
-	public SimpleBroadphase(int maxProxies, OverlappingPairCache overlappingPairCache) {
+	private SimpleBroadphase(int maxProxies, OverlappingPairCache overlappingPairCache) {
 		this.pairCache = overlappingPairCache;
 
 		if (overlappingPairCache == null) {

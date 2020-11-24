@@ -86,22 +86,22 @@ import javax.vecmath.Vector3f;
  */
 public class Generic6DofConstraint extends TypedConstraint {
 
-    protected final Transform frameInA = new Transform(); //!< the constraint space w.r.t body A
-    protected final Transform frameInB = new Transform(); //!< the constraint space w.r.t body B
+    private final Transform frameInA = new Transform(); //!< the constraint space w.r.t body A
+    private final Transform frameInB = new Transform(); //!< the constraint space w.r.t body B
 
-    protected final JacobianEntry[] jacLinear/*[3]*/ = new JacobianEntry[]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()}; //!< 3 orthogonal linear constraints
-    protected final JacobianEntry[] jacAng/*[3]*/ = new JacobianEntry[]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()}; //!< 3 orthogonal angular constraints
+    private final JacobianEntry[] jacLinear/*[3]*/ = new JacobianEntry[]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()}; //!< 3 orthogonal linear constraints
+    private final JacobianEntry[] jacAng/*[3]*/ = new JacobianEntry[]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()}; //!< 3 orthogonal angular constraints
 
-    protected final TranslationalLimitMotor linearLimits = new TranslationalLimitMotor();
+    private final TranslationalLimitMotor linearLimits = new TranslationalLimitMotor();
 
-    protected final RotationalLimitMotor[] angularLimits/*[3]*/ = new RotationalLimitMotor[]{new RotationalLimitMotor(), new RotationalLimitMotor(), new RotationalLimitMotor()};
-    protected final Transform calculatedTransformA = new Transform();
-    protected final Transform calculatedTransformB = new Transform();
-    protected final Vector3f calculatedAxisAngleDiff = new Vector3f();
-    protected final Vector3f[] calculatedAxis/*[3]*/ = new Vector3f[]{new Vector3f(), new Vector3f(), new Vector3f()};
-    protected final Vector3f anchorPos = new Vector3f(); // point betwen pivots of bodies A and B to solve linear axes
-    protected final boolean useLinearReferenceFrameA;
-    protected float timeStep;
+    private final RotationalLimitMotor[] angularLimits/*[3]*/ = new RotationalLimitMotor[]{new RotationalLimitMotor(), new RotationalLimitMotor(), new RotationalLimitMotor()};
+    private final Transform calculatedTransformA = new Transform();
+    private final Transform calculatedTransformB = new Transform();
+    private final Vector3f calculatedAxisAngleDiff = new Vector3f();
+    private final Vector3f[] calculatedAxis/*[3]*/ = new Vector3f[]{new Vector3f(), new Vector3f(), new Vector3f()};
+    private final Vector3f anchorPos = new Vector3f(); // point betwen pivots of bodies A and B to solve linear axes
+    private final boolean useLinearReferenceFrameA;
+    private float timeStep;
 
     public Generic6DofConstraint() {
         super(TypedConstraintType.D6_CONSTRAINT_TYPE);
@@ -156,7 +156,7 @@ public class Generic6DofConstraint extends TypedConstraint {
     /**
      * Calcs the euler angles between the two bodies.
      */
-    protected void calculateAngleInfo() {
+    private void calculateAngleInfo() {
         Matrix3f mat = new Matrix3f();
 
         Matrix3f relative_frame = new Matrix3f();
@@ -209,7 +209,7 @@ public class Generic6DofConstraint extends TypedConstraint {
      * <p>
      * See also: Generic6DofConstraint.getCalculatedTransformA, Generic6DofConstraint.getCalculatedTransformB, Generic6DofConstraint.calculateAngleInfo
      */
-    public void calculateTransforms() {
+    private void calculateTransforms() {
         rbA.getCenterOfMassTransform(calculatedTransformA);
         calculatedTransformA.mul(frameInA);
 
@@ -219,7 +219,7 @@ public class Generic6DofConstraint extends TypedConstraint {
         calculateAngleInfo();
     }
 
-    protected void buildLinearJacobian(/*JacobianEntry jacLinear*/int jacLinear_index, Vector3f normalWorld, Vector3f pivotAInW, Vector3f pivotBInW) {
+    private void buildLinearJacobian(/*JacobianEntry jacLinear*/int jacLinear_index, Vector3f normalWorld, Vector3f pivotAInW, Vector3f pivotBInW) {
         Matrix3f mat1 = rbA.getCenterOfMassTransform(new Transform()).basis;
         mat1.transpose();
 
@@ -246,7 +246,7 @@ public class Generic6DofConstraint extends TypedConstraint {
                 rbB.getInvMass());
     }
 
-    protected void buildAngularJacobian(/*JacobianEntry jacAngular*/int jacAngular_index, Vector3f jointAxisW) {
+    private void buildAngularJacobian(/*JacobianEntry jacAngular*/int jacAngular_index, Vector3f jointAxisW) {
         Matrix3f mat1 = rbA.getCenterOfMassTransform(new Transform()).basis;
         mat1.transpose();
 
@@ -265,8 +265,8 @@ public class Generic6DofConstraint extends TypedConstraint {
      * Calculates angular correction and returns true if limit needs to be corrected.
      * Generic6DofConstraint.buildJacobian must be called previously.
      */
-    public boolean testAngularLimitMotor(int axis_index) {
-        float angle = VectorUtil.getCoord(calculatedAxisAngleDiff, axis_index);
+    private boolean testAngularLimitMotor(int axis_index) {
+        float angle = VectorUtil.coord(calculatedAxisAngleDiff, axis_index);
 
         // test limits
         angularLimits[axis_index].testLimitValue(angle);
@@ -382,7 +382,7 @@ public class Generic6DofConstraint extends TypedConstraint {
      * Get the rotation axis in global coordinates.
      * Generic6DofConstraint.buildJacobian must be called previously.
      */
-    public Vector3f getAxis(int axis_index, Vector3f out) {
+    private Vector3f getAxis(int axis_index, Vector3f out) {
         out.set(calculatedAxis[axis_index]);
         return out;
     }
@@ -392,7 +392,7 @@ public class Generic6DofConstraint extends TypedConstraint {
      * Generic6DofConstraint.buildJacobian must be called previously.
      */
     public float getAngle(int axis_index) {
-        return VectorUtil.getCoord(calculatedAxisAngleDiff, axis_index);
+        return VectorUtil.coord(calculatedAxisAngleDiff, axis_index);
     }
 
     /**
@@ -462,8 +462,8 @@ public class Generic6DofConstraint extends TypedConstraint {
      */
     public void setLimit(int axis, float lo, float hi) {
         if (axis < 3) {
-            VectorUtil.setCoord(linearLimits.lowerLimit, axis, lo);
-            VectorUtil.setCoord(linearLimits.upperLimit, axis, hi);
+            VectorUtil.coord(linearLimits.lowerLimit, axis, lo);
+            VectorUtil.coord(linearLimits.upperLimit, axis, hi);
         } else {
             angularLimits[axis - 3].loLimit = lo;
             angularLimits[axis - 3].hiLimit = hi;
@@ -486,7 +486,7 @@ public class Generic6DofConstraint extends TypedConstraint {
     }
 
     // overridable
-    public void calcAnchorPos() {
+    private void calcAnchorPos() {
         float imA = rbA.getInvMass();
         float imB = rbB.getInvMass();
         float weight;

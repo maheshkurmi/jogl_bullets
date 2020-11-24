@@ -46,7 +46,7 @@ import java.util.Hashtable;
 public class FontRender {
 	
 	//private static final File cacheDir = new File("/path/to/font/cache/dir/");
-	protected static GL2 gl;
+	private static GL2 gl;
 	private static GLU glu;
 	
 	public static void init(GL2 gl,GLU glu){
@@ -63,11 +63,12 @@ public class FontRender {
 	}
 	
 	public static class GLFont {
-		protected int texture;
-		protected int width, height;
-		protected final Glyph[] glyphs = new Glyph[128-32];
+		int texture;
+		int width;
+		int height;
+		final Glyph[] glyphs = new Glyph[128-32];
 		
-		public GLFont() {
+		GLFont() {
 			for (int i=0; i<glyphs.length; i++) glyphs[i] = new Glyph();
 		}
 		
@@ -112,7 +113,7 @@ public class FontRender {
 			load(new FileInputStream(f));
 		}
 		
-		protected void load(InputStream _in) throws IOException {
+		void load(InputStream _in) throws IOException {
 			DataInputStream in = new DataInputStream(_in);
 			int w = in.readInt();
 			int h = in.readInt();
@@ -170,7 +171,7 @@ public class FontRender {
 		return gf;
 	}
 	
-	public static BufferedImage renderFont(Font font, boolean antialiasing, Glyph[] glyphs) {
+	private static BufferedImage renderFont(Font font, boolean antialiasing, Glyph[] glyphs) {
 		FontRenderContext frc = new FontRenderContext(null, antialiasing, false);
 		
 		int imgw = 256;
@@ -243,16 +244,16 @@ public class FontRender {
 		int x=0, y=0;
 		
 		gl.glBegin(GL2.GL_QUADS);
-			gl.glTexCoord2f((float)(g.x)/tw, (float)(g.y)/th);
+			gl.glTexCoord2f((g.x) /tw, (g.y) /th);
 			gl.glVertex3f(x, y, 1);
 
-			gl.glTexCoord2f((float)(g.x+g.w-1)/tw, (float)(g.y)/th);
+			gl.glTexCoord2f((g.x+g.w-1) /tw, (g.y) /th);
 			gl.glVertex3f(x+g.w-1, y, 1);
 
-			gl.glTexCoord2f((float)(g.x+g.w-1)/tw, (float)(g.y+g.h-1)/th);
+			gl.glTexCoord2f((g.x+g.w-1) /tw, (g.y+g.h-1) /th);
 			gl.glVertex3f(x+g.w-1, y+g.h-1, 1);
 
-			gl.glTexCoord2f((float)(g.x)/tw, (float)(g.y+g.h-1)/th);
+			gl.glTexCoord2f((g.x) /tw, (g.y+g.h-1) /th);
 			gl.glVertex3f(x, y+g.h-1, 1);
 			gl.glEnd();
 		
@@ -264,7 +265,7 @@ public class FontRender {
 		drawString(font, s, x, y, red, green, blue, 1);
 	}
 	
-	public static void drawString(GLFont font, CharSequence s, int x, int y, float red, float green, float blue, float alpha) {
+	private static void drawString(GLFont font, CharSequence s, int x, int y, float red, float green, float blue, float alpha) {
 		gl.glEnable(GL2.GL_BLEND);
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 		

@@ -37,10 +37,10 @@ import java.util.Arrays;
 /**
  * @author jezek2
  */
-public class PrimitiveTriangle {
+class PrimitiveTriangle {
 
     public final Vector3f[] vertices = new Vector3f[3];
-    public final Vector4f plane = new Vector4f();
+    private final Vector4f plane = new Vector4f();
     private final ObjectArrayList<Vector3f> tmpVecList1 = new ObjectArrayList<>(TriangleContact.MAX_TRI_CLIPPING);
     private final ObjectArrayList<Vector3f> tmpVecList2 = new ObjectArrayList<>(TriangleContact.MAX_TRI_CLIPPING);
     private final ObjectArrayList<Vector3f> tmpVecList3 = new ObjectArrayList<>(TriangleContact.MAX_TRI_CLIPPING);
@@ -103,7 +103,7 @@ public class PrimitiveTriangle {
      * Calcs the plane which is paralele to the edge and perpendicular to the triangle plane.
      * This triangle must have its plane calculated.
      */
-    public void get_edge_plane(int edge_index, Vector4f plane) {
+    private void get_edge_plane(int edge_index, Vector4f plane) {
         Vector3f e0 = vertices[edge_index];
         Vector3f e1 = vertices[(edge_index + 1) % 3];
 
@@ -125,7 +125,7 @@ public class PrimitiveTriangle {
      * @param clipped_points must have MAX_TRI_CLIPPING size, and this triangle must have its plane calculated.
      * @return the number of clipped points
      */
-    public int clip_triangle(PrimitiveTriangle other, ObjectArrayList<Vector3f> clipped_points) {
+    private int clip_triangle(PrimitiveTriangle other, ObjectArrayList<Vector3f> clipped_points) {
         // edge 0
         ObjectArrayList<Vector3f> temp_points = tmpVecList1;
 

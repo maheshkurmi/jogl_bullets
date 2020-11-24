@@ -28,7 +28,12 @@ import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.collision.shapes.*;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.CompoundShape;
+import com.bulletphysics.collision.shapes.mesh.BvhTriangleMeshShape;
+import com.bulletphysics.collision.shapes.mesh.TriangleIndexVertexArray;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
+import com.bulletphysics.collision.shapes.simple.CylinderShapeX;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -101,26 +106,26 @@ public class VehicleDemo extends DemoApplication {
 	
 	////////////////////////////////////////////////////////////////////////////
 	
-	public RigidBody carChassis;
-	public final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
-	public BroadphaseInterface overlappingPairCache;
-	public CollisionDispatcher dispatcher;
-	public ConstraintSolver constraintSolver;
-	public DefaultCollisionConfiguration collisionConfiguration;
-	public TriangleIndexVertexArray indexVertexArrays;
+	private RigidBody carChassis;
+	private final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
+	private BroadphaseInterface overlappingPairCache;
+	private CollisionDispatcher dispatcher;
+	private ConstraintSolver constraintSolver;
+	private DefaultCollisionConfiguration collisionConfiguration;
+	private TriangleIndexVertexArray indexVertexArrays;
 
-	public ByteBuffer vertices;
+	private ByteBuffer vertices;
 
-	public final VehicleTuning tuning = new VehicleTuning();
-	public VehicleRaycaster vehicleRayCaster;
-	public RaycastVehicle vehicle;
+	private final VehicleTuning tuning = new VehicleTuning();
+	private VehicleRaycaster vehicleRayCaster;
+	private RaycastVehicle vehicle;
 
-	public final float cameraHeight;
+	private final float cameraHeight;
 
-	public final float minCameraDistance;
-	public final float maxCameraDistance;
+	private final float minCameraDistance;
+	private final float maxCameraDistance;
 
-	public VehicleDemo() {
+	private VehicleDemo() {
 		super();
 		carChassis = null;
 		cameraHeight = 4f;
@@ -475,12 +480,8 @@ public class VehicleDemo extends DemoApplication {
 	@Override
 	public void specialKeyboardUp(int key) {
 		switch (key) {
-			case KeyEvent.VK_UP -> {
-				gEngineForce = 0f;
-			}
-			case KeyEvent.VK_DOWN -> {
-				gBreakingForce = 0f;
-			}
+			case KeyEvent.VK_UP -> gEngineForce = 0f;
+			case KeyEvent.VK_DOWN -> gBreakingForce = 0f;
 			default -> super.specialKeyboardUp(key);
 		}
 	}

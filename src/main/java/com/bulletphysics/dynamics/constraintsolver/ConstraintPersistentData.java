@@ -32,7 +32,7 @@ import javax.vecmath.Vector3f;
  *
  * @author jezek2
  */
-public class ConstraintPersistentData {
+class ConstraintPersistentData {
 
     public final Vector3f frictionWorldTangential0 = new Vector3f();
     public final Vector3f frictionWorldTangential1 = new Vector3f();

@@ -31,8 +31,8 @@ package com.bulletphysics.collision.broadphase;
  */
 public class DbvtLeafCollider extends Dbvt.ICollide {
 
-	public final DbvtBroadphase pbp;
-	public final DbvtProxy ppx;
+	private final DbvtBroadphase pbp;
+	private final DbvtProxy ppx;
 
 	public DbvtLeafCollider(DbvtBroadphase p, DbvtProxy px) {
 		this.pbp = p;
@@ -40,7 +40,7 @@ public class DbvtLeafCollider extends Dbvt.ICollide {
 	}
 
 	@Override
-	public void Process(Dbvt.Node na) {
+	public void accept(Dbvt.Node na) {
 		Dbvt.Node nb = ppx.leaf;
 		if (nb != na) {
 			DbvtProxy pa = (DbvtProxy) na.data;

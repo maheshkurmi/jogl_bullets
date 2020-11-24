@@ -33,7 +33,12 @@ import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
-import com.bulletphysics.collision.shapes.*;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.CompoundShape;
+import com.bulletphysics.collision.shapes.mesh.BvhTriangleMeshShape;
+import com.bulletphysics.collision.shapes.mesh.TriangleIndexVertexArray;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
+import com.bulletphysics.collision.shapes.simple.CylinderShapeX;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -44,6 +49,7 @@ import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.ui.DemoApplication;
 import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
+import com.bulletphysics.util.bvh.optimized.OptimizedBvh;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 
@@ -90,11 +96,11 @@ public class ConcaveDemo extends DemoApplication {
 	private static final int NUM_VERTS_Y = 30;
 	private static final int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
 
-	public ConcaveDemo() {
+	private ConcaveDemo() {
 		super();
 	}
 
-	public static void setVertexPositions(float waveheight, float offset) {
+	private static void setVertexPositions(float waveheight, float offset) {
 		int i;
 		int j;
 		Vector3f tmp = new Vector3f();
@@ -104,7 +110,7 @@ public class ConcaveDemo extends DemoApplication {
 				tmp.set(
 						(i - NUM_VERTS_X * 0.5f) * TRIANGLE_SIZE,
 						//0.f,
-						waveheight * (float) Math.sin((float) i + offset) * (float) Math.cos((float) j + offset),
+						waveheight * (float) Math.sin(i + offset) * (float) Math.cos(j + offset),
 						(j - NUM_VERTS_Y * 0.5f) * TRIANGLE_SIZE);
 
 				int index = i + j * NUM_VERTS_X;
@@ -297,41 +303,41 @@ public class ConcaveDemo extends DemoApplication {
 		return world;
 	}
 
-	private static float offset = 0f;
+//	private static float offset = 0f;
 	
-	@Override
-	public void display(GLAutoDrawable arg) {
-		gl.glClear(GL2.GL_COLOR_BUFFER_BIT |GL2.GL_DEPTH_BUFFER_BIT);
-		poll();
-		float dt = getDeltaTimeMicroseconds() * 0.000001f;
-
-		if (animatedMesh) {
-			long t0 = System.nanoTime();
-			
-			offset += 0.01f;
-
-			setVertexPositions(waveheight, offset);
-
-			// JAVA NOTE: 2.70b1: replace with proper code
-			trimeshShape.refitTree(null, null);
-
-			// clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
-			world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(staticBody.getBroadphaseHandle(), getWorld().getDispatcher());
-			
-			BulletStats.updateTime = (System.nanoTime() - t0) / 1000000;
-		}
-
-		world.stepSimulation(dt);
-
-		
-		// optional but useful: debug drawing
-		world.debugDrawWorld();
-
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
-	}
+//	@Override
+//	public void display(GLAutoDrawable arg) {
+//		gl.glClear(GL2.GL_COLOR_BUFFER_BIT |GL2.GL_DEPTH_BUFFER_BIT);
+//		poll();
+//		float dt = getDeltaTimeMicroseconds() * 0.000001f;
+//
+//		if (animatedMesh) {
+//			long t0 = System.nanoTime();
+//
+//			offset += 0.01f;
+//
+//			setVertexPositions(waveheight, offset);
+//
+//			// JAVA NOTE: 2.70b1: replace with proper code
+//			trimeshShape.refitTree(null, null);
+//
+//			// clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
+//			world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(staticBody.getBroadphaseHandle(), getWorld().getDispatcher());
+//
+//			BulletStats.updateTime = (System.nanoTime() - t0) / 1000000;
+//		}
+//
+//		world.stepSimulation(dt);
+//
+//
+//		// optional but useful: debug drawing
+//		world.debugDrawWorld();
+//
+//		renderme();
+//
+//		//glFlush();
+//		//glutSwapBuffers();
+//	}
 
 	
 	/**

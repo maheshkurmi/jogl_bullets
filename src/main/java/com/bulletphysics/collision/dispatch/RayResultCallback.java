@@ -12,8 +12,8 @@ public abstract class RayResultCallback {
 
     public float closestHitFraction = 1f;
     public CollisionObject collisionObject;
-    public final short collisionFilterGroup = CollisionFilterGroups.DEFAULT_FILTER;
-    public final short collisionFilterMask = CollisionFilterGroups.ALL_FILTER;
+    private final short collisionFilterGroup = CollisionFilterGroups.DEFAULT_FILTER;
+    private final short collisionFilterMask = CollisionFilterGroups.ALL_FILTER;
 
     public boolean hasHit() {
         return (collisionObject != null);

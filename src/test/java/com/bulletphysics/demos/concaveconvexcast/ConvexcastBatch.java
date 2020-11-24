@@ -25,7 +25,7 @@ package com.bulletphysics.demos.concaveconvexcast;
 
 import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.collision.dispatch.CollisionWorld.ClosestConvexResultCallback;
-import com.bulletphysics.collision.shapes.BoxShape;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
 import com.bulletphysics.linearmath.*;
 import com.bulletphysics.ui.IGL;
 
@@ -40,17 +40,17 @@ import static com.bulletphysics.ui.IGL.GL_LINES;
  *
  * @author jezek2
  */
-public class ConvexcastBatch {
+class ConvexcastBatch {
 
-	public static final int NUMRAYS_IN_BAR = 100;
+	private static final int NUMRAYS_IN_BAR = 100;
 
-	public final Vector3f[] source = new Vector3f[NUMRAYS_IN_BAR];
-	public final Vector3f[] dest = new Vector3f[NUMRAYS_IN_BAR];
-	public final Vector3f[] direction = new Vector3f[NUMRAYS_IN_BAR];
-	public final Vector3f[] hit_com = new Vector3f[NUMRAYS_IN_BAR];
-	public final Vector3f[] hit_surface = new Vector3f[NUMRAYS_IN_BAR];
-	public final float[] hit_fraction = new float[NUMRAYS_IN_BAR];
-	public final Vector3f[] normal = new Vector3f[NUMRAYS_IN_BAR];
+	private final Vector3f[] source = new Vector3f[NUMRAYS_IN_BAR];
+	private final Vector3f[] dest = new Vector3f[NUMRAYS_IN_BAR];
+	private final Vector3f[] direction = new Vector3f[NUMRAYS_IN_BAR];
+	private final Vector3f[] hit_com = new Vector3f[NUMRAYS_IN_BAR];
+	private final Vector3f[] hit_surface = new Vector3f[NUMRAYS_IN_BAR];
+	private final float[] hit_fraction = new float[NUMRAYS_IN_BAR];
+	private final Vector3f[] normal = new Vector3f[NUMRAYS_IN_BAR];
 
 	{
 		for (int i=0; i<NUMRAYS_IN_BAR; i++) {
@@ -63,26 +63,26 @@ public class ConvexcastBatch {
 		}
 	}
 
-	public int frame_counter;
-	public int ms;
-	public int sum_ms;
-	public int sum_ms_samples;
-	public int min_ms;
-	public int max_ms;
+	private int frame_counter;
+	private int ms;
+	private int sum_ms;
+	private int sum_ms_samples;
+	private int min_ms;
+	private int max_ms;
 
 	//#ifdef USE_BT_CLOCK
-	public final Clock frame_timer = new Clock();
+	private final Clock frame_timer = new Clock();
 	//#endif //USE_BT_CLOCK
 
-	public float dx;
-	public float min_x;
-	public float max_x;
-	public float min_y;
-	public float max_y;
-	public float sign;
+	private float dx;
+	private float min_x;
+	private float max_x;
+	private float min_y;
+	private float max_y;
+	private float sign;
 
-	public final Vector3f boxShapeHalfExtents = new Vector3f();
-	public final BoxShape boxShape;
+	private final Vector3f boxShapeHalfExtents = new Vector3f();
+	private final BoxShape boxShape;
 
 	public ConvexcastBatch() {
 		boxShape = new BoxShape(new Vector3f(0f, 0f, 0f));
@@ -97,7 +97,7 @@ public class ConvexcastBatch {
 		this(unused, ray_length, min_z, max_z, -10, 10);
 	}
 
-	public ConvexcastBatch(boolean unused, float ray_length, float min_z, float max_z, float min_y, float max_y) {
+	private ConvexcastBatch(boolean unused, float ray_length, float min_z, float max_z, float min_y, float max_y) {
 		boxShapeHalfExtents.set(1f, 1f, 1f);
 		boxShape = new BoxShape(boxShapeHalfExtents);
 		frame_counter = 0;
@@ -223,14 +223,14 @@ public class ConvexcastBatch {
 			max_ms = Math.max(ms, max_ms);
 			sum_ms += ms;
 			sum_ms_samples++;
-			float mean_ms = (float) sum_ms / (float) sum_ms_samples;
+			float mean_ms = (float) sum_ms / sum_ms_samples;
 			System.out.printf("%d rays in %d ms %d %d %f\n", NUMRAYS_IN_BAR * frame_counter, ms, min_ms, max_ms, mean_ms);
 			ms = 0;
 			frame_counter = 0;
 		}
 	}
 
-	public void drawCube(IGL gl, Transform T) {
+	private void drawCube(IGL gl, Transform T) {
 		float[] m = new float[16];
 		T.getOpenGLMatrix(m);
 		gl.glPushMatrix();

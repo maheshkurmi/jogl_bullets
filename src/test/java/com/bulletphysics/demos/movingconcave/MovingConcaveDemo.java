@@ -28,7 +28,11 @@ import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.collision.shapes.*;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.CompoundShape;
+import com.bulletphysics.collision.shapes.mesh.TriangleIndexVertexArray;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
+import com.bulletphysics.collision.shapes.simple.StaticPlaneShape;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
@@ -61,32 +65,13 @@ public class MovingConcaveDemo extends DemoApplication {
 	
 	private CollisionShape trimeshShape;
 
-	public MovingConcaveDemo() {
+	private MovingConcaveDemo() {
 		super();
 	}
 	
-	@Override
-	public void display(GLAutoDrawable arg) {
-		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		poll();
-		// simple dynamics world doesn't handle fixed-time-stepping
-		float ms = getDeltaTimeMicroseconds();
-
-		// step the simulation
-		if (world != null) {
-			world.stepSimulation(ms / 1000000f);
-			// optional but useful: debug drawing
-			world.debugDrawWorld();
-		}
-
-		renderme();
-
-		//glFlush();
-		//glutSwapBuffers();
-	}
 
 
-	public void initGImpactCollision() {
+	private void initGImpactCollision() {
 		// create trimesh
 		TriangleIndexVertexArray indexVertexArrays = new TriangleIndexVertexArray(
 				Bunny.NUM_TRIANGLES, Bunny.getIndexBuffer(), 4 * 3,
@@ -177,7 +162,7 @@ public class MovingConcaveDemo extends DemoApplication {
 		return world;
 	}
 	
-	public void shootTrimesh(Vector3f destination) {
+	private void shootTrimesh(Vector3f destination) {
 		if (world != null) {
 			float mass = 4f;
 			Transform startTransform = new Transform();

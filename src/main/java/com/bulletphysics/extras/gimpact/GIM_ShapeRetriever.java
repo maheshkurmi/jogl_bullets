@@ -34,14 +34,14 @@ import com.bulletphysics.collision.shapes.CollisionShape;
  */
 class GIM_ShapeRetriever {
 
-    public final GImpactShapeInterface gim_shape;
-    public final TriangleShapeEx trishape = new TriangleShapeEx();
-    public final TetrahedronShapeEx tetrashape = new TetrahedronShapeEx();
+    private final GImpactShapeInterface gim_shape;
+    private final TriangleShapeEx trishape = new TriangleShapeEx();
+    private final TetrahedronShapeEx tetrashape = new TetrahedronShapeEx();
 
-    public final ChildShapeRetriever child_retriever = new ChildShapeRetriever();
-    public final TriangleShapeRetriever tri_retriever = new TriangleShapeRetriever();
-    public final TetraShapeRetriever tetra_retriever = new TetraShapeRetriever();
-    public final ChildShapeRetriever current_retriever;
+    private final ChildShapeRetriever child_retriever = new ChildShapeRetriever();
+    private final TriangleShapeRetriever tri_retriever = new TriangleShapeRetriever();
+    private final TetraShapeRetriever tetra_retriever = new TetraShapeRetriever();
+    private final ChildShapeRetriever current_retriever;
 
     public GIM_ShapeRetriever(GImpactShapeInterface gim_shape) {
         this.gim_shape = gim_shape;
@@ -65,9 +65,9 @@ class GIM_ShapeRetriever {
     ////////////////////////////////////////////////////////////////////////////
 
     public static class ChildShapeRetriever {
-        public GIM_ShapeRetriever parent;
+        GIM_ShapeRetriever parent;
 
-        public CollisionShape getChildShape(int index) {
+        CollisionShape getChildShape(int index) {
             return parent.gim_shape.getChildShape(index);
         }
     }

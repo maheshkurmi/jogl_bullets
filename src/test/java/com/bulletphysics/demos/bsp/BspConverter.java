@@ -59,6 +59,6 @@ public abstract class BspConverter {
 		r.close();
 	}
 	
-	public abstract void addConvexVerticesCollider(ObjectArrayList<Vector3f> vertices);
+	protected abstract void addConvexVerticesCollider(ObjectArrayList<Vector3f> vertices);
 	
 }

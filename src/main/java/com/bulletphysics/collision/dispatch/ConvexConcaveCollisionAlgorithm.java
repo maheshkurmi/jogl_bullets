@@ -30,10 +30,10 @@ import com.bulletphysics.collision.narrowphase.ConvexCast.CastResult;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.narrowphase.SubsimplexConvexCast;
 import com.bulletphysics.collision.narrowphase.VoronoiSimplexSolver;
-import com.bulletphysics.collision.shapes.ConcaveShape;
-import com.bulletphysics.collision.shapes.SphereShape;
-import com.bulletphysics.collision.shapes.TriangleCallback;
-import com.bulletphysics.collision.shapes.TriangleShape;
+import com.bulletphysics.collision.shapes.convex.ConcaveShape;
+import com.bulletphysics.collision.shapes.simple.SphereShape;
+import com.bulletphysics.collision.shapes.simple.TriangleShape;
+import com.bulletphysics.collision.shapes.util.TriangleCallback;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.linearmath.VectorUtil;
 import com.bulletphysics.util.ObjectArrayList;
@@ -52,7 +52,7 @@ public class ConvexConcaveCollisionAlgorithm extends CollisionAlgorithm {
 	private boolean isSwapped;
 	private ConvexTriangleCallback btConvexTriangleCallback;
 	
-	public void init(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1, boolean isSwapped) {
+	private void init(CollisionAlgorithmConstructionInfo ci, CollisionObject body0, CollisionObject body1, boolean isSwapped) {
 		super.init(ci);
 		this.isSwapped = isSwapped;
 		this.btConvexTriangleCallback = new ConvexTriangleCallback(dispatcher, body0, body1, isSwapped);
@@ -171,16 +171,16 @@ public class ConvexConcaveCollisionAlgorithm extends CollisionAlgorithm {
 	////////////////////////////////////////////////////////////////////////////
 	
 	private static class LocalTriangleSphereCastCallback extends TriangleCallback {
-		public final Transform ccdSphereFromTrans = new Transform();
-		public final Transform ccdSphereToTrans = new Transform();
+		final Transform ccdSphereFromTrans = new Transform();
+		final Transform ccdSphereToTrans = new Transform();
 		public final Transform meshTransform = new Transform();
 
-		public final float ccdSphereRadius;
-		public float hitFraction;
+		final float ccdSphereRadius;
+		float hitFraction;
 		
 		private final Transform ident = new Transform();
 		
-		public LocalTriangleSphereCastCallback(Transform from, Transform to, float ccdSphereRadius, float hitFraction) {
+		LocalTriangleSphereCastCallback(Transform from, Transform to, float ccdSphereRadius, float hitFraction) {
 			this.ccdSphereFromTrans.set(from);
 			this.ccdSphereToTrans.set(to);
 			this.ccdSphereRadius = ccdSphereRadius;

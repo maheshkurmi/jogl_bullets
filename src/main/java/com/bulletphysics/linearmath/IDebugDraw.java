@@ -50,7 +50,7 @@ public abstract class IDebugDraw {
 		drawTriangle(v0, v1, v2, color, alpha);
 	}
 	
-	public void drawTriangle(Vector3f v0, Vector3f v1, Vector3f v2, Vector3f color, float alpha) {
+	private void drawTriangle(Vector3f v0, Vector3f v1, Vector3f v2, Vector3f color, float alpha) {
 		drawLine(v0, v1, color);
 		drawLine(v1, v2, color);
 		drawLine(v2, v0, color);

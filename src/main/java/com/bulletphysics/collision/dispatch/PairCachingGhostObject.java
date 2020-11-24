@@ -33,7 +33,7 @@ import com.bulletphysics.collision.broadphase.HashedOverlappingPairCache;
  */
 public class PairCachingGhostObject extends GhostObject {
 	
-	final HashedOverlappingPairCache hashPairCache = new HashedOverlappingPairCache();
+	private final HashedOverlappingPairCache hashPairCache = new HashedOverlappingPairCache();
 
 	/**
 	 * This method is mainly for expert/internal use only.

@@ -31,8 +31,8 @@ import javax.vecmath.Vector3f;
  */
 class SimpleBroadphaseProxy extends BroadphaseProxy {
 
-	protected final Vector3f min = new Vector3f();
-	protected final Vector3f max = new Vector3f();
+	final Vector3f min = new Vector3f();
+	final Vector3f max = new Vector3f();
 	
 	public SimpleBroadphaseProxy() {
 	}

@@ -24,7 +24,7 @@
 package com.bulletphysics.collision.narrowphase;
 
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.collision.shapes.ConvexShape;
+import com.bulletphysics.collision.shapes.convex.ConvexShape;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.QuaternionUtil;
 import com.bulletphysics.linearmath.Transform;
@@ -49,19 +49,19 @@ Nov.2006
  */
 public class GjkEpaSolver {
 
-	protected final ArrayPool<float[]> floatArrays = ArrayPool.get(float.class);
+	private final ArrayPool<float[]> floatArrays = ArrayPool.get(float.class);
 
-	protected final ObjectStackList<Mkv> stackMkv = new ObjectStackList<>(Mkv.class);
-	protected final ObjectStackList<He> stackHe = new ObjectStackList<>(He.class);
-	protected final ObjectStackList<Face> stackFace = new ObjectStackList<>(Face.class);
+	private final ObjectStackList<Mkv> stackMkv = new ObjectStackList<>(Mkv.class);
+	private final ObjectStackList<He> stackHe = new ObjectStackList<>(He.class);
+	private final ObjectStackList<Face> stackFace = new ObjectStackList<>(Face.class);
 
-	protected void pushStack() {
+	private void pushStack() {
 		stackMkv.push();
 		stackHe.push();
 		stackFace.push();
 	}
 
-	protected void popStack() {
+	private void popStack() {
 		stackMkv.pop();
 		stackHe.pop();
 		stackFace.pop();
@@ -75,12 +75,12 @@ public class GjkEpaSolver {
 	}
 	
 	public static class Results {
-		public ResultsStatus status;
+		ResultsStatus status;
 		public final Vector3f[] witnesses/*[2]*/ = new Vector3f[] { new Vector3f(), new Vector3f() };
-		public final Vector3f normal = new Vector3f();
-		public float depth;
-		public int epa_iterations;
-		public int gjk_iterations;
+		final Vector3f normal = new Vector3f();
+		float depth;
+		int epa_iterations;
+		int gjk_iterations;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -100,18 +100,18 @@ public class GjkEpaSolver {
 	////////////////////////////////////////////////////////////////////////////
 
 	public static class Mkv {
-		public final Vector3f w = new Vector3f(); // Minkowski vertice
-		public final Vector3f r = new Vector3f(); // Ray
+		final Vector3f w = new Vector3f(); // Minkowski vertice
+		final Vector3f r = new Vector3f(); // Ray
 
-		public void set(Mkv m) {
+		void set(Mkv m) {
 			w.set(m.w);
 			r.set(m.r);
 		}
 	}
 
 	public static class He {
-		public final Vector3f v = new Vector3f();
-		public He n;
+		final Vector3f v = new Vector3f();
+		He n;
 	}
 	
 	protected class GJK {
@@ -119,22 +119,22 @@ public class GjkEpaSolver {
 		
 		//public btStackAlloc sa;
 		//public Block sablock;
-		public final He[] table = new He[GJK_hashsize];
-		public final Matrix3f[] wrotations/*[2]*/ = new Matrix3f[] { new Matrix3f(), new Matrix3f() };
-		public final Vector3f[] positions/*[2]*/ = new Vector3f[] { new Vector3f(), new Vector3f() };
-		public final ConvexShape[] shapes = new ConvexShape[2];
-		public final Mkv[] simplex = new Mkv[5];
-		public final Vector3f ray = new Vector3f();
-		public /*unsigned*/ int order;
-		public /*unsigned*/ int iterations;
-		public float margin;
-		public boolean failed;
+		final He[] table = new He[GJK_hashsize];
+		final Matrix3f[] wrotations/*[2]*/ = new Matrix3f[] { new Matrix3f(), new Matrix3f() };
+		final Vector3f[] positions/*[2]*/ = new Vector3f[] { new Vector3f(), new Vector3f() };
+		final ConvexShape[] shapes = new ConvexShape[2];
+		final Mkv[] simplex = new Mkv[5];
+		final Vector3f ray = new Vector3f();
+		/*unsigned*/ int order;
+		/*unsigned*/ int iterations;
+		float margin;
+		boolean failed;
 		
 		{
 			for (int i=0; i<simplex.length; i++) simplex[i] = new Mkv();
 		}
 
-		public GJK() {
+		GJK() {
 		}
 
 		public GJK(/*StackAlloc psa,*/
@@ -143,14 +143,14 @@ public class GjkEpaSolver {
 			this(wrot0, pos0, shape0, wrot1, pos1, shape1, 0f);
 		}
 
-		public GJK(/*StackAlloc psa,*/
+		GJK(/*StackAlloc psa,*/
 				Matrix3f wrot0, Vector3f pos0, ConvexShape shape0,
 				Matrix3f wrot1, Vector3f pos1, ConvexShape shape1,
 				float pmargin) {
 			init(wrot0, pos0, shape0, wrot1, pos1, shape1, pmargin);
 		}
 		
-		public void init(/*StackAlloc psa,*/
+		void init(/*StackAlloc psa,*/
 				Matrix3f wrot0, Vector3f pos0, ConvexShape shape0,
 				Matrix3f wrot1, Vector3f pos1, ConvexShape shape1,
 				float pmargin) {
@@ -167,17 +167,17 @@ public class GjkEpaSolver {
 			failed = false;
 		}
 		
-		public void destroy() {
+		void destroy() {
 			popStack();
 		}
 		
 		// vdh: very dummy hash
-		public /*unsigned*/ int Hash(Vector3f v) {
+		/*unsigned*/ int Hash(Vector3f v) {
 			int h = (int)(v.x * 15461) ^ (int)(v.y * 83003) ^ (int)(v.z * 15473);
 			return (h * 169639) & GJK_hashmask;
 		}
 
-		public Vector3f LocalSupport(Vector3f d, /*unsigned*/ int i, Vector3f out) {
+		Vector3f LocalSupport(Vector3f d, /*unsigned*/ int i, Vector3f out) {
 			Vector3f tmp = new Vector3f();
 			MatrixUtil.transposeTransform(tmp, d, wrotations[i]);
 
@@ -188,7 +188,7 @@ public class GjkEpaSolver {
 			return out;
 		}
 		
-		public void Support(Vector3f d, Mkv v) {
+		void Support(Vector3f d, Mkv v) {
 			v.r.set(d);
 
 			Vector3f tmp1 = LocalSupport(d, 0, new Vector3f());
@@ -202,7 +202,7 @@ public class GjkEpaSolver {
 			v.w.scaleAdd(margin, d, v.w);
 		}
 
-		public boolean FetchSupport() {
+		boolean FetchSupport() {
 			int h = Hash(ray);
 			He e = table[h];
 			while (e != null) {
@@ -224,7 +224,7 @@ public class GjkEpaSolver {
 			return (ray.dot(simplex[order].w) > 0);
 		}
 
-		public boolean SolveSimplex2(Vector3f ao, Vector3f ab) {
+		boolean SolveSimplex2(Vector3f ao, Vector3f ab) {
 			if (ab.dot(ao) >= 0) {
 				Vector3f cabo = new Vector3f();
 				cabo.cross(ab, ao);
@@ -243,14 +243,14 @@ public class GjkEpaSolver {
 			return (false);
 		}
 
-		public boolean SolveSimplex3(Vector3f ao, Vector3f ab, Vector3f ac)
+		boolean SolveSimplex3(Vector3f ao, Vector3f ab, Vector3f ac)
 		{
 			Vector3f tmp = new Vector3f();
 			tmp.cross(ab, ac);
 			return (SolveSimplex3a(ao,ab,ac,tmp));
 		}
 		
-		public boolean SolveSimplex3a(Vector3f ao, Vector3f ab, Vector3f ac, Vector3f cabc) {
+		boolean SolveSimplex3a(Vector3f ao, Vector3f ab, Vector3f ac, Vector3f cabc) {
 			// TODO: optimize
 
 			Vector3f tmp = new Vector3f();
@@ -292,7 +292,7 @@ public class GjkEpaSolver {
 			}
 		}
 		
-		public boolean SolveSimplex4(Vector3f ao, Vector3f ab, Vector3f ac, Vector3f ad) {
+		boolean SolveSimplex4(Vector3f ao, Vector3f ab, Vector3f ac, Vector3f ad) {
 			// TODO: optimize
 
 			Vector3f crs = new Vector3f();
@@ -333,13 +333,13 @@ public class GjkEpaSolver {
 			}
 		}
 		
-		public boolean SearchOrigin() {
+		boolean SearchOrigin() {
 			Vector3f tmp = new Vector3f();
 			tmp.set(1f, 0f, 0f);
 			return SearchOrigin(tmp);
 		}
 		
-		public boolean SearchOrigin(Vector3f initray) {
+		boolean SearchOrigin(Vector3f initray) {
 			Vector3f tmp1 = new Vector3f();
 			Vector3f tmp2 = new Vector3f();
 			Vector3f tmp3 = new Vector3f();
@@ -392,7 +392,7 @@ public class GjkEpaSolver {
 			return false;
 		}
 		
-		public boolean EncloseOrigin() {
+		boolean EncloseOrigin() {
 			Vector3f tmp = new Vector3f();
 			Vector3f tmp1 = new Vector3f();
 			Vector3f tmp2 = new Vector3f();
@@ -474,31 +474,31 @@ public class GjkEpaSolver {
 	private static final int[][] hexahedron_eidx/*[9][4]*/ = new int[][] {{0,0,4,0},{0,1,2,1},{0,2,1,2},{1,1,5,2},{1,0,2,0},{2,2,3,2},{3,1,5,0},{3,0,4,2},{5,1,4,1}};
 
 	public static class Face {
-		public final Mkv[] v = new Mkv[3];
-		public final Face[] f = new Face[3];
-		public final int[] e = new int[3];
-		public final Vector3f n = new Vector3f();
-		public float d;
-		public int mark;
-		public Face prev;
-		public Face next;
+		final Mkv[] v = new Mkv[3];
+		final Face[] f = new Face[3];
+		final int[] e = new int[3];
+		final Vector3f n = new Vector3f();
+		float d;
+		int mark;
+		Face prev;
+		Face next;
 	}
 	
-	protected class EPA {
+	class EPA {
 		//protected final BulletStack stack = BulletStack.get();
 		
-		public final GJK gjk;
+		final GJK gjk;
 		//public btStackAlloc* sa;
-		public Face root;
-		public int nfaces;
-		public int iterations;
-		public final Vector3f[][] features = new Vector3f[2][3];
-		public final Vector3f[] nearest/*[2]*/ = new Vector3f[] { new Vector3f(), new Vector3f() };
-		public final Vector3f normal = new Vector3f();
-		public float depth;
-		public boolean failed;
+		Face root;
+		int nfaces;
+		int iterations;
+		final Vector3f[][] features = new Vector3f[2][3];
+		final Vector3f[] nearest/*[2]*/ = new Vector3f[] { new Vector3f(), new Vector3f() };
+		final Vector3f normal = new Vector3f();
+		float depth;
+		boolean failed;
 
-		public EPA(GJK pgjk) {
+		EPA(GJK pgjk) {
 			for (Vector3f[] feature : features) {
 				Arrays.setAll(feature, j -> new Vector3f());
 			}
@@ -541,7 +541,7 @@ public class GjkEpaSolver {
 			return out;
 		}
 		
-		public Face FindBest() {
+		Face FindBest() {
 			Face bf = null;
 			if (root != null) {
 				Face cf = root;
@@ -557,7 +557,7 @@ public class GjkEpaSolver {
 			return bf;
 		}
 
-		public boolean Set(Face f, Mkv a, Mkv b, Mkv c) {
+		boolean Set(Face f, Mkv a, Mkv b, Mkv c) {
 			Vector3f tmp1 = new Vector3f();
 			Vector3f tmp2 = new Vector3f();
 			Vector3f tmp3 = new Vector3f();
@@ -586,7 +586,7 @@ public class GjkEpaSolver {
 			return valid;
 		}
 		
-		public Face NewFace(Mkv a, Mkv b, Mkv c) {
+		Face NewFace(Mkv a, Mkv b, Mkv c) {
 			//Face pf = new Face();
 			Face pf = stackFace.get();
 			if (Set(pf, a, b, c)) {
@@ -604,7 +604,7 @@ public class GjkEpaSolver {
 			return (pf);
 		}
 	
-		public void Detach(Face face) {
+		void Detach(Face face) {
 			if (face.prev != null || face.next != null) {
 				--nfaces;
 				if (face == root) {
@@ -624,19 +624,19 @@ public class GjkEpaSolver {
 			}
 		}
 
-		public void Link(Face f0, int e0, Face f1, int e1) {
+		void Link(Face f0, int e0, Face f1, int e1) {
 			f0.f[e0] = f1; f1.e[e1] = e0;
 			f1.f[e1] = f0; f0.e[e0] = e1;
 		}
 
-		public Mkv Support(Vector3f w) {
+		Mkv Support(Vector3f w) {
 			//Mkv v = new Mkv();
 			Mkv v = stackMkv.get();
 			gjk.Support(w, v);
 			return v;
 		}
 		
-		public int BuildHorizon(int markid, Mkv w, Face f, int e, Face[] cf, Face[] ff) {
+		int BuildHorizon(int markid, Mkv w, Face f, int e, Face[] cf, Face[] ff) {
 			int ne = 0;
 			if (f.mark != markid) {
 				int e1 = mod3[e + 1];
@@ -663,11 +663,11 @@ public class GjkEpaSolver {
 			return (ne);
 		}
 
-		public float EvaluatePD() {
+		float EvaluatePD() {
 			return EvaluatePD(EPA_accuracy);
 		}
 		
-		public float EvaluatePD(float accuracy) {
+		float EvaluatePD(float accuracy) {
 			pushStack();
 			try {
 				Vector3f tmp = new Vector3f();

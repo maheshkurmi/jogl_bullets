@@ -83,7 +83,7 @@ public class UnionFind {
 		return elements.get(index);
 	}
 
-	public void allocate(int N) {
+	private void allocate(int N) {
 		MiscUtil.resize(elements, N, Element.class);
 	}
 

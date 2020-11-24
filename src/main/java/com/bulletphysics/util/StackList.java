@@ -59,7 +59,7 @@ public abstract class StackList<T> {
         returnObj = create();
     }
 
-    protected StackList(boolean unused) {
+    StackList(boolean unused) {
     }
 
     /**

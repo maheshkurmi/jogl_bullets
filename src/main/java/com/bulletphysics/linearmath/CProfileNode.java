@@ -40,15 +40,15 @@ import com.bulletphysics.BulletStats;
  */
 class CProfileNode {
 
-	protected final String name;
-	protected int totalCalls;
-	protected float totalTime;
-	protected long startTime;
-	protected int recursionCounter;
+	private final String name;
+	private int totalCalls;
+	private float totalTime;
+	private long startTime;
+	private int recursionCounter;
 	
-	protected final CProfileNode parent;
-	protected CProfileNode child;
-	protected CProfileNode sibling;
+	private final CProfileNode parent;
+	private CProfileNode child;
+	private CProfileNode sibling;
 
 	public CProfileNode(String name, CProfileNode parent) {
 		this.name = name;
@@ -122,7 +122,7 @@ class CProfileNode {
 		if (--recursionCounter == 0 && totalCalls != 0) {
 			long time = BulletStats.profileGetTicks();
 			time -= startTime;
-			totalTime += (float) time / BulletStats.profileGetTickRate();
+			totalTime += time / BulletStats.profileGetTickRate();
 		}
 		return (recursionCounter == 0);
 	}

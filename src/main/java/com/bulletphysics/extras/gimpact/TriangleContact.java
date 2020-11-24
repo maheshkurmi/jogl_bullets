@@ -38,7 +38,7 @@ import java.util.Arrays;
 /**
  * @author jezek2
  */
-public class TriangleContact {
+class TriangleContact {
 
     public static final int MAX_TRI_CLIPPING = 16;
     public final Vector4f separating_normal = new Vector4f();

@@ -51,7 +51,7 @@ public class VectorUtil {
 		return maxIndex;
 	}
 	
-	public static int maxAxis4(Vector4f v) {
+	private static int maxAxis4(Vector4f v) {
 		int maxIndex = -1;
 		float maxVal = -1e30f;
 		if (v.x > maxVal) {
@@ -79,7 +79,7 @@ public class VectorUtil {
 		return maxAxis4(tmp);
 	}
 	
-	public static float getCoord(Vector3f vec, int num) {
+	public static float coord(Vector3f vec, int num) {
 		return switch (num) {
 			case 0 -> vec.x;
 			case 1 -> vec.y;
@@ -88,7 +88,7 @@ public class VectorUtil {
 		};
 	}
 	
-	public static void setCoord(Vector3f vec, int num, float value) {
+	public static void coord(Vector3f vec, int num, float value) {
 		switch (num) {
 			case 0 -> vec.x = value;
 			case 1 -> vec.y = value;

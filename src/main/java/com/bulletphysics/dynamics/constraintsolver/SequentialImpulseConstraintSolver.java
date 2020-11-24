@@ -58,8 +58,8 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
     private static final int MAX_CONTACT_SOLVER_TYPES = ContactConstraintEnum.MAX_CONTACT_SOLVER_TYPES.ordinal();
 
     private static final int SEQUENTIAL_IMPULSE_MAX_SOLVER_POINTS = 16384;
-    protected final ContactSolverFunc[][] contactDispatch = new ContactSolverFunc[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
-    protected final ContactSolverFunc[][] frictionDispatch = new ContactSolverFunc[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
+    private final ContactSolverFunc[][] contactDispatch = new ContactSolverFunc[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
+    private final ContactSolverFunc[][] frictionDispatch = new ContactSolverFunc[MAX_CONTACT_SOLVER_TYPES][MAX_CONTACT_SOLVER_TYPES];
     private final OrderIndex[] gOrder = new OrderIndex[SEQUENTIAL_IMPULSE_MAX_SOLVER_POINTS];
 
     ////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
     private final IntArrayList orderTmpConstraintPool = new IntArrayList();
     private final IntArrayList orderFrictionConstraintPool = new IntArrayList();
     // btSeed2 is used for re-arranging the constraint rows. improves convergence/quality of friction
-    protected long btSeed2 = 0L;
+    private long btSeed2 = 0L;
     private int totalCpd = 0;
 
     {
@@ -316,7 +316,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         return maxImpulse;
     }
 
-    protected static float solve(RigidBody body0, RigidBody body1, ManifoldPoint cp, ContactSolverInfo info, int iter, IDebugDraw debugDrawer) {
+    private static float solve(RigidBody body0, RigidBody body1, ManifoldPoint cp, ContactSolverInfo info, int iter, IDebugDraw debugDrawer) {
         float maxImpulse = 0f;
 
         {
@@ -335,7 +335,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         return maxImpulse;
     }
 
-    protected static float solveFriction(RigidBody body0, RigidBody body1, ManifoldPoint cp, ContactSolverInfo info, int iter, IDebugDraw debugDrawer) {
+    private static float solveFriction(RigidBody body0, RigidBody body1, ManifoldPoint cp, ContactSolverInfo info, int iter, IDebugDraw debugDrawer) {
         {
             if (cp.getDistance() <= 0f) {
                 ConstraintPersistentData cpd = (ConstraintPersistentData) cp.userPersistentData;
@@ -345,27 +345,27 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         return 0f;
     }
 
-    public long rand2() {
+    private long rand2() {
         btSeed2 = (1664525L * btSeed2 + 1013904223L) & 0xffffffff;
         return btSeed2;
     }
 
     // See ODE: adam's all-int straightforward(?) dRandInt (0..n-1)
-    public int randInt2(int n) {
+    private int randInt2(int n) {
         // seems good; xor-fold and modulus
         long r = rand2();
 
         // note: probably more aggressive than it needs to be -- might be
         //       able to get away without one or two of the innermost branches.
-        if ((long) n <= 0x00010000L) {
+        if (n <= 0x00010000L) {
             r ^= (r >>> 16);
-            if ((long) n <= 0x00000100L) {
+            if (n <= 0x00000100L) {
                 r ^= (r >>> 8);
-                if ((long) n <= 0x00000010L) {
+                if (n <= 0x00000010L) {
                     r ^= (r >>> 4);
-                    if ((long) n <= 0x00000004L) {
+                    if (n <= 0x00000004L) {
                         r ^= (r >>> 2);
-                        if ((long) n <= 0x00000002L) {
+                        if (n <= 0x00000002L) {
                             r ^= (r >>> 1);
                         }
                     }
@@ -374,10 +374,10 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         }
 
         // TODO: check modulo C vs Java mismatch
-        return (int) Math.abs(r % (long) n);
+        return (int) Math.abs(r % n);
     }
 
-    protected void addFrictionConstraint(Vector3f normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, ManifoldPoint cp, Vector3f rel_pos1, Vector3f rel_pos2, CollisionObject colObj0, CollisionObject colObj1, float relaxation) {
+    private void addFrictionConstraint(Vector3f normalAxis, int solverBodyIdA, int solverBodyIdB, int frictionIndex, ManifoldPoint cp, Vector3f rel_pos1, Vector3f rel_pos2, CollisionObject colObj0, CollisionObject colObj1, float relaxation) {
         RigidBody body0 = RigidBody.upcast(colObj0);
         RigidBody body1 = RigidBody.upcast(colObj1);
 
@@ -442,7 +442,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         solverConstraint.jacDiagABInv = relaxation / (denom0 + denom1);
     }
 
-    public float solveGroupCacheFriendlySetup(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
+    private float solveGroupCacheFriendlySetup(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
         BulletStats.pushProfile("solveGroupCacheFriendlySetup");
         try {
 
@@ -803,7 +803,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         }
     }
 
-    public float solveGroupCacheFriendlyIterations(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
+    private float solveGroupCacheFriendlyIterations(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
         BulletStats.pushProfile("solveGroupCacheFriendlyIterations");
         try {
             int numConstraintPool = tmpSolverConstraintPool.size();
@@ -902,7 +902,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         }
     }
 
-    public float solveGroupCacheFriendly(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
+    private float solveGroupCacheFriendly(ObjectArrayList<CollisionObject> bodies, int numBodies, ObjectArrayList<PersistentManifold> manifoldPtr, int manifold_offset, int numManifolds, ObjectArrayList<TypedConstraint> constraints, int constraints_offset, int numConstraints, ContactSolverInfo infoGlobal, IDebugDraw debugDrawer/*,btStackAlloc* stackAlloc*/) {
         solveGroupCacheFriendlySetup(bodies, numBodies, manifoldPtr, manifold_offset, numManifolds, constraints, constraints_offset, numConstraints, infoGlobal, debugDrawer/*, stackAlloc*/);
         solveGroupCacheFriendlyIterations(bodies, numBodies, manifoldPtr, manifold_offset, numManifolds, constraints, constraints_offset, numConstraints, infoGlobal, debugDrawer/*, stackAlloc*/);
 
@@ -1043,7 +1043,7 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
         }
     }
 
-    protected void prepareConstraints(PersistentManifold manifoldPtr, ContactSolverInfo info, IDebugDraw debugDrawer) {
+    private void prepareConstraints(PersistentManifold manifoldPtr, ContactSolverInfo info, IDebugDraw debugDrawer) {
         RigidBody body0 = (RigidBody) manifoldPtr.getBody0();
         RigidBody body1 = (RigidBody) manifoldPtr.getBody1();
 
@@ -1276,8 +1276,8 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
     ////////////////////////////////////////////////////////////////////////////
 
     private static class OrderIndex {
-        public int manifoldIndex;
-        public int pointIndex;
+        int manifoldIndex;
+        int pointIndex;
     }
 
 }

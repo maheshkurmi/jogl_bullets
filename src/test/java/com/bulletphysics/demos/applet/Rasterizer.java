@@ -28,7 +28,7 @@ import java.util.Arrays;
  *
  * @author jezek2
  */
-public class Rasterizer {
+class Rasterizer {
 	
 	public static final int COLOR_BUFFER = 1 << 0;
 	public static final int DEPTH_BUFFER = 1 << 1;
@@ -100,17 +100,17 @@ public class Rasterizer {
 			if (x2 < 0) continue;
 			
 			if (x1 < 0) {
-				float m = (float)(-x1) / (float)(x2 - x1);
+				float m = (float)(-x1) / (x2 - x1);
 				spans[i].c1r = (short)(spans[i].c1r + (spans[i].c2r - spans[i].c1r) * m);
 				spans[i].c1g = (short)(spans[i].c1g + (spans[i].c2g - spans[i].c1g) * m);
 				spans[i].c1b = (short)(spans[i].c1b + (spans[i].c2b - spans[i].c1b) * m);
 				x1 = 0;
 			}
 			if (x2 >= width) {
-				float m = (float)((width - 1) - x1) / (float)(x2 - x1);
-				spans[i].c2r = (short)((float)spans[i].c1r + (spans[i].c2r - spans[i].c1r) * m);
-				spans[i].c2g = (short)((float)spans[i].c1g + (spans[i].c2g - spans[i].c1g) * m);
-				spans[i].c2b = (short)((float)spans[i].c1b + (spans[i].c2b - spans[i].c1b) * m);
+				float m = (float)((width - 1) - x1) / (x2 - x1);
+				spans[i].c2r = (short)(spans[i].c1r + (spans[i].c2r - spans[i].c1r) * m);
+				spans[i].c2g = (short)(spans[i].c1g + (spans[i].c2g - spans[i].c1g) * m);
+				spans[i].c2b = (short)(spans[i].c1b + (spans[i].c2b - spans[i].c1b) * m);
 				x2 = width - 1;
 			}
 			
@@ -129,7 +129,7 @@ public class Rasterizer {
 			float b2 = span.c2b;
 
 			for (int j=x1; j<=x2; j++) {
-				float a = (float)(j - x1) / (float)(x2 - x1 + 1);
+				float a = (float)(j - x1) / (x2 - x1 + 1);
 				float z = z1*(1f-a) + z2*a;
 
 				if (z > zbuffer[pos+j]) {

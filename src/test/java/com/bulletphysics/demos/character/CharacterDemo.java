@@ -27,7 +27,11 @@ import com.bulletphysics.collision.broadphase.AxisSweep3;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
 import com.bulletphysics.collision.dispatch.*;
-import com.bulletphysics.collision.shapes.*;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.convex.ConvexHullShape;
+import com.bulletphysics.collision.shapes.convex.ConvexShape;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
+import com.bulletphysics.collision.shapes.simple.CapsuleShape;
 import com.bulletphysics.demos.bsp.BspConverter;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.DynamicsWorld;
@@ -62,8 +66,8 @@ public class CharacterDemo extends DemoApplication {
 	private static int gRight = 0;
 	private static int gJump = 0;
 
-	public KinematicCharacterController character;
-	public PairCachingGhostObject ghostObject;
+	private KinematicCharacterController character;
+	private PairCachingGhostObject ghostObject;
 
 	public float cameraHeight = 4f;
 
@@ -74,13 +78,13 @@ public class CharacterDemo extends DemoApplication {
 	private final float characterScale = 2f;
 	
 	// keep the collision shapes, for deletion/cleanup
-	public final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
-	public BroadphaseInterface overlappingPairCache;
-	public CollisionDispatcher dispatcher;
-	public ConstraintSolver constraintSolver;
-	public DefaultCollisionConfiguration collisionConfiguration;
+	private final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
+	private BroadphaseInterface overlappingPairCache;
+	private CollisionDispatcher dispatcher;
+	private ConstraintSolver constraintSolver;
+	private DefaultCollisionConfiguration collisionConfiguration;
 
-	public CharacterDemo() {
+	private CharacterDemo() {
 		super();
 	}
 	
@@ -206,18 +210,10 @@ public class CharacterDemo extends DemoApplication {
 	@Override
 	public void specialKeyboardUp(int key) {
 		switch (key) {
-			case KeyEvent.VK_UP -> {
-				gForward = 0;
-			}
-			case KeyEvent.VK_DOWN -> {
-				gBackward = 0;
-			}
-			case KeyEvent.VK_LEFT -> {
-				gLeft = 0;
-			}
-			case KeyEvent.VK_RIGHT -> {
-				gRight = 0;
-			}
+			case KeyEvent.VK_UP -> gForward = 0;
+			case KeyEvent.VK_DOWN -> gBackward = 0;
+			case KeyEvent.VK_LEFT -> gLeft = 0;
+			case KeyEvent.VK_RIGHT -> gRight = 0;
 			default -> super.specialKeyboardUp(key);
 		}
 	}
@@ -225,18 +221,10 @@ public class CharacterDemo extends DemoApplication {
 	@Override
 	public void specialKeyboard(int key) {
 		switch (key) {
-			case KeyEvent.VK_UP -> {
-				gForward = 1;
-			}
-			case KeyEvent.VK_DOWN -> {
-				gBackward = 1;
-			}
-			case KeyEvent.VK_LEFT -> {
-				gLeft = 1;
-			}
-			case KeyEvent.VK_RIGHT -> {
-				gRight = 1;
-			}
+			case KeyEvent.VK_UP -> gForward = 1;
+			case KeyEvent.VK_DOWN -> gBackward = 1;
+			case KeyEvent.VK_LEFT -> gLeft = 1;
+			case KeyEvent.VK_RIGHT -> gRight = 1;
 			case KeyEvent.VK_F1 -> {
 				if (character != null && character.canJump()) {
 					gJump = 1;
@@ -286,7 +274,7 @@ public class CharacterDemo extends DemoApplication {
 		             cameraUp.x, cameraUp.y, cameraUp.z);
 	}
 
-	public static void main() {
+	public static void main(String... args) {
 		CharacterDemo demo = new CharacterDemo();
 
 		new JOGL(demo, 800, 600);

@@ -38,7 +38,7 @@ public class AabbUtil2 {
 		aabbMax.add(expansionMax);
 	}
 
-	public static int outcode(Vector3f p, Vector3f halfExtent) {
+	private static int outcode(Vector3f p, Vector3f halfExtent) {
 		return (p.x < -halfExtent.x ? 0x01 : 0x0) |
 				(p.x > halfExtent.x ? 0x08 : 0x0) |
 				(p.y < -halfExtent.y ? 0x02 : 0x0) |
@@ -78,15 +78,15 @@ public class AabbUtil2 {
 			for (int j = 0; j < 2; j++) {
 				for (int i = 0; i != 3; ++i) {
 					if ((sourceOutcode & bit) != 0) {
-						float lambda = (-VectorUtil.getCoord(source, i) - VectorUtil.getCoord(aabbHalfExtent, i) * normSign) / VectorUtil.getCoord(r, i);
+						float lambda = (-VectorUtil.coord(source, i) - VectorUtil.coord(aabbHalfExtent, i) * normSign) / VectorUtil.coord(r, i);
 						if (lambda_enter <= lambda) {
 							lambda_enter = lambda;
 							hitNormal.set(0f, 0f, 0f);
-							VectorUtil.setCoord(hitNormal, i, normSign);
+							VectorUtil.coord(hitNormal, i, normSign);
 						}
 					}
 					else if ((targetOutcode & bit) != 0) {
-						float lambda = (-VectorUtil.getCoord(source, i) - VectorUtil.getCoord(aabbHalfExtent, i) * normSign) / VectorUtil.getCoord(r, i);
+						float lambda = (-VectorUtil.coord(source, i) - VectorUtil.coord(aabbHalfExtent, i) * normSign) / VectorUtil.coord(r, i);
 						//btSetMin(lambda_exit, lambda);
 						lambda_exit = Math.min(lambda_exit, lambda);
 					}

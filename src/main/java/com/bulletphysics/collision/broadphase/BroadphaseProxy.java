@@ -46,14 +46,14 @@ public class BroadphaseProxy {
 	
 	public int uniqueId; // uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
 
-	public BroadphaseProxy() {
+	BroadphaseProxy() {
 	}
 	
-	public BroadphaseProxy(Object userPtr, short collisionFilterGroup, short collisionFilterMask) {
+	BroadphaseProxy(Object userPtr, short collisionFilterGroup, short collisionFilterMask) {
 		this(userPtr, collisionFilterGroup, collisionFilterMask, null);
 	}
 	
-	public BroadphaseProxy(Object userPtr, short collisionFilterGroup, short collisionFilterMask, Object multiSapParentProxy) {
+	BroadphaseProxy(Object userPtr, short collisionFilterGroup, short collisionFilterMask, Object multiSapParentProxy) {
 		this.clientObject = userPtr;
 		this.collisionFilterGroup = collisionFilterGroup;
 		this.collisionFilterMask = collisionFilterMask;

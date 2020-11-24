@@ -46,75 +46,75 @@ import javax.vecmath.Vector3f;
  */
 public class SliderConstraint extends TypedConstraint {
 
-    public static final float SLIDER_CONSTRAINT_DEF_SOFTNESS = 1.0f;
-    public static final float SLIDER_CONSTRAINT_DEF_DAMPING = 1.0f;
-    public static final float SLIDER_CONSTRAINT_DEF_RESTITUTION = 0.7f;
+    private static final float SLIDER_CONSTRAINT_DEF_SOFTNESS = 1.0f;
+    private static final float SLIDER_CONSTRAINT_DEF_DAMPING = 1.0f;
+    private static final float SLIDER_CONSTRAINT_DEF_RESTITUTION = 0.7f;
 
-    protected final Transform frameInA = new Transform();
-    protected final Transform frameInB = new Transform();
+    private final Transform frameInA = new Transform();
+    private final Transform frameInB = new Transform();
     // use frameA fo define limits, if true
-    protected final boolean useLinearReferenceFrameA;
-    protected final JacobianEntry[] jacLin = new JacobianEntry[/*3*/]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()};
-    protected final float[] jacLinDiagABInv = new float[3];
-    protected final JacobianEntry[] jacAng = new JacobianEntry[/*3*/]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()};
-    protected final Transform calculatedTransformA = new Transform();
-    protected final Transform calculatedTransformB = new Transform();
-    protected final Vector3f sliderAxis = new Vector3f();
-    protected final Vector3f realPivotAInW = new Vector3f();
-    protected final Vector3f realPivotBInW = new Vector3f();
-    protected final Vector3f projPivotInW = new Vector3f();
-    protected final Vector3f delta = new Vector3f();
-    protected final Vector3f depth = new Vector3f();
-    protected final Vector3f relPosA = new Vector3f();
-    protected final Vector3f relPosB = new Vector3f();
+    private final boolean useLinearReferenceFrameA;
+    private final JacobianEntry[] jacLin = new JacobianEntry[/*3*/]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()};
+    private final float[] jacLinDiagABInv = new float[3];
+    private final JacobianEntry[] jacAng = new JacobianEntry[/*3*/]{new JacobianEntry(), new JacobianEntry(), new JacobianEntry()};
+    private final Transform calculatedTransformA = new Transform();
+    private final Transform calculatedTransformB = new Transform();
+    private final Vector3f sliderAxis = new Vector3f();
+    private final Vector3f realPivotAInW = new Vector3f();
+    private final Vector3f realPivotBInW = new Vector3f();
+    private final Vector3f projPivotInW = new Vector3f();
+    private final Vector3f delta = new Vector3f();
+    private final Vector3f depth = new Vector3f();
+    private final Vector3f relPosA = new Vector3f();
+    private final Vector3f relPosB = new Vector3f();
     // linear limits
-    protected float lowerLinLimit;
-    protected float upperLinLimit;
+    private float lowerLinLimit;
+    private float upperLinLimit;
     // angular limits
-    protected float lowerAngLimit;
-    protected float upperAngLimit;
+    private float lowerAngLimit;
+    private float upperAngLimit;
     // softness, restitution and damping for different cases
     // DirLin - moving inside linear limits
     // LimLin - hitting linear limit
     // DirAng - moving inside angular limits
     // LimAng - hitting angular limit
     // OrthoLin, OrthoAng - against constraint axis
-    protected float softnessDirLin;
-    protected float restitutionDirLin;
-    protected float dampingDirLin;
-    protected float softnessDirAng;
-    protected float restitutionDirAng;
-    protected float dampingDirAng;
-    protected float softnessLimLin;
-    protected float restitutionLimLin;
-    protected float dampingLimLin;
-    protected float softnessLimAng;
-    protected float restitutionLimAng;
-    protected float dampingLimAng;
-    protected float softnessOrthoLin;
-    protected float restitutionOrthoLin;
-    protected float dampingOrthoLin;
-    protected float softnessOrthoAng;
-    protected float restitutionOrthoAng;
-    protected float dampingOrthoAng;
+    private float softnessDirLin;
+    private float restitutionDirLin;
+    private float dampingDirLin;
+    private float softnessDirAng;
+    private float restitutionDirAng;
+    private float dampingDirAng;
+    private float softnessLimLin;
+    private float restitutionLimLin;
+    private float dampingLimLin;
+    private float softnessLimAng;
+    private float restitutionLimAng;
+    private float dampingLimAng;
+    private float softnessOrthoLin;
+    private float restitutionOrthoLin;
+    private float dampingOrthoLin;
+    private float softnessOrthoAng;
+    private float restitutionOrthoAng;
+    private float dampingOrthoAng;
     // for interlal use
-    protected boolean solveLinLim;
-    protected boolean solveAngLim;
-    protected float timeStep;
-    protected float linPos;
+    private boolean solveLinLim;
+    private boolean solveAngLim;
+    private float timeStep;
+    private float linPos;
 
-    protected float angDepth;
-    protected float kAngle;
+    private float angDepth;
+    private float kAngle;
 
-    protected boolean poweredLinMotor;
-    protected float targetLinMotorVelocity;
-    protected float maxLinMotorForce;
-    protected float accumulatedLinMotorImpulse;
+    private boolean poweredLinMotor;
+    private float targetLinMotorVelocity;
+    private float maxLinMotorForce;
+    private float accumulatedLinMotorImpulse;
 
-    protected boolean poweredAngMotor;
-    protected float targetAngMotorVelocity;
-    protected float maxAngMotorForce;
-    protected float accumulatedAngMotorImpulse;
+    private boolean poweredAngMotor;
+    private float targetAngMotorVelocity;
+    private float maxAngMotorForce;
+    private float accumulatedAngMotorImpulse;
 
     public SliderConstraint() {
         super(TypedConstraintType.SLIDER_CONSTRAINT_TYPE);
@@ -130,7 +130,7 @@ public class SliderConstraint extends TypedConstraint {
         initParams();
     }
 
-    protected void initParams() {
+    private void initParams() {
         lowerLinLimit = 1f;
         upperLinLimit = -1f;
         lowerAngLimit = 0f;
@@ -456,7 +456,7 @@ public class SliderConstraint extends TypedConstraint {
 
     // internal
 
-    public void buildJacobianInt(RigidBody rbA, RigidBody rbB, Transform frameInA, Transform frameInB) {
+    private void buildJacobianInt(RigidBody rbA, RigidBody rbB, Transform frameInA, Transform frameInB) {
         Transform tmpTrans = new Transform();
         Transform tmpTrans1 = new Transform();
         Transform tmpTrans2 = new Transform();
@@ -497,7 +497,7 @@ public class SliderConstraint extends TypedConstraint {
                     rbB.getInvInertiaDiagLocal(tmp2),
                     rbB.getInvMass());
             jacLinDiagABInv[i] = 1f / jacLin[i].getDiagonal();
-            VectorUtil.setCoord(depth, i, delta.dot(normalWorld));
+            VectorUtil.coord(depth, i, delta.dot(normalWorld));
         }
         testLinLimits();
 
@@ -528,7 +528,7 @@ public class SliderConstraint extends TypedConstraint {
         accumulatedAngMotorImpulse = 0f;
     }
 
-    public void solveConstraintInt(RigidBody rbA, RigidBody rbB) {
+    private void solveConstraintInt(RigidBody rbA, RigidBody rbB) {
         Vector3f tmp = new Vector3f();
 
         // linear
@@ -543,7 +543,7 @@ public class SliderConstraint extends TypedConstraint {
             Vector3f normal = jacLin[i].linearJointAxis;
             float rel_vel = normal.dot(vel);
             // calculate positional error
-            float depth = VectorUtil.getCoord(this.depth, i);
+            float depth = VectorUtil.coord(this.depth, i);
             // get parameters
             float softness = (i != 0) ? softnessOrthoLin : (solveLinLim ? softnessLimLin : softnessDirLin);
             float restitution = (i != 0) ? restitutionOrthoLin : (solveLinLim ? restitutionLimLin : restitutionDirLin);
@@ -704,11 +704,11 @@ public class SliderConstraint extends TypedConstraint {
         // linear part
         for (int i = 0; i < 3; i++) {
             calculatedTransformA.basis.getColumn(i, normalWorld);
-            VectorUtil.setCoord(depth, i, delta.dot(normalWorld));
+            VectorUtil.coord(depth, i, delta.dot(normalWorld));
         }
     }
 
-    public void testLinLimits() {
+    private void testLinLimits() {
         solveLinLim = false;
         linPos = depth.x;
         if (lowerLinLimit <= upperLinLimit) {
@@ -726,7 +726,7 @@ public class SliderConstraint extends TypedConstraint {
         }
     }
 
-    public void testAngLimits() {
+    private void testAngLimits() {
         angDepth = 0f;
         solveAngLim = false;
         if (lowerAngLimit <= upperAngLimit) {

@@ -91,7 +91,7 @@ public class QuaternionUtil {
 		q.z = -q.z;
 	}
 	
-	public static void inverse(Quat4f q, Quat4f src) {
+	private static void inverse(Quat4f q, Quat4f src) {
 		q.x = -src.x;
 		q.y = -src.y;
 		q.z = -src.z;

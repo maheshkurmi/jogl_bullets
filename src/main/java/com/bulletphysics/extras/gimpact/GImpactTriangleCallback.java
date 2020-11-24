@@ -28,7 +28,7 @@
 package com.bulletphysics.extras.gimpact;
 
 import com.bulletphysics.collision.dispatch.CollisionObject;
-import com.bulletphysics.collision.shapes.TriangleCallback;
+import com.bulletphysics.collision.shapes.util.TriangleCallback;
 
 import javax.vecmath.Vector3f;
 

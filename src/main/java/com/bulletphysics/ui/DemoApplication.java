@@ -26,18 +26,19 @@ package com.bulletphysics.ui;
 import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.dispatch.CollisionObject;
-import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.simple.BoxShape;
 import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.linearmath.*;
+import com.bulletphysics.linearmath.CProfileIterator;
+import com.bulletphysics.linearmath.CProfileManager;
+import com.bulletphysics.linearmath.DebugDrawModes;
+import com.bulletphysics.linearmath.Transform;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Color3f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
-
-import static com.bulletphysics.ui.IGL.*;
 
 /**
  *
@@ -46,10 +47,10 @@ import static com.bulletphysics.ui.IGL.*;
 public abstract  class DemoApplication extends SpaceGraph3D {
 
 
-    protected CollisionShape shootBoxShape = null;
+    private CollisionShape shootBoxShape = null;
 	protected float ShootBoxInitialSpeed = 40f;
 
-    protected int lastKey;
+    private int lastKey;
 
 	private final CProfileIterator profileIterator;
 
@@ -62,9 +63,6 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		super.display(drawable);
-
-		renderVolume();
-		renderHUD();
 
 		renderme();
 	}
@@ -300,7 +298,7 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 	}
 
 
-	public void shootBox(Vector3f destination) {
+	private void shootBox(Vector3f destination) {
 		if (world != null) {
 			float mass = 10f;
 			Transform startTransform = new Transform();
@@ -338,27 +336,6 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 	}
 
 
-    // See http://www.lighthouse3d.com/opengl/glut/index.php?bmpfontortho
-	public void setOrthographicProjection() {
-		// switch to projection mode
-		gl.glMatrixMode(GL_PROJECTION);
-
-		// save previous matrix which contains the
-		//settings for the perspective projection
-		gl.glPushMatrix();
-		// reset matrix
-		gl.glLoadIdentity();
-		// set a 2D orthographic projection
-		gl.gluOrtho2D(0f, glutScreenWidth, 0f, glutScreenHeight);
-		gl.glMatrixMode(GL_MODELVIEW);
-		gl.glLoadIdentity();
-
-		// invert the y axis, down is positive
-		gl.glScalef(1f, -1f, 1f);
-		// mover the origin from the bottom left corner
-		// to the upper left corner
-		gl.glTranslatef(0f, -glutScreenHeight, 0f);
-	}
 
     private void displayProfileString(float xOffset, float yStart, CharSequence message) {
 		drawString(message, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
@@ -366,7 +343,7 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 
 	private static double time_since_reset = 0f;
 
-	protected float showProfileInfo(float xOffset, float yStart, float yIncr) {
+	private float showProfileInfo(float xOffset, float yStart, float yIncr) {
 		if (!idle) {
 			time_since_reset = CProfileManager.getTimeSinceReset();
 		}
@@ -410,7 +387,7 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 				buf.append(" (");
 				FastFormat.append(buf, (float) fraction, 2);
 				buf.append(" %) :: ");
-				FastFormat.append(buf, (float) (current_total_time / (double) frames_since_reset), 3);
+				FastFormat.append(buf, (float) (current_total_time / frames_since_reset), 3);
 				buf.append(" ms / frame (");
 				FastFormat.append(buf, profileIterator.getCurrentTotalCalls());
 				buf.append(" calls)");
@@ -439,8 +416,6 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 		return yStart;
 	}
 
-	private final Transform m = new Transform();
-	private final Vector3f wireColor = new Vector3f();
 	protected final Color3f TEXT_COLOR = new Color3f(0f, 0f, 0f);
 	private final StringBuilder buf = new StringBuilder();
 
@@ -448,14 +423,14 @@ public abstract  class DemoApplication extends SpaceGraph3D {
     @Deprecated public void renderme() {
 	}
 
-	private void renderHUD() {
+	@Override protected void renderHUD() {
+
 		if ((debugMode & DebugDrawModes.NO_HELP_TEXT) == 0) {
 			gl.glColor3f(0f, 0f, 0f);
 			float xOffset = 10f;
 			float yStart = 20f;
 			float yIncr = 20f;
 
-			setOrthographicProjection();
 
 			yStart = showProfileInfo(xOffset, yStart, yIncr);
 
@@ -615,63 +590,6 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 		}
 	}
 
-	private void renderVolume() {
-
-		updateCamera();
-
-
-		// optional but useful: debug drawing
-		world.debugDrawWorld();
-
-		gl.glEnable(GL_LIGHTING);
-		int numObjects = world.getNumCollisionObjects();
-		wireColor.set(1f, 0f, 0f);
-		for (int i = 0; i < numObjects; i++) {
-			CollisionObject colObj = world.getCollisionObjectArray().get(i);
-			RigidBody body = RigidBody.upcast(colObj);
-
-			if (body != null && body.getMotionState() != null) {
-				DefaultMotionState myMotionState = (DefaultMotionState) body.getMotionState();
-				m.set(myMotionState.graphicsWorldTrans);
-			}
-			else {
-				colObj.getWorldTransform(m);
-			}
-
-			wireColor.set(1f, 1f, 0.5f); // wants deactivation
-			if ((i & 1) != 0) {
-				wireColor.set(0f, 0f, 1f);
-			}
-
-			// color differently for active, sleeping, wantsdeactivation states
-			if (colObj.getActivationState() == 1) // active
-			{
-				if ((i & 1) != 0) {
-					//wireColor.add(new Vector3f(1f, 0f, 0f));
-					wireColor.x += 1f;
-				}
-				else {
-					//wireColor.add(new Vector3f(0.5f, 0f, 0f));
-					wireColor.x += 0.5f;
-				}
-			}
-			if (colObj.getActivationState() == 2) // ISLAND_SLEEPING
-			{
-				if ((i & 1) != 0) {
-					//wireColor.add(new Vector3f(0f, 1f, 0f));
-					wireColor.y += 1f;
-				}
-				else {
-					//wireColor.add(new Vector3f(0f, 0.5f, 0f));
-					wireColor.y += 0.5f;
-				}
-			}
-
-			GLShapeDrawer.drawOpenGL(gl, m, colObj.getCollisionShape(), wireColor, getDebugMode());
-		}
-
-		gl.glDisable(GL_LIGHTING);
-	}
 
 
 }

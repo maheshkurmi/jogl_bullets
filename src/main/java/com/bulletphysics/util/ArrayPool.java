@@ -62,7 +62,7 @@ public class ArrayPool<T> {
      *
      * @param componentType
      */
-    public ArrayPool(Class componentType) {
+    private ArrayPool(Class componentType) {
         this.componentType = componentType;
 
         if (componentType == float.class) {
@@ -165,7 +165,7 @@ public class ArrayPool<T> {
     }
 
     private static class IntValue {
-        public int value;
+        int value;
     }
 
 }

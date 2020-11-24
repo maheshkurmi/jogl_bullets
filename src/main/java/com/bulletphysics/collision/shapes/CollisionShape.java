@@ -39,12 +39,12 @@ public abstract class CollisionShape {
 
     //protected final BulletStack stack = BulletStack.get();
 
-    protected Object userPointer;
+    private Object userPointer;
 
     ///getAabb returns the axis aligned bounding box in the coordinate frame of the given transform t.
     public abstract void getAabb(Transform t, Vector3f aabbMin, Vector3f aabbMax);
 
-    public void getBoundingSphere(Vector3f center, float[] radius) {
+    private void getBoundingSphere(Vector3f center, float[] radius) {
         Vector3f tmp = new Vector3f();
 
         Transform tr = new Transform();
@@ -61,7 +61,7 @@ public abstract class CollisionShape {
     }
 
     ///getAngularMotionDisc returns the maximus radius needed for Conservative Advancement to handle time-of-impact with rotations.
-    public float getAngularMotionDisc() {
+    private float getAngularMotionDisc() {
         Vector3f center = new Vector3f();
         float[] disc = new float[1]; // TODO: stack
         getBoundingSphere(center, disc);
@@ -83,8 +83,8 @@ public abstract class CollisionShape {
         float temporalAabbMinz = temporalAabbMin.z;
 
         // add linear motion
-        Vector3f linMotion = new Vector3f(linvel);
-        linMotion.scale(timeStep);
+        Vector3f linMotion = new Vector3f();
+        linMotion.scale(timeStep, linvel);
 
         //todo: simd would have a vector max/min operation, instead of per-element access
         if (linMotion.x > 0f) {

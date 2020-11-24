@@ -44,7 +44,7 @@ public class SimulationIslandManager {
 	private final ObjectArrayList<PersistentManifold> islandmanifold = new ObjectArrayList<>();
 	private final ObjectArrayList<CollisionObject> islandBodies = new ObjectArrayList<>();
 	
-	public void initUnionFind(int n) {
+	private void initUnionFind(int n) {
 		unionFind.reset(n);
 	}
 	
@@ -52,7 +52,7 @@ public class SimulationIslandManager {
 		return unionFind;
 	}
 	
-	public void findUnions(Dispatcher dispatcher, CollisionWorld colWorld) {
+	private void findUnions(Dispatcher dispatcher, CollisionWorld colWorld) {
 		ObjectArrayList<BroadphasePair> pairPtr = colWorld.getPairCache().getOverlappingPairArray();
 		for (int i=0; i<pairPtr.size(); i++) {
 			BroadphasePair collisionPair = pairPtr.get(i);
@@ -115,7 +115,7 @@ public class SimulationIslandManager {
 		return islandId;
 	}
 
-	public void buildIslands(Dispatcher dispatcher, ObjectArrayList<CollisionObject> collisionObjects) {
+	private void buildIslands(Dispatcher dispatcher, ObjectArrayList<CollisionObject> collisionObjects) {
 		BulletStats.pushProfile("islandUnionFindAndQuickSort");
 		try {
 			islandmanifold.clear();

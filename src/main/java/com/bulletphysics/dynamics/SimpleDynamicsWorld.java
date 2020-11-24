@@ -45,9 +45,9 @@ import javax.vecmath.Vector3f;
  */
 public class SimpleDynamicsWorld extends DynamicsWorld {
 
-    protected final Vector3f gravity = new Vector3f(0f, 0f, -10f);
-    protected ConstraintSolver constraintSolver;
-    protected boolean ownsConstraintSolver;
+    private final Vector3f gravity = new Vector3f(0f, 0f, -10f);
+    private ConstraintSolver constraintSolver;
+    private boolean ownsConstraintSolver;
 
     public SimpleDynamicsWorld(Dispatcher dispatcher, BroadphaseInterface pairCache, ConstraintSolver constraintSolver, CollisionConfiguration collisionConfiguration) {
         super(dispatcher, pairCache, collisionConfiguration);
@@ -55,7 +55,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
         this.ownsConstraintSolver = false;
     }
 
-    protected void predictUnconstraintMotion(float timeStep) {
+    private void predictUnconstraintMotion(float timeStep) {
         Transform tmpTrans = new Transform();
 
         for (int i = 0; i < collisionObjects.size(); i++) {
@@ -74,7 +74,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
         }
     }
 
-    protected void integrateTransforms(float timeStep) {
+    private void integrateTransforms(float timeStep) {
         Transform predictedTrans = new Transform();
         for (int i = 0; i < collisionObjects.size(); i++) {
             CollisionObject colObj = collisionObjects.get(i);
@@ -192,7 +192,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
         }
     }
 
-    public void synchronizeMotionStates() {
+    private void synchronizeMotionStates() {
         Transform tmpTrans = new Transform();
 
         // todo: iterate over awake simulation islands!

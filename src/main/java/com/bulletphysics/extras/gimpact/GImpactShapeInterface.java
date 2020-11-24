@@ -30,8 +30,8 @@ package com.bulletphysics.extras.gimpact;
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.collision.dispatch.RayResultCallback;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.ConcaveShape;
-import com.bulletphysics.collision.shapes.TriangleCallback;
+import com.bulletphysics.collision.shapes.convex.ConcaveShape;
+import com.bulletphysics.collision.shapes.util.TriangleCallback;
 import com.bulletphysics.extras.gimpact.BoxCollision.AABB;
 import com.bulletphysics.linearmath.Transform;
 
@@ -44,12 +44,12 @@ import javax.vecmath.Vector3f;
  */
 public abstract class GImpactShapeInterface extends ConcaveShape {
 
-    protected final AABB localAABB = new AABB();
-    protected final Vector3f localScaling = new Vector3f();
-    final GImpactBvh box_set = new GImpactBvh(); // optionally boxset
-    protected boolean needs_update;
+    final AABB localAABB = new AABB();
+    final Vector3f localScaling = new Vector3f();
+    final GImpactCollisionAlgorithm.GImpactBvh box_set = new GImpactCollisionAlgorithm.GImpactBvh(); // optionally boxset
+    boolean needs_update;
 
-    public GImpactShapeInterface() {
+    GImpactShapeInterface() {
         localAABB.invalidate();
         needs_update = true;
         localScaling.set(1f, 1f, 1f);
@@ -87,14 +87,14 @@ public abstract class GImpactShapeInterface extends ConcaveShape {
     /**
      * Tells to this object that is needed to refit the box set.
      */
-    public void postUpdate() {
+    void postUpdate() {
         needs_update = true;
     }
 
     /**
      * Obtains the local box, which is the global calculated box of the total of subshapes.
      */
-    public AABB getLocalBox(AABB out) {
+    AABB getLocalBox(AABB out) {
         out.set(localAABB);
         return out;
     }
@@ -136,7 +136,7 @@ public abstract class GImpactShapeInterface extends ConcaveShape {
      */
     abstract ShapeType getGImpactShapeType();
 
-    GImpactBvh getBoxSet() {
+    GImpactCollisionAlgorithm.GImpactBvh getBoxSet() {
         return box_set;
     }
 
@@ -195,7 +195,7 @@ public abstract class GImpactShapeInterface extends ConcaveShape {
     /**
      * Use this function for perfofm refit in bounding boxes.
      */
-    protected void calcLocalAABB() {
+    void calcLocalAABB() {
         lockChildShapes();
         if (box_set.getNodeCount() == 0) {
             box_set.buildSet();

@@ -63,9 +63,9 @@ class Quantization {
     }
 
     public static Vector3f bt_unquantize(short[] vecIn, Vector3f offset, Vector3f bvhQuantization, Vector3f out) {
-        out.set((float) (vecIn[0] & 0xFFFF) / (bvhQuantization.x),
-                (float) (vecIn[1] & 0xFFFF) / (bvhQuantization.y),
-                (float) (vecIn[2] & 0xFFFF) / (bvhQuantization.z));
+        out.set((vecIn[0] & 0xFFFF) / (bvhQuantization.x),
+                (vecIn[1] & 0xFFFF) / (bvhQuantization.y),
+                (vecIn[2] & 0xFFFF) / (bvhQuantization.z));
         out.add(offset);
         return out;
     }

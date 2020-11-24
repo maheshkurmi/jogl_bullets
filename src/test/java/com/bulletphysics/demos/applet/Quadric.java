@@ -38,26 +38,26 @@ package com.bulletphysics.demos.applet;
  * Created 22-dec-2003
  * @author Erik Duijs
  */
-public class Quadric {
+class Quadric {
 	
 	public static final int GLU_FILL       = 1;
-	public static final int GLU_OUTSIDE    = 2;
+	static final int GLU_OUTSIDE    = 2;
 	public static final int GLU_SMOOTH     = 3;
-	public static final int GLU_INSIDE     = 4;
-	public static final int GLU_POINT      = 5;
-	public static final int GLU_LINE       = 6;
-	public static final int GLU_SILHOUETTE = 7;
-	public static final int GLU_NONE       = 8;
+	static final int GLU_INSIDE     = 4;
+	static final int GLU_POINT      = 5;
+	static final int GLU_LINE       = 6;
+	static final int GLU_SILHOUETTE = 7;
+	static final int GLU_NONE       = 8;
 	
-	protected int drawStyle;
-	protected int orientation;
-	protected boolean textureFlag;
-	protected int normals;
+	int drawStyle;
+	int orientation;
+	boolean textureFlag;
+	int normals;
 	
 	/**
 	 * Constructor for Quadric.
 	 */
-	public Quadric() {
+	Quadric() {
 		super();
 		
 		drawStyle = GLU_FILL;
@@ -73,7 +73,7 @@ public class Quadric {
 	 * @param y
 	 * @param z
 	 */
-	protected static void normal3f(Graphics3D gl, float x, float y, float z) {
+	static void normal3f(Graphics3D gl, float x, float y, float z) {
 	   float mag;
 	
 	   mag = (float)Math.sqrt(x * x + y * y + z * z);
@@ -189,16 +189,16 @@ public class Quadric {
 		return textureFlag;
 	}
 
-	protected void TXTR_COORD(Graphics3D gl, float x, float y) {
+	void TXTR_COORD(Graphics3D gl, float x, float y) {
 		//if (textureFlag) GL11.glTexCoord2f(x,y);
 	}
 
 
-	protected static float sin(float r) {
+	static float sin(float r) {
 		return (float)Math.sin(r);
 	}
 
-	protected static float cos(float r) {
+	static float cos(float r) {
 		return (float)Math.cos(r);
 	}
 

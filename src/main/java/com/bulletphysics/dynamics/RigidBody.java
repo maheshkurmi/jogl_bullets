@@ -78,7 +78,7 @@ public class RigidBody extends CollisionObject {
     // for experimental overriding of friction/contact solver func
     public int contactSolverType;
     public int frictionSolverType;
-    public int debugBodyId;
+    private int debugBodyId;
     private float inverseMass;
     private float angularFactor;
     private float linearDamping;
@@ -101,7 +101,7 @@ public class RigidBody extends CollisionObject {
         this(mass, motionState, collisionShape, new Vector3f(0f, 0f, 0f));
     }
 
-    public RigidBody(float mass, MotionState motionState, CollisionShape collisionShape, Vector3f localInertia) {
+    private RigidBody(float mass, MotionState motionState, CollisionShape collisionShape, Vector3f localInertia) {
         RigidBodyConstructionInfo cinfo = new RigidBodyConstructionInfo(mass, motionState, collisionShape, localInertia);
         setupRigidBody(cinfo);
     }
@@ -332,7 +332,7 @@ public class RigidBody extends CollisionObject {
         updateInertiaTensor();
     }
 
-    public void applyCentralForce(Vector3f force) {
+    private void applyCentralForce(Vector3f force) {
         totalForce.add(force);
     }
 
@@ -350,7 +350,7 @@ public class RigidBody extends CollisionObject {
         angularSleepingThreshold = angular;
     }
 
-    public void applyTorque(Vector3f torque) {
+    private void applyTorque(Vector3f torque) {
         totalTorque.add(torque);
     }
 
@@ -363,7 +363,7 @@ public class RigidBody extends CollisionObject {
         applyTorque(tmp);
     }
 
-    public void applyCentralImpulse(Vector3f impulse) {
+    private void applyCentralImpulse(Vector3f impulse) {
         linearVelocity.scaleAdd(inverseMass, impulse, linearVelocity);
     }
 
@@ -402,7 +402,7 @@ public class RigidBody extends CollisionObject {
         totalTorque.set(0f, 0f, 0f);
     }
 
-    public void updateInertiaTensor() {
+    private void updateInertiaTensor() {
         Matrix3f mat1 = new Matrix3f();
         MatrixUtil.scale(mat1, worldTransform.basis, invInertiaLocal);
 

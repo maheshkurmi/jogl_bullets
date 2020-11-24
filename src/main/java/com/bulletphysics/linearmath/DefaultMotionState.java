@@ -35,7 +35,7 @@ public class DefaultMotionState extends MotionState {
 	public final Transform graphicsWorldTrans = new Transform();
 	
 	/** Center of mass offset transform, used to adjust graphics world transform. */
-	public final Transform centerOfMassOffset = new Transform();
+	private final Transform centerOfMassOffset = new Transform();
 	
 	/** Initial world transform. */
 	public final Transform startWorldTrans = new Transform();
