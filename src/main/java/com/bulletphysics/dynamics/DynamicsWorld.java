@@ -27,10 +27,13 @@ import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.Dispatcher;
 import com.bulletphysics.collision.dispatch.CollisionConfiguration;
 import com.bulletphysics.collision.dispatch.CollisionWorld;
+import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.ContactSolverInfo;
 import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
 import com.bulletphysics.dynamics.vehicle.RaycastVehicle;
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.Transform;
 
 import javax.vecmath.Vector3f;
 
@@ -153,6 +156,34 @@ public abstract class DynamicsWorld extends CollisionWorld {
 
     public ContactSolverInfo getSolverInfo() {
         return solverInfo;
+    }
+
+    public RigidBody localCreateRigidBody(float mass, Transform startTransform, CollisionShape shape) {
+        // rigidbody is dynamic if and only if mass is non zero, otherwise static
+        boolean isDynamic = (mass != 0f);
+
+        Vector3f localInertia = new Vector3f(0f, 0f, 0f);
+        if (isDynamic) {
+            shape.calculateLocalInertia(mass, localInertia);
+        }
+
+        // using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+
+        //#define USE_MOTIONSTATE 1
+        //#ifdef USE_MOTIONSTATE
+        DefaultMotionState myMotionState = new DefaultMotionState(startTransform);
+
+        RigidBodyConstructionInfo cInfo = new RigidBodyConstructionInfo(mass, myMotionState, shape, localInertia);
+
+        RigidBody body = new RigidBody(cInfo);
+        //#else
+        //btRigidBody* body = new btRigidBody(mass,0,shape,localInertia);
+        //body->setWorldTransform(startTransform);
+        //#endif//
+
+        addRigidBody(body);
+
+        return body;
     }
 
 }

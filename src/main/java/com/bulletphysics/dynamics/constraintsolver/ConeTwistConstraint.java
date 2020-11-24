@@ -175,7 +175,7 @@ public class ConeTwistConstraint extends TypedConstraint {
 
         float swing1 = 0f, swing2 = 0f;
 
-        float swx = 0f, swy = 0f;
+        float swx, swy;
         float thresh = 10f;
         float fact;
 

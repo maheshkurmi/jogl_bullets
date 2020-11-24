@@ -490,7 +490,7 @@ public class KinematicCharacterController extends ActionInterface {
         float fraction = 1.0f;
         Vector3f distance2Vec = new Vector3f();
         distance2Vec.sub(currentPosition, targetPosition);
-        float distance2 = distance2Vec.lengthSquared();
+        float distance2;
         //printf("distance2=%f\n",distance2);
 
 		/*if (touchingContact) {

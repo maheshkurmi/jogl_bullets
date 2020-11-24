@@ -147,16 +147,13 @@ public class SubsimplexConvexCast extends ConvexCast {
 					//m_simplexSolver->reset();
 					// check next line
 					w.sub(supVertexA, supVertexB);
-					lastLambda = lambda;
-					n.set(v);
-					hasResult = true;
-				}
+                    n.set(v);
+                }
 			}
 			simplexSolver.addVertex(w, supVertexA , supVertexB);
 			if (simplexSolver.closest(v)) {
 				dist2 = v.lengthSquared();
-				hasResult = true;
-				// todo: check this normal for validity
+                // todo: check this normal for validity
 				//n.set(v);
 				//printf("V=%f , %f, %f\n",v[0],v[1],v[2]);
 				//printf("DIST2=%f\n",dist2);

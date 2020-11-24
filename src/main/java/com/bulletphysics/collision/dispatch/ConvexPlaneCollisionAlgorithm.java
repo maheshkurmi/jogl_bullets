@@ -85,7 +85,7 @@ public class ConvexPlaneCollisionAlgorithm extends CollisionAlgorithm {
 		ConvexShape convexShape = (ConvexShape) convexObj.getCollisionShape();
 		StaticPlaneShape planeShape = (StaticPlaneShape) planeObj.getCollisionShape();
 
-		boolean hasCollision = false;
+		boolean hasCollision;
 		Vector3f planeNormal = planeShape.getPlaneNormal(new Vector3f());
 		float planeConstant = planeShape.getPlaneConstant();
 

@@ -77,7 +77,7 @@ public class GjkConvexCast extends ConvexCast {
 
         Vector3f n = new Vector3f();
 		n.set(0f, 0f, 0f);
-		boolean hasResult = false;
+		boolean hasResult;
 		Vector3f c = new Vector3f();
 		Vector3f r = new Vector3f();
 		r.sub(linVelA, linVelB);
@@ -120,7 +120,7 @@ public class GjkConvexCast extends ConvexCast {
 					if (numIter > MAX_ITERATIONS) {
 						return false; // todo: report a failure
 					}
-					float dLambda = 0f;
+					float dLambda;
 
 					float projectedLinearVelocity = r.dot(n);
 

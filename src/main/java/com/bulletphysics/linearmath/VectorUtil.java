@@ -46,7 +46,6 @@ public class VectorUtil {
 		}
 		if (v.z > maxVal) {
 			maxIndex = 2;
-			maxVal = v.z;
 		}
 
 		return maxIndex;
@@ -69,7 +68,6 @@ public class VectorUtil {
 		}
 		if (v.w > maxVal) {
 			maxIndex = 3;
-			maxVal = v.w;
 		}
 
 		return maxIndex;

@@ -29,23 +29,24 @@ import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
 import com.bulletphysics.collision.dispatch.*;
 import com.bulletphysics.collision.shapes.*;
 import com.bulletphysics.demos.bsp.BspConverter;
-import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.IGL;
-import com.bulletphysics.demos.opengl.JOGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.character.KinematicCharacterController;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.ui.DemoApplication;
+import com.bulletphysics.ui.IGL;
+import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Vector3f;
+import java.io.IOException;
 
-import static com.bulletphysics.demos.opengl.IGL.GL_COLOR_BUFFER_BIT;
-import static com.bulletphysics.demos.opengl.IGL.GL_DEPTH_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_COLOR_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_DEPTH_BUFFER_BIT;
 
 /**
  * 
@@ -70,10 +71,10 @@ public class CharacterDemo extends DemoApplication {
 	public float maxCameraDistance = 10f;
 
 	// JAVA NOTE: the original demo scaled the bsp room, we scale up the character
-	private float characterScale = 2f;
+	private final float characterScale = 2f;
 	
 	// keep the collision shapes, for deletion/cleanup
-	public ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
+	public final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
 	public BroadphaseInterface overlappingPairCache;
 	public CollisionDispatcher dispatcher;
 	public ConstraintSolver constraintSolver;
@@ -83,7 +84,7 @@ public class CharacterDemo extends DemoApplication {
 		super();
 	}
 	
-	public void initPhysics() throws Exception {
+	public DynamicsWorld physics() {
 		CollisionShape groundShape = new BoxShape(new Vector3f(50, 3, 50));
 		collisionShapes.add(groundShape);
 
@@ -95,7 +96,7 @@ public class CharacterDemo extends DemoApplication {
 		overlappingPairCache = sweepBP;
 
 		constraintSolver = new SequentialImpulseConstraintSolver();
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher,overlappingPairCache,constraintSolver,collisionConfiguration);
+		DynamicsWorld world = new DiscreteDynamicsWorld(dispatcher,overlappingPairCache,constraintSolver,collisionConfiguration);
 
 		Transform startTransform = new Transform();
 		startTransform.setIdentity();
@@ -113,15 +114,19 @@ public class CharacterDemo extends DemoApplication {
 		float stepHeight = 0.35f * characterScale;
 		character = new KinematicCharacterController(ghostObject, capsule, stepHeight);
 
-		new BspToBulletConverter().convertBsp(getClass().getResourceAsStream("/exported.bsp.txt"));
+		try {
+			new BspToBulletConverter().convertBsp(getClass().getResourceAsStream("/exported.bsp.txt"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-		dynamicsWorld.addCollisionObject(ghostObject, CollisionFilterGroups.CHARACTER_FILTER, (short)(CollisionFilterGroups.STATIC_FILTER | CollisionFilterGroups.DEFAULT_FILTER));
+		world.addCollisionObject(ghostObject, CollisionFilterGroups.CHARACTER_FILTER, (short)(CollisionFilterGroups.STATIC_FILTER | CollisionFilterGroups.DEFAULT_FILTER));
 
-		dynamicsWorld.addAction(character);
+		world.addAction(character);
 		
-		clientResetScene();
 
 		setCameraDistance(56f);
+		return world;
 	}
 	
 	@Override
@@ -129,7 +134,7 @@ public class CharacterDemo extends DemoApplication {
 		gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 		float dt = getDeltaTimeMicroseconds() * 0.000001f;
 		poll();
-		if (dynamicsWorld != null) {
+		if (world != null) {
 			// during idle mode, just run 1 simulation step maximum
 			int maxSimSubSteps = idle ? 1 : 2;
 			if (idle) {
@@ -173,10 +178,10 @@ public class CharacterDemo extends DemoApplication {
 			walkDirection.scale(walkSpeed);
 			character.setWalkDirection(walkDirection);
 
-			int numSimSteps = dynamicsWorld.stepSimulation(dt, maxSimSubSteps);
+			int numSimSteps = world.stepSimulation(dt, maxSimSubSteps);
 
 			// optional but useful: debug drawing
-			dynamicsWorld.debugDrawWorld();
+			world.debugDrawWorld();
 		}
 
 		renderme();
@@ -187,10 +192,11 @@ public class CharacterDemo extends DemoApplication {
 
 
 
+
 	@Override
-	public void clientResetScene() {
-		dynamicsWorld.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(
-				ghostObject.getBroadphaseHandle(), getDynamicsWorld().getDispatcher());
+	public void reset() {
+		world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(
+				ghostObject.getBroadphaseHandle(), getWorld().getDispatcher());
 
 		character.reset();
 		///WTF
@@ -202,19 +208,15 @@ public class CharacterDemo extends DemoApplication {
 		switch (key) {
 			case KeyEvent.VK_UP -> {
 				gForward = 0;
-				break;
 			}
 			case KeyEvent.VK_DOWN -> {
 				gBackward = 0;
-				break;
 			}
 			case KeyEvent.VK_LEFT -> {
 				gLeft = 0;
-				break;
 			}
 			case KeyEvent.VK_RIGHT -> {
 				gRight = 0;
-				break;
 			}
 			default -> super.specialKeyboardUp(key);
 		}
@@ -225,25 +227,20 @@ public class CharacterDemo extends DemoApplication {
 		switch (key) {
 			case KeyEvent.VK_UP -> {
 				gForward = 1;
-				break;
 			}
 			case KeyEvent.VK_DOWN -> {
 				gBackward = 1;
-				break;
 			}
 			case KeyEvent.VK_LEFT -> {
 				gLeft = 1;
-				break;
 			}
 			case KeyEvent.VK_RIGHT -> {
 				gRight = 1;
-				break;
 			}
 			case KeyEvent.VK_F1 -> {
 				if (character != null && character.canJump()) {
 					gJump = 1;
 				}
-				break;
 			}
 			default -> super.specialKeyboard(key);
 		}
@@ -289,12 +286,10 @@ public class CharacterDemo extends DemoApplication {
 		             cameraUp.x, cameraUp.y, cameraUp.z);
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main() {
 		CharacterDemo demo = new CharacterDemo();
-		demo.initPhysics();
-		demo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(demo.gl));
 
-		JOGL.main(args, 800, 600, demo);
+		new JOGL(demo, 800, 600);
 	}
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -317,7 +312,7 @@ public class CharacterDemo extends DemoApplication {
 				collisionShapes.add(shape);
 
 				//btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
-				localCreateRigidBody(mass, startTransform, shape);
+				world.localCreateRigidBody(mass, startTransform, shape);
 			}
 		}
 	}

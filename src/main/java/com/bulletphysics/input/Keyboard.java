@@ -1,4 +1,4 @@
-package com.bulletphysics.demos.input;
+package com.bulletphysics.input;
 
 import com.jogamp.newt.event.InputEvent;
 import com.jogamp.newt.event.KeyEvent;
@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class Keyboard implements KeyListener {
 	/** The keys */
-	public Map<Integer, InputKey> keys = new HashMap<>();
+	public final Map<Integer, InputKey> keys = new HashMap<>();
 
 	private boolean consumed=true;
 	

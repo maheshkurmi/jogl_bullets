@@ -82,7 +82,7 @@ class BvhTree {
         int numIndices = endIndex - startIndex;
 
         // average of centers
-        float splitValue = 0.0f;
+        float splitValue;
 
         Vector3f means = new Vector3f();
         means.set(0f, 0f, 0f);

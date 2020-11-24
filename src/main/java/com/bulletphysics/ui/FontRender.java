@@ -21,7 +21,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-package com.bulletphysics.demos.opengl;
+package com.bulletphysics.ui;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
@@ -65,7 +65,7 @@ public class FontRender {
 	public static class GLFont {
 		protected int texture;
 		protected int width, height;
-		protected Glyph[] glyphs = new Glyph[128-32];
+		protected final Glyph[] glyphs = new Glyph[128-32];
 		
 		public GLFont() {
 			for (int i=0; i<glyphs.length; i++) glyphs[i] = new Glyph();
@@ -291,8 +291,8 @@ public class FontRender {
 		gl.glDisable(GL2.GL_BLEND);
 	}
 	
-	private static ColorModel glColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {8,8,8,0}, false, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
-	private static ColorModel glColorModelAlpha = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {8,8,8,8}, true, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
+	private static final ColorModel glColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {8,8,8,0}, false, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
+	private static final ColorModel glColorModelAlpha = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] {8,8,8,8}, true, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
 	
 	private static int createTexture(BufferedImage img, boolean mipMap) {
 		boolean USE_COMPRESSION = false;

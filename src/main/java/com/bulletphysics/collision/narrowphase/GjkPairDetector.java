@@ -108,7 +108,7 @@ public class GjkPairDetector extends DiscreteCollisionDetectorInterface {
 
 		{
 			float squaredDistance = BulletGlobals.SIMD_INFINITY;
-			float delta = 0f;
+			float delta;
 
 			float margin = marginA + marginB;
 

@@ -26,14 +26,14 @@ package com.bulletphysics.demos.concaveconvexcast;
 import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.collision.dispatch.CollisionWorld.ClosestConvexResultCallback;
 import com.bulletphysics.collision.shapes.BoxShape;
-import com.bulletphysics.demos.opengl.IGL;
 import com.bulletphysics.linearmath.*;
+import com.bulletphysics.ui.IGL;
 
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
-import static com.bulletphysics.demos.opengl.IGL.GL_LIGHTING;
-import static com.bulletphysics.demos.opengl.IGL.GL_LINES;
+import static com.bulletphysics.ui.IGL.GL_LIGHTING;
+import static com.bulletphysics.ui.IGL.GL_LINES;
 
 /**
  * Scrolls back and forth over terrain.
@@ -44,13 +44,13 @@ public class ConvexcastBatch {
 
 	public static final int NUMRAYS_IN_BAR = 100;
 
-	public Vector3f[] source = new Vector3f[NUMRAYS_IN_BAR];
-	public Vector3f[] dest = new Vector3f[NUMRAYS_IN_BAR];
-	public Vector3f[] direction = new Vector3f[NUMRAYS_IN_BAR];
-	public Vector3f[] hit_com = new Vector3f[NUMRAYS_IN_BAR];
-	public Vector3f[] hit_surface = new Vector3f[NUMRAYS_IN_BAR];
-	public float[] hit_fraction = new float[NUMRAYS_IN_BAR];
-	public Vector3f[] normal = new Vector3f[NUMRAYS_IN_BAR];
+	public final Vector3f[] source = new Vector3f[NUMRAYS_IN_BAR];
+	public final Vector3f[] dest = new Vector3f[NUMRAYS_IN_BAR];
+	public final Vector3f[] direction = new Vector3f[NUMRAYS_IN_BAR];
+	public final Vector3f[] hit_com = new Vector3f[NUMRAYS_IN_BAR];
+	public final Vector3f[] hit_surface = new Vector3f[NUMRAYS_IN_BAR];
+	public final float[] hit_fraction = new float[NUMRAYS_IN_BAR];
+	public final Vector3f[] normal = new Vector3f[NUMRAYS_IN_BAR];
 
 	{
 		for (int i=0; i<NUMRAYS_IN_BAR; i++) {
@@ -71,7 +71,7 @@ public class ConvexcastBatch {
 	public int max_ms;
 
 	//#ifdef USE_BT_CLOCK
-	public Clock frame_timer = new Clock();
+	public final Clock frame_timer = new Clock();
 	//#endif //USE_BT_CLOCK
 
 	public float dx;

@@ -1,4 +1,4 @@
-package com.bulletphysics.demos.input;
+package com.bulletphysics.input;
 
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.newt.event.MouseEvent.PointerType;
@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class Mouse implements MouseListener, MouseWheelListener {
 	/** The map of mouse buttons */
-	private Map<Integer, MouseButton> buttons = new Hashtable<>();
+	private final Map<Integer, MouseButton> buttons = new Hashtable<>();
 	
 	/** The current mouse location */
 	private Point location=new Point(0,0);

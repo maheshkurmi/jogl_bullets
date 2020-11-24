@@ -29,13 +29,17 @@ import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.*;
-import com.bulletphysics.demos.opengl.*;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.dynamics.vehicle.*;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.ui.DemoApplication;
+import com.bulletphysics.ui.GLShapeDrawer;
+import com.bulletphysics.ui.IGL;
+import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -44,8 +48,8 @@ import javax.vecmath.Vector3f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static com.bulletphysics.demos.opengl.IGL.GL_COLOR_BUFFER_BIT;
-import static com.bulletphysics.demos.opengl.IGL.GL_DEPTH_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_COLOR_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_DEPTH_BUFFER_BIT;
 
 /**
  * VehicleDemo shows how to setup and use the built-in raycast vehicle.
@@ -81,19 +85,19 @@ public class VehicleDemo extends DemoApplication {
 	private static float gEngineForce = 0.f;
 	private static float gBreakingForce = 0.f;
 
-	private static float maxEngineForce = 1000.f;//this should be engine/velocity dependent
-	private static float maxBreakingForce = 100.f;
+	private static final float maxEngineForce = 1000.f;//this should be engine/velocity dependent
+	private static final float maxBreakingForce = 100.f;
 
 	private static float gVehicleSteering = 0.f;
-	private static float steeringIncrement = 0.04f;
-	private static float steeringClamp = 0.3f;
-	private static float wheelRadius = 0.5f;
-	private static float wheelWidth = 0.4f;
-	private static float wheelFriction = 1000;//1e30f;
-	private static float suspensionStiffness = 20.f;
-	private static float suspensionDamping = 2.3f;
-	private static float suspensionCompression = 4.4f;
-	private static float rollInfluence = 0.1f;//1.0f;
+	private static final float steeringIncrement = 0.04f;
+	private static final float steeringClamp = 0.3f;
+	private static final float wheelRadius = 0.5f;
+	private static final float wheelWidth = 0.4f;
+	private static final float wheelFriction = 1000;//1e30f;
+	private static final float suspensionStiffness = 20.f;
+	private static final float suspensionDamping = 2.3f;
+	private static final float suspensionCompression = 4.4f;
+	private static final float rollInfluence = 0.1f;//1.0f;
 
 	private static final float suspensionRestLength = 0.6f;
 
@@ -102,7 +106,7 @@ public class VehicleDemo extends DemoApplication {
 	////////////////////////////////////////////////////////////////////////////
 	
 	public RigidBody carChassis;
-	public ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
+	public final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
 	public BroadphaseInterface overlappingPairCache;
 	public CollisionDispatcher dispatcher;
 	public ConstraintSolver constraintSolver;
@@ -111,14 +115,14 @@ public class VehicleDemo extends DemoApplication {
 
 	public ByteBuffer vertices;
 
-	public VehicleTuning tuning = new VehicleTuning();
+	public final VehicleTuning tuning = new VehicleTuning();
 	public VehicleRaycaster vehicleRayCaster;
 	public RaycastVehicle vehicle;
 
-	public float cameraHeight;
+	public final float cameraHeight;
 
-	public float minCameraDistance;
-	public float maxCameraDistance;
+	public final float minCameraDistance;
+	public final float maxCameraDistance;
 
 	public VehicleDemo() {
 		super();
@@ -132,7 +136,7 @@ public class VehicleDemo extends DemoApplication {
 		cameraPosition.set(30, 30, 30);
 	}
 
-	public void initPhysics() {
+	public DynamicsWorld physics() {
 		//#ifdef FORCE_ZAXIS_UP
 		//m_cameraUp = btVector3(0,0,1);
 		//m_forwardAxis = 1;
@@ -148,7 +152,7 @@ public class VehicleDemo extends DemoApplication {
 		//overlappingPairCache = new SimpleBroadphase();
 		overlappingPairCache = new DbvtBroadphase();
 		constraintSolver = new SequentialImpulseConstraintSolver();
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collisionConfiguration);
+		DynamicsWorld world = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collisionConfiguration);
 		//#ifdef FORCE_ZAXIS_UP
 		//dynamicsWorld.setGravity(new Vector3f(0, 0, -10));
 		//#endif 
@@ -280,7 +284,7 @@ public class VehicleDemo extends DemoApplication {
 		collisionShapes.add(groundShape);
 
 		// create ground object
-		localCreateRigidBody(0, tr, groundShape);
+		world.localCreateRigidBody(0, tr, groundShape);
 
 		//#ifdef FORCE_ZAXIS_UP
 		//	//   indexRightAxis = 0; 
@@ -308,20 +312,19 @@ public class VehicleDemo extends DemoApplication {
 
 		tr.origin.set(0, 0, 0);
 
-		carChassis = localCreateRigidBody(800, tr, compound); //chassisShape);
+		carChassis = world.localCreateRigidBody(800, tr, compound); //chassisShape);
 		//m_carChassis->setDamping(0.2,0.2);
 
-		clientResetScene();
 
 		// create vehicle
 		{
-			vehicleRayCaster = new DefaultVehicleRaycaster(dynamicsWorld);
+			vehicleRayCaster = new DefaultVehicleRaycaster(world);
 			vehicle = new RaycastVehicle(tuning, carChassis, vehicleRayCaster);
 
 			// never deactivate the vehicle
 			carChassis.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
 
-			dynamicsWorld.addVehicle(vehicle);
+			world.addVehicle(vehicle);
 
 			float connectionHeight = 1.2f;
 
@@ -369,6 +372,8 @@ public class VehicleDemo extends DemoApplication {
 		}
 
 		setCameraDistance(26.f);
+
+		return world;
 	}
 	
 	// to be implemented by the demo
@@ -410,14 +415,14 @@ public class VehicleDemo extends DemoApplication {
 
 		float dt = getDeltaTimeMicroseconds() * 0.000001f;
 		
-		if (dynamicsWorld != null)
+		if (world != null)
 		{
 			// during idle mode, just run 1 simulation step maximum
 			int maxSimSubSteps = idle ? 1 : 2;
 			if (idle)
 				dt = 1f/420f;
 
-			int numSimSteps = dynamicsWorld.stepSimulation(dt,maxSimSubSteps);
+			int numSimSteps = world.stepSimulation(dt,maxSimSubSteps);
 
 			//#define VERBOSE_FEEDBACK
 			//#ifdef VERBOSE_FEEDBACK
@@ -444,8 +449,8 @@ public class VehicleDemo extends DemoApplication {
 		renderme(); 
 		
 		// optional but useful: debug drawing
-		if (dynamicsWorld != null) {
-			dynamicsWorld.debugDrawWorld();
+		if (world != null) {
+			world.debugDrawWorld();
 		}
 
 		//#ifdef USE_QUICKPROF 
@@ -455,14 +460,14 @@ public class VehicleDemo extends DemoApplication {
 
 	
 	@Override
-	public void clientResetScene() {
+	public void reset() {
 		gVehicleSteering = 0f;
 		Transform tr = new Transform();
 		tr.setIdentity();
 		carChassis.setCenterOfMassTransform(tr);
 		carChassis.setLinearVelocity(new Vector3f(0, 0, 0));
 		carChassis.setAngularVelocity(new Vector3f(0, 0, 0));
-		dynamicsWorld.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(carChassis.getBroadphaseHandle(), getDynamicsWorld().getDispatcher());
+		world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(carChassis.getBroadphaseHandle(), getWorld().getDispatcher());
 		if (vehicle != null) {
 			vehicle.resetSuspension();
 			for (int i = 0; i < vehicle.getNumWheels(); i++) {
@@ -477,11 +482,9 @@ public class VehicleDemo extends DemoApplication {
 		switch (key) {
 			case KeyEvent.VK_UP -> {
 				gEngineForce = 0f;
-				break;
 			}
 			case KeyEvent.VK_DOWN -> {
 				gBreakingForce = 0f;
-				break;
 			}
 			default -> super.specialKeyboardUp(key);
 		}
@@ -497,24 +500,20 @@ public class VehicleDemo extends DemoApplication {
 				if (gVehicleSteering > steeringClamp) {
 					gVehicleSteering = steeringClamp;
 				}
-				break;
 			}
 			case KeyEvent.VK_RIGHT -> {
 				gVehicleSteering -= steeringIncrement;
 				if (gVehicleSteering < -steeringClamp) {
 					gVehicleSteering = -steeringClamp;
 				}
-				break;
 			}
 			case KeyEvent.VK_UP -> {
 				gEngineForce = maxEngineForce;
 				gBreakingForce = 0.f;
-				break;
 			}
 			case KeyEvent.VK_DOWN -> {
 				gBreakingForce = maxBreakingForce;
 				gEngineForce = 0.f;
-				break;
 			}
 			default -> super.specialKeyboard(key);
 		}
@@ -577,12 +576,10 @@ public class VehicleDemo extends DemoApplication {
 				  cameraUp.x,cameraUp.y,cameraUp.z);
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		VehicleDemo vehicleDemo = new VehicleDemo();
-		vehicleDemo.initPhysics();
-		vehicleDemo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(vehicleDemo.gl));
 
-		JOGL.main(args, 800, 600, vehicleDemo);
+		new JOGL(vehicleDemo, 800, 600);
 	}
 	
 }

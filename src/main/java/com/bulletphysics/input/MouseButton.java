@@ -1,4 +1,4 @@
-package com.bulletphysics.demos.input;
+package com.bulletphysics.input;
 
 import com.jogamp.newt.event.MouseEvent;
 /**
@@ -11,7 +11,7 @@ public class MouseButton {
 	private int id;
 	
 	/** The MouseEvent code */
-	private int code;
+	private final int code;
 	
 	/** The current value (number of clicks) */
 	private int value;
@@ -23,7 +23,7 @@ public class MouseButton {
 	private boolean released;
 	
 	/** Shift mask of event*/
-	private int modifiers=0;
+	private int modifiers;
 	
 	private boolean consumed=true;
 	/**

@@ -37,35 +37,35 @@ public class Graphics3D {
 	public static final int QUAD_STRIP   = 4;
 	public static final int LINES        = 5;
 	
-	private Rasterizer rasterizer = new Rasterizer();
-	private Vector4f[] vertices = new Vector4f[64];
-	private Vector3f[] normals = new Vector3f[64];
-	private Color3f[] colors = new Color3f[64];
+	private final Rasterizer rasterizer = new Rasterizer();
+	private final Vector4f[] vertices = new Vector4f[64];
+	private final Vector3f[] normals = new Vector3f[64];
+	private final Color3f[] colors = new Color3f[64];
 
 	private int clippedCount;
-	private Vector4f[] clippedVertices = new Vector4f[64];
-	private Color3f[] clippedColors = new Color3f[64];
+	private final Vector4f[] clippedVertices = new Vector4f[64];
+	private final Color3f[] clippedColors = new Color3f[64];
 	
 	private int primitiveType, primitivePos;
-	private Vector3f currentNormal = new Vector3f();
-	private Color3f currentColor = new Color3f();
+	private final Vector3f currentNormal = new Vector3f();
+	private final Color3f currentColor = new Color3f();
 	
-	private Matrix4f projMatrix = new Matrix4f();
-	private Matrix4f viewMatrix = new Matrix4f();
-	private Matrix4f mergedMatrix = new Matrix4f();
+	private final Matrix4f projMatrix = new Matrix4f();
+	private final Matrix4f viewMatrix = new Matrix4f();
+	private final Matrix4f mergedMatrix = new Matrix4f();
 	private boolean matrixDirty = false;
 	
-	private Color3f clearColor = new Color3f();
+	private final Color3f clearColor = new Color3f();
 	
-	private Matrix4f[] viewMatStack = new Matrix4f[16];
+	private final Matrix4f[] viewMatStack = new Matrix4f[16];
 	private int viewMatStackTop = 0;
 	
 	private boolean lightingEnabled = false;
-	private Light[] lights = new Light[4];
+	private final Light[] lights = new Light[4];
 	
 	private Vector3f origColor = new Vector3f();
-	private Vector3f tmpVec3 = new Vector3f();
-	private Vector3f[] lightResult = new Vector3f[lights.length];
+	private final Vector3f tmpVec3 = new Vector3f();
+	private final Vector3f[] lightResult = new Vector3f[lights.length];
 
 	public Graphics3D() {
 		for (int i=0; i<vertices.length; i++) vertices[i] = new Vector4f();

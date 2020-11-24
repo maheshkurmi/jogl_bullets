@@ -109,7 +109,6 @@ public class CapsuleShape extends ConvexInternalShape {
             vtx.sub(tmp2);
             newDot = vec.dot(vtx);
             if (newDot > maxDot) {
-                maxDot = newDot;
                 out.set(vtx);
             }
         }

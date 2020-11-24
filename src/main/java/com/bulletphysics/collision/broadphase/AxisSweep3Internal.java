@@ -395,7 +395,7 @@ public abstract class AxisSweep3Internal extends BroadphaseInterface {
 
 				previousPair.set(pair);
 
-				boolean needsRemoval = false;
+				boolean needsRemoval;
 
 				if (!isDuplicate) {
 					boolean hasOverlap = testAabbOverlap(pair.pProxy0, pair.pProxy1);

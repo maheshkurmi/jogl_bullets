@@ -29,8 +29,8 @@ import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.*;
-import com.bulletphysics.demos.opengl.*;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.HingeConstraint;
@@ -40,7 +40,10 @@ import com.bulletphysics.dynamics.vehicle.*;
 import com.bulletphysics.linearmath.DebugDrawModes;
 import com.bulletphysics.linearmath.MatrixUtil;
 import com.bulletphysics.linearmath.Transform;
-import com.bulletphysics.util.ObjectArrayList;
+import com.bulletphysics.ui.DemoApplication;
+import com.bulletphysics.ui.GLShapeDrawer;
+import com.bulletphysics.ui.IGL;
+import com.bulletphysics.ui.JOGL;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.opengl.GLAutoDrawable;
 
@@ -48,7 +51,7 @@ import javax.vecmath.Vector3f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static com.bulletphysics.demos.opengl.IGL.GL_LIGHTING;
+import static com.bulletphysics.ui.IGL.GL_LIGHTING;
 
 /**
  *
@@ -72,9 +75,9 @@ public class ForkLiftDemo extends DemoApplication {
 	//private btVector3 wheelDirectionCS0(0,0,-1);
 	//private btVector3 wheelAxleCS(1,0,0);
 	//#else
-	private int rightIndex = 0;
-	private int upIndex = 1;
-	private int forwardIndex = 2;
+	private final int rightIndex = 0;
+	private final int upIndex = 1;
+	private final int forwardIndex = 2;
 	private final Vector3f wheelDirectionCS0 = new Vector3f(0, -1, 0);
 	private final Vector3f wheelAxleCS = new Vector3f(-1, 0, 0);
 	//#endif
@@ -87,24 +90,24 @@ public class ForkLiftDemo extends DemoApplication {
 	// implementing explicit hinged-wheel constraints with cylinder collision, rather then raycasts
 	private float gEngineForce = 0.f;
 
-	private float defaultBreakingForce = 10.f;
+	private final float defaultBreakingForce = 10.f;
 	private float gBreakingForce = 10.f;
 
-	private float maxEngineForce = 1000.f;//this should be engine/velocity dependent
+	private final float maxEngineForce = 1000.f;//this should be engine/velocity dependent
 	private float maxBreakingForce = 100.f;
 
 	private float gVehicleSteering = 0.f;
-	private float steeringIncrement = 0.04f;
-	private float steeringClamp = 0.3f;
-	private float wheelRadius = 0.5f;
-	private float wheelWidth = 0.4f;
-	private float wheelFriction = 1000;//1e30f;
-	private float suspensionStiffness = 20.f;
-	private float suspensionDamping = 2.3f;
-	private float suspensionCompression = 4.4f;
-	private float rollInfluence = 0.1f;//1.0f;
+	private final float steeringIncrement = 0.04f;
+	private final float steeringClamp = 0.3f;
+	private final float wheelRadius = 0.5f;
+	private final float wheelWidth = 0.4f;
+	private final float wheelFriction = 1000;//1e30f;
+	private final float suspensionStiffness = 20.f;
+	private final float suspensionDamping = 2.3f;
+	private final float suspensionCompression = 4.4f;
+	private final float rollInfluence = 0.1f;//1.0f;
 
-	private float suspensionRestLength = 0.6f;
+	private final float suspensionRestLength = 0.6f;
 
 	private static final float CUBE_HALF_EXTENTS = 1f;
 	
@@ -120,17 +123,16 @@ public class ForkLiftDemo extends DemoApplication {
 	public HingeConstraint liftHinge;
 
 	public RigidBody forkBody;
-	public Vector3f forkStartPos = new Vector3f();
+	public final Vector3f forkStartPos = new Vector3f();
 	public SliderConstraint forkSlider;
 
 	public RigidBody loadBody;
-	public Vector3f loadStartPos = new Vector3f();
+	public final Vector3f loadStartPos = new Vector3f();
 
 	public boolean useDefaultCamera;
 
 	//----------------------------
 
-	public ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
 	public BroadphaseInterface overlappingPairCache;
 	public CollisionDispatcher dispatcher;
 	public ConstraintSolver constraintSolver;
@@ -138,13 +140,13 @@ public class ForkLiftDemo extends DemoApplication {
 	public TriangleIndexVertexArray indexVertexArrays;
 	public ByteBuffer vertices;
 
-	public VehicleTuning tuning = new VehicleTuning();
+	public final VehicleTuning tuning = new VehicleTuning();
 	public VehicleRaycaster vehicleRayCaster;
 	public RaycastVehicle vehicle;
 
-	public float cameraHeight = 4f;
-	public float minCameraDistance = 3f;
-	public float maxCameraDistance = 10f;
+	public final float cameraHeight = 4f;
+	public final float minCameraDistance = 3f;
+	public final float maxCameraDistance = 10f;
 
 	public ForkLiftDemo() {
 		super();
@@ -189,6 +191,7 @@ public class ForkLiftDemo extends DemoApplication {
 
 	@Override
 	public void display(GLAutoDrawable arg) {
+		if (gl == null) return;
 		gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT); 
 		poll();
 		{			
@@ -207,14 +210,14 @@ public class ForkLiftDemo extends DemoApplication {
 
 		float dt = getDeltaTimeMicroseconds() * 0.000001f;
 		
-		if (dynamicsWorld != null)
+		if (world != null)
 		{
 			// during idle mode, just run 1 simulation step maximum
 			int maxSimSubSteps = idle ? 1 : 2;
 			if (idle)
 				dt = 1f/420f;
 
-			int numSimSteps = dynamicsWorld.stepSimulation(dt,maxSimSubSteps);
+			int numSimSteps = world.stepSimulation(dt,maxSimSubSteps);
 
 			//#define VERBOSE_FEEDBACK
 			//#ifdef VERBOSE_FEEDBACK
@@ -241,8 +244,8 @@ public class ForkLiftDemo extends DemoApplication {
 		renderme(); 
 		
 		// optional but useful: debug drawing
-		if (dynamicsWorld != null) {
-			dynamicsWorld.debugDrawWorld();
+		if (world != null) {
+			world.debugDrawWorld();
 		}
 
 		//#ifdef USE_QUICKPROF 
@@ -251,14 +254,14 @@ public class ForkLiftDemo extends DemoApplication {
 	}
 
 	@Override
-	public void clientResetScene() {
+	public void reset() {
 		gVehicleSteering = 0.f;
 		Transform tr = new Transform();
 		tr.setIdentity();
 		carChassis.setCenterOfMassTransform(tr);
 		carChassis.setLinearVelocity(new Vector3f(0,0,0));
 		carChassis.setAngularVelocity(new Vector3f(0,0,0));
-		dynamicsWorld.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(carChassis.getBroadphaseHandle(),getDynamicsWorld().getDispatcher());
+		world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(carChassis.getBroadphaseHandle(), getWorld().getDispatcher());
 		if (vehicle != null)
 		{
 			vehicle.resetSuspension();
@@ -305,6 +308,7 @@ public class ForkLiftDemo extends DemoApplication {
 	///a very basic camera following the vehicle
 	@Override
 	public void updateCamera() {
+		if (gl == null) return;
 		if(useDefaultCamera)
 		{
 			super.updateCamera();
@@ -316,9 +320,6 @@ public class ForkLiftDemo extends DemoApplication {
 		//DemoApplication::updateCamera();
 		//return;
 		//#endif //DISABLE_CAMERA
-
-		gl.glMatrixMode(gl.GL_PROJECTION);
-		gl.glLoadIdentity();
 
 		Transform chassisWorldTrans = new Transform();
 
@@ -421,12 +422,10 @@ public class ForkLiftDemo extends DemoApplication {
 			case KeyEvent.VK_J -> {
 				liftHinge.setLimit(-PI / 16.0f, PI / 8.0f);
 				liftHinge.enableAngularMotor(true, -0.1f, 10.0f);
-				break;
 			}
 			case KeyEvent.VK_L -> {
 				liftHinge.setLimit(-PI / 16.0f, PI / 8.0f);
 				liftHinge.enableAngularMotor(true, 0.1f, 10.0f);
-				break;
 			}
 			case KeyEvent.VK_I -> {
 				forkSlider.setLowerLinLimit(0.1f);
@@ -434,7 +433,6 @@ public class ForkLiftDemo extends DemoApplication {
 				forkSlider.setPoweredLinMotor(true);
 				forkSlider.setMaxLinMotorForce(10.0f);
 				forkSlider.setTargetLinMotorVelocity(1.0f);
-				break;
 			}
 			case KeyEvent.VK_K -> {
 				forkSlider.setLowerLinLimit(0.1f);
@@ -442,7 +440,6 @@ public class ForkLiftDemo extends DemoApplication {
 				forkSlider.setPoweredLinMotor(true);
 				forkSlider.setMaxLinMotorForce(10.0f);
 				forkSlider.setTargetLinMotorVelocity(-1.0f);
-				break;
 			}
 			default -> super.specialKeyboard(key);
 		}
@@ -453,24 +450,20 @@ public class ForkLiftDemo extends DemoApplication {
 				if (gVehicleSteering > steeringClamp) {
 					gVehicleSteering = steeringClamp;
 				}
-				break;
 			}
 			case KeyEvent.VK_RIGHT -> {
 				gVehicleSteering -= steeringIncrement;
 				if (gVehicleSteering < -steeringClamp) {
 					gVehicleSteering = -steeringClamp;
 				}
-				break;
 			}
 			case KeyEvent.VK_UP -> {
 				gEngineForce = maxEngineForce;
 				gBreakingForce = 0.f;
-				break;
 			}
 			case KeyEvent.VK_DOWN -> {
 				gEngineForce = -maxEngineForce;
 				gBreakingForce = 0.f;
-				break;
 			}
 			case KeyEvent.VK_F5 -> useDefaultCamera = !useDefaultCamera;
 			default -> super.specialKeyboard(key);
@@ -483,21 +476,13 @@ public class ForkLiftDemo extends DemoApplication {
 	@Override
 	public void specialKeyboardUp(int key) {
 		switch (key) {
-			case KeyEvent.VK_UP -> {
+			case KeyEvent.VK_UP, KeyEvent.VK_DOWN -> {
 				lockForkSlider();
 				gEngineForce = 0.f;
 				gBreakingForce = defaultBreakingForce;
-				break;
-			}
-			case KeyEvent.VK_DOWN -> {
-				lockForkSlider();
-				gEngineForce = 0.f;
-				gBreakingForce = defaultBreakingForce;
-				break;
 			}
 			case KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT -> {
 				lockLiftHinge();
-				break;
 			}
 			default -> super.specialKeyboard(key);
 		}
@@ -514,7 +499,7 @@ public class ForkLiftDemo extends DemoApplication {
 		Vector3f wheelColor = new Vector3f(1,0,0);
 
 		Vector3f worldBoundsMin = new Vector3f(),worldBoundsMax = new Vector3f();
-		getDynamicsWorld().getBroadphase().getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
+		getWorld().getBroadphase().getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
 
 		for (int i=0;i<vehicle.getNumWheels();i++)
 		{
@@ -542,7 +527,7 @@ public class ForkLiftDemo extends DemoApplication {
 	}
 
 	@Override
-	public void initPhysics() {
+	public DynamicsWorld physics() {
 		//#ifdef FORCE_ZAXIS_UP
 		//cameraUp.set(0,0,1);
 		//forwardAxis = 1;
@@ -557,7 +542,7 @@ public class ForkLiftDemo extends DemoApplication {
 		//overlappingPairCache = new AxisSweep3(worldMin,worldMax);
 		overlappingPairCache = new DbvtBroadphase();
 		constraintSolver = new SequentialImpulseConstraintSolver();
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher,overlappingPairCache,constraintSolver,collisionConfiguration);
+		DynamicsWorld world = new DiscreteDynamicsWorld(dispatcher,overlappingPairCache,constraintSolver,collisionConfiguration);
 		//#ifdef FORCE_ZAXIS_UP
 		//m_dynamicsWorld->setGravity(btVector3(0,0,-10));
 		//#endif 
@@ -683,7 +668,7 @@ public class ForkLiftDemo extends DemoApplication {
 		collisionShapes.add(groundShape);
 
 		// create ground object
-		localCreateRigidBody(0,tr,groundShape);
+		world.localCreateRigidBody(0,tr,groundShape);
 
 		//#ifdef FORCE_ZAXIS_UP
 		////   indexRightAxis = 0;
@@ -721,7 +706,7 @@ public class ForkLiftDemo extends DemoApplication {
 
 		tr.origin.set(0,0.f,0);
 
-		carChassis = localCreateRigidBody(800,tr,compound);//chassisShape);
+		carChassis = world.localCreateRigidBody(800,tr,compound);//chassisShape);
 		//m_carChassis->setDamping(0.2,0.2);
 
 
@@ -732,7 +717,7 @@ public class ForkLiftDemo extends DemoApplication {
 			liftStartPos.set(0.0f, 2.5f, 3.05f);
 			liftTrans.setIdentity();
 			liftTrans.origin.set(liftStartPos);
-			liftBody = localCreateRigidBody(10,liftTrans, liftShape);
+			liftBody = world.localCreateRigidBody(10,liftTrans, liftShape);
 
 			Transform localA = new Transform(), localB = new Transform();
 			localA.setIdentity();
@@ -743,7 +728,7 @@ public class ForkLiftDemo extends DemoApplication {
 			localB.origin.set(0.0f, -1.5f, -0.05f);
 			liftHinge = new HingeConstraint(carChassis,liftBody, localA, localB);
 			liftHinge.setLimit(-LIFT_EPS, LIFT_EPS);
-			dynamicsWorld.addConstraint(liftHinge, true);
+			world.addConstraint(liftHinge, true);
 
 			CollisionShape forkShapeA = new BoxShape(new Vector3f(1.0f,0.1f,0.1f));
 			collisionShapes.add(forkShapeA);
@@ -769,7 +754,7 @@ public class ForkLiftDemo extends DemoApplication {
 			forkStartPos.set(0.0f, 0.6f, 3.2f);
 			forkTrans.setIdentity();
 			forkTrans.origin.set(forkStartPos);
-			forkBody = localCreateRigidBody(5, forkTrans, forkCompound);
+			forkBody = world.localCreateRigidBody(5, forkTrans, forkCompound);
 
 			localA.setIdentity();
 			localB.setIdentity();
@@ -782,7 +767,7 @@ public class ForkLiftDemo extends DemoApplication {
 			forkSlider.setUpperLinLimit(0.1f);
 			forkSlider.setLowerAngLimit(-LIFT_EPS);
 			forkSlider.setUpperAngLimit(LIFT_EPS);
-			dynamicsWorld.addConstraint(forkSlider, true);
+			world.addConstraint(forkSlider, true);
 			
 			CompoundShape loadCompound = new CompoundShape();
 			collisionShapes.add(loadCompound);
@@ -804,21 +789,21 @@ public class ForkLiftDemo extends DemoApplication {
 			loadTrans.setIdentity();
 			loadStartPos.set(0.0f, -3.5f, 7.0f);
 			loadTrans.origin.set(loadStartPos);
-			loadBody  = localCreateRigidBody(4, loadTrans, loadCompound);
+			loadBody  = world.localCreateRigidBody(4, loadTrans, loadCompound);
 		}
 
-		clientResetScene();
+
 
 		// create vehicle
 		{
 
-			vehicleRayCaster = new DefaultVehicleRaycaster(dynamicsWorld);
+			vehicleRayCaster = new DefaultVehicleRaycaster(world);
 			vehicle = new RaycastVehicle(tuning,carChassis,vehicleRayCaster);
 
 			// never deactivate the vehicle
 			carChassis.setActivationState(CollisionObject.DISABLE_DEACTIVATION);
 
-			dynamicsWorld.addVehicle(vehicle);
+			world.addVehicle(vehicle);
 
 			float connectionHeight = 1.2f;
 
@@ -867,14 +852,13 @@ public class ForkLiftDemo extends DemoApplication {
 		}
 
 		setCameraDistance(26.f);
+		return world;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		ForkLiftDemo forkLiftDemo = new ForkLiftDemo();
-		forkLiftDemo.initPhysics();
-		forkLiftDemo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(forkLiftDemo.gl));
 
-		JOGL.main(args, 800, 600, forkLiftDemo);
+		new JOGL(forkLiftDemo, 800, 600);
 	}
 
 }

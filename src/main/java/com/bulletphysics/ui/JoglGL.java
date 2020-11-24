@@ -21,15 +21,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-package com.bulletphysics.demos.opengl;
+package com.bulletphysics.ui;
 
-import com.bulletphysics.demos.opengl.FontRender.GLFont;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,21 +38,21 @@ import java.util.Map;
  */
 public class JoglGL implements IGL {
 
-	private static FloatBuffer floatBuf = Buffers.newDirectFloatBuffer(16);
-	private static GLU glu=new GLU();
-	private GLFont font;
-	private GL2 gl;
+	private static final FloatBuffer floatBuf = Buffers.newDirectFloatBuffer(16);
+	private static final GLU glu=new GLU();
+	private FontRender.GLFont font;
+	public GL2 gl;
 	
 	public void init(GL2 gl) {
 		this.gl=gl;
 		FontRender.init(gl,glu);
-		try {
-			//font = FontRender.createFont("Dialog", 11, false, true);
-			font = new GLFont(IGL.class.getResourceAsStream("/DejaVu_Sans_11.fnt"));
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+			font = FontRender.createFont(null, 16, false, true);
+//		try {
+			//font = new FontRender.GLFont(IGL.class.getResourceAsStream("/DejaVu_Sans_11.fnt"));
+//		}
+//		catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	public void glLight(int light, int pname, float[] params) {
@@ -182,39 +180,18 @@ public class JoglGL implements IGL {
 	private static  GLUquadric disk =null;
 	private static  GLUquadric sphere = null;
 	
-	private static class SphereKey {
-		public float radius;
 
-		public SphereKey() {
-		}
-
-		public SphereKey(SphereKey key) {
-			radius = key.radius;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof SphereKey)) return false;
-			SphereKey other = (SphereKey)obj;
-			return radius == other.radius;
-		}
-
-		@Override
-		public int hashCode() {
-			return Float.floatToIntBits(radius);
-		}
-	}
 	
-	private static Map<SphereKey,Integer> sphereDisplayLists = new HashMap<>();
-	private static SphereKey sphereKey = new SphereKey();
+	private static final Map<Float,Integer> sphereDisplayLists = new HashMap<>();
+
 	
 	public void drawSphere(float radius, int slices, int stacks) {
 		if(sphere==null) {
 			sphere = glu.gluNewQuadric();
 			sphere.setImmMode(true);
         }
-		sphereKey.radius = radius;
-		Integer glList = sphereDisplayLists.get(sphereKey);
+
+		Integer glList = sphereDisplayLists.get(radius);
 		if (glList == null) {
 			glList = gl.glGenLists(1);
 			gl.glNewList(glList, GL2.GL_COMPILE);
@@ -222,7 +199,7 @@ public class JoglGL implements IGL {
 			glu.gluSphere(sphere, radius, 8, 8);
 		      
 			gl.glEndList();
-			sphereDisplayLists.put(new SphereKey(sphereKey), glList);
+			sphereDisplayLists.put(radius, glList);
 		}
 		
 		gl.glCallList(glList);
@@ -230,8 +207,8 @@ public class JoglGL implements IGL {
 	
 	////////////////////////////////////////////////////////////////////////////
 
-	
-	private static class CylinderKey {
+	/** TODO use Pair<Float> */
+	@Deprecated private static class CylinderKey {
 		public float radius;
 		public float halfHeight;
 
@@ -265,8 +242,8 @@ public class JoglGL implements IGL {
 		}
 	}
 	
-	private static Map<CylinderKey,Integer> cylinderDisplayLists = new HashMap<>();
-	private static CylinderKey cylinderKey = new CylinderKey();
+	private static final Map<CylinderKey,Integer> cylinderDisplayLists = new HashMap<>();
+	private static final CylinderKey cylinderKey = new CylinderKey();
 	
 	public void drawCylinder(float radius, float halfHeight, int upAxis) {
 		   if(cylinder==null) {

@@ -34,14 +34,14 @@ import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.BvhTriangleMeshShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
-import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.JOGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.ui.DemoApplication;
+import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
 import com.jogamp.opengl.GLAutoDrawable;
 
@@ -49,8 +49,8 @@ import javax.vecmath.Vector3f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static com.bulletphysics.demos.opengl.IGL.GL_COLOR_BUFFER_BIT;
-import static com.bulletphysics.demos.opengl.IGL.GL_DEPTH_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_COLOR_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_DEPTH_BUFFER_BIT;
 
 /**
  * 
@@ -59,7 +59,7 @@ import static com.bulletphysics.demos.opengl.IGL.GL_DEPTH_BUFFER_BIT;
 public class ConcaveConvexcastDemo extends DemoApplication {
 
 	// keep the collision shapes, for deletion/cleanup
-	private ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
+	private final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
 	private TriangleIndexVertexArray indexVertexArrays;
 	private BroadphaseInterface broadphase;
 	private CollisionDispatcher dispatcher;
@@ -71,12 +71,12 @@ public class ConcaveConvexcastDemo extends DemoApplication {
 	private static ByteBuffer gIndices;
 	private static BvhTriangleMeshShape trimeshShape;
 	private static RigidBody staticBody;
-	private static float waveheight = 5.f;
+	private static final float waveheight = 5.f;
 
 	private static final float TRIANGLE_SIZE=8.f;
-	private static int NUM_VERTS_X = 30;
-	private static int NUM_VERTS_Y = 30;
-	private static int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
+	private static final int NUM_VERTS_X = 30;
+	private static final int NUM_VERTS_Y = 30;
+	private static final int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
 
 	private ConvexcastBatch convexcastBatch;
 
@@ -122,7 +122,7 @@ public class ConcaveConvexcastDemo extends DemoApplication {
 		super.keyboardCallback(key);
 	}
 
-	public void initPhysics() {
+	public DynamicsWorld physics() {
 		final float TRISIZE = 10f;
 
 		//#define USE_TRIMESH_SHAPE 1
@@ -179,11 +179,8 @@ public class ConcaveConvexcastDemo extends DemoApplication {
 		//broadphase = new AxisSweep3(worldMin, worldMax);
 		broadphase = new DbvtBroadphase();
 		solver = new SequentialImpulseConstraintSolver();
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+		DynamicsWorld world = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
-		// JAVA NOTE: added
-		dynamicsWorld.setDebugDrawer(new GLDebugDrawer(gl));
-		
 		float mass = 0f;
 		Transform startTransform = new Transform();
 		startTransform.setIdentity();
@@ -196,12 +193,12 @@ public class ConcaveConvexcastDemo extends DemoApplication {
 			for (i = 0; i < 10; i++) {
 				//btCollisionShape* colShape = new btCapsuleShape(0.5,2.0);//boxShape = new btSphereShape(1.f);
 				startTransform.origin.set(2f * i, 10f, 1f);
-				localCreateRigidBody(1f, startTransform, colShape);
+				world.localCreateRigidBody(1f, startTransform, colShape);
 			}
 		}
 
 		startTransform.setIdentity();
-		staticBody = localCreateRigidBody(mass, startTransform, groundShape);
+		staticBody = world.localCreateRigidBody(mass, startTransform, groundShape);
 
 		staticBody.setCollisionFlags(staticBody.getCollisionFlags() | CollisionFlags.STATIC_OBJECT);
 
@@ -209,6 +206,7 @@ public class ConcaveConvexcastDemo extends DemoApplication {
 		staticBody.setCollisionFlags(staticBody.getCollisionFlags() | CollisionFlags.CUSTOM_MATERIAL_CALLBACK);
 
 		convexcastBatch = new ConvexcastBatch(40f, 0f, -10f, 10f);
+		return world;
 	}
 
 	private static float offset = 0f;
@@ -230,18 +228,18 @@ public class ConcaveConvexcastDemo extends DemoApplication {
 			trimeshShape.refitTree(null, null);
 
 			// clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
-			dynamicsWorld.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(staticBody.getBroadphaseHandle(), getDynamicsWorld().getDispatcher());
+			world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(staticBody.getBroadphaseHandle(), getWorld().getDispatcher());
 			
 			BulletStats.updateTime = (System.nanoTime() - t0) / 1000000;
 		}
 
-		dynamicsWorld.stepSimulation(dt);
+		world.stepSimulation(dt);
 
 		// optional but useful: debug drawing
-		dynamicsWorld.debugDrawWorld();
+		world.debugDrawWorld();
 
 		convexcastBatch.move(dt);
-		convexcastBatch.cast(dynamicsWorld);
+		convexcastBatch.cast(world);
 
 		renderme();
 		convexcastBatch.draw(gl);
@@ -251,12 +249,11 @@ public class ConcaveConvexcastDemo extends DemoApplication {
 	}
 
 	
-	public static void main(String[] args)  {
+	public static void main()  {
 		ConcaveConvexcastDemo concaveConvexcastDemo = new ConcaveConvexcastDemo();
-		concaveConvexcastDemo.initPhysics();
 		concaveConvexcastDemo.setCameraDistance(30f);
 
-		JOGL.main(args, 800, 600, concaveConvexcastDemo);
+		new JOGL(concaveConvexcastDemo, 800, 600);
 	}
 	
 }

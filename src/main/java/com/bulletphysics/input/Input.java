@@ -1,4 +1,4 @@
-package com.bulletphysics.demos.input;
+package com.bulletphysics.input;
 
 /**
  * Represents an input of an input device.
@@ -27,13 +27,13 @@ public class Input {
 	}
 
 	/** What happens when the input is held */
-	private Input.Hold holdType = Input.Hold.HOLD;
+	private Input.Hold holdType;
 	
 	/** The input state */
 	private Input.State state = Input.State.RELEASED;
 	
 	/** The event id */
-	private int event = 0;
+	private int event;
 	
 	/** The input count */
 	private int value = 0;

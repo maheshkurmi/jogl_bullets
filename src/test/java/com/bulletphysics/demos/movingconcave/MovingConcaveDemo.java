@@ -29,23 +29,23 @@ import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.CollisionFlags;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.*;
-import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.JOGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.extras.gimpact.GImpactCollisionAlgorithm;
 import com.bulletphysics.extras.gimpact.GImpactMeshShape;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.ui.DemoApplication;
+import com.bulletphysics.ui.JOGL;
 import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
-import static com.bulletphysics.demos.opengl.IGL.GL_COLOR_BUFFER_BIT;
-import static com.bulletphysics.demos.opengl.IGL.GL_DEPTH_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_COLOR_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_DEPTH_BUFFER_BIT;
 
 /**
  * 
@@ -73,10 +73,10 @@ public class MovingConcaveDemo extends DemoApplication {
 		float ms = getDeltaTimeMicroseconds();
 
 		// step the simulation
-		if (dynamicsWorld != null) {
-			dynamicsWorld.stepSimulation(ms / 1000000f);
+		if (world != null) {
+			world.stepSimulation(ms / 1000000f);
 			// optional but useful: debug drawing
-			dynamicsWorld.debugDrawWorld();
+			world.debugDrawWorld();
 		}
 
 		renderme();
@@ -101,7 +101,7 @@ public class MovingConcaveDemo extends DemoApplication {
 		GImpactCollisionAlgorithm.registerAlgorithm(dispatcher);
 	}
 	
-	public void initPhysics() {
+	public DynamicsWorld physics() {
 		setCameraDistance(30f);
 
 		// collision configuration contains default setup for memory, collision setup
@@ -117,11 +117,11 @@ public class MovingConcaveDemo extends DemoApplication {
 		
 		// TODO: needed for SimpleDynamicsWorld
 		//sol.setSolverMode(sol.getSolverMode() & ~SolverMode.SOLVER_CACHE_FRIENDLY.getMask());
-		
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+
+		DynamicsWorld world = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 		//dynamicsWorld = new SimpleDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
-		dynamicsWorld.setGravity(new Vector3f(0f, -10f, 0f));
+		world.setGravity(new Vector3f(0f, -10f, 0f));
 		
 		initGImpactCollision();
 
@@ -150,7 +150,7 @@ public class MovingConcaveDemo extends DemoApplication {
 
 		startTransform.origin.set(0f, 0f, 0f);
 
-		RigidBody staticBody = localCreateRigidBody(mass, startTransform, staticScenario);
+		RigidBody staticBody = world.localCreateRigidBody(mass, startTransform, staticScenario);
 
 		staticBody.setCollisionFlags(staticBody.getCollisionFlags() | CollisionFlags.STATIC_OBJECT);
 
@@ -164,26 +164,28 @@ public class MovingConcaveDemo extends DemoApplication {
 
 		startTransform.origin.set(0f, 0f, 0f);
 
-		RigidBody staticBody2 = localCreateRigidBody(mass, startTransform, staticplaneShape6);
+		RigidBody staticBody2 = world.localCreateRigidBody(mass, startTransform, staticplaneShape6);
 
 		staticBody2.setCollisionFlags(staticBody2.getCollisionFlags() | CollisionFlags.STATIC_OBJECT);
 
 		for (int i=0; i<9; i++) {
 			CollisionShape boxShape = new BoxShape(new Vector3f(1f, 1f, 1f));
 			startTransform.origin.set(2f * i - 5f, 2f, -3f);
-			localCreateRigidBody(1, startTransform, boxShape);
+			world.localCreateRigidBody(1, startTransform, boxShape);
 		}
+
+		return world;
 	}
 	
 	public void shootTrimesh(Vector3f destination) {
-		if (dynamicsWorld != null) {
+		if (world != null) {
 			float mass = 4f;
 			Transform startTransform = new Transform();
 			startTransform.setIdentity();
 			Vector3f camPos = getCameraPosition();
 			startTransform.origin.set(camPos);
 
-			RigidBody body = localCreateRigidBody(mass, startTransform, trimeshShape);
+			RigidBody body = world.localCreateRigidBody(mass, startTransform, trimeshShape);
 
 			Vector3f linVel = new Vector3f(destination.x - camPos.x, destination.y - camPos.y, destination.z - camPos.z);
 			linVel.normalize();
@@ -207,12 +209,10 @@ public class MovingConcaveDemo extends DemoApplication {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		MovingConcaveDemo concaveDemo = new MovingConcaveDemo();
-		concaveDemo.initPhysics();
-		concaveDemo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(concaveDemo.gl));
 
-		JOGL.main(args, 800, 600, concaveDemo);
+		new JOGL(concaveDemo, 800, 600);
 	}
 	
 }

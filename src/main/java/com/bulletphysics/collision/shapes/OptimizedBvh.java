@@ -242,7 +242,7 @@ public class OptimizedBvh implements Serializable {
 
         // NodeArray	triangleNodes;
 
-        int numLeafNodes = 0;
+        int numLeafNodes;
 
         if (useQuantization) {
             // initialize quantization values
@@ -620,7 +620,7 @@ public class OptimizedBvh implements Serializable {
         assert (!useQuantization);
 
         // JAVA NOTE: rewritten
-        OptimizedBvhNode rootNode = null;//contiguousNodes.get(0);
+        OptimizedBvhNode rootNode;//contiguousNodes.get(0);
         int rootNode_index = 0;
 
         int escapeIndex, curIndex = 0;
@@ -645,8 +645,6 @@ public class OptimizedBvh implements Serializable {
             if (isLeafNode && (aabbOverlap/* != 0*/)) {
                 nodeCallback.processNode(rootNode.subPart, rootNode.triangleIndex);
             }
-
-            rootNode = null;
 
             //PCK: unsigned instead of bool
             if ((aabbOverlap/* != 0*/) || isLeafNode) {
@@ -700,8 +698,8 @@ public class OptimizedBvh implements Serializable {
         int escapeIndex;
 
         boolean isLeafNode;
-        boolean boxBoxOverlap = false;
-        boolean rayBoxOverlap = false;
+        boolean boxBoxOverlap;
+        boolean rayBoxOverlap;
 
         float lambda_max = 1f;
         //#define RAYAABB2
@@ -710,7 +708,6 @@ public class OptimizedBvh implements Serializable {
         Vector3f rayDirection = new Vector3f();
         tmp.sub(rayTarget, raySource);
         rayDirection.normalize(tmp);
-        lambda_max = rayDirection.dot(tmp);
         rayDirection.x = 1f / rayDirection.x;
         rayDirection.y = 1f / rayDirection.y;
         rayDirection.z = 1f / rayDirection.z;

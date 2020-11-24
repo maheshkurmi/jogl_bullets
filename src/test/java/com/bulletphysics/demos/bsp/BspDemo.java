@@ -29,16 +29,17 @@ import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.ConvexHullShape;
-import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.JOGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.ui.DemoApplication;
+import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
 
 import javax.vecmath.Vector3f;
+import java.io.IOException;
 
 /**
  * BspDemo shows the convex collision detection, by converting a Quake BSP file
@@ -52,7 +53,7 @@ public class BspDemo extends DemoApplication {
 	private static final float EXTRA_HEIGHT      = -20f;
 	
 	// keep the collision shapes, for deletion/cleanup
-	public ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
+	public final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
 	public BroadphaseInterface broadphase;
 	public CollisionDispatcher dispatcher;
 	public ConstraintSolver solver;
@@ -62,7 +63,7 @@ public class BspDemo extends DemoApplication {
 		super();
 	}
 	
-	public void initPhysics() throws Exception {
+	public DynamicsWorld physics() {
 		cameraUp.set(0f, 0f, 1f);
 		forwardAxis = 1;
 
@@ -81,26 +82,29 @@ public class BspDemo extends DemoApplication {
 		//btOverlappingPairCache* broadphase = new btSimpleBroadphase();
 		solver = new SequentialImpulseConstraintSolver();
 		//ConstraintSolver* solver = new OdeConstraintSolver;
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
+		DiscreteDynamicsWorld world = new DiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
 
 		Vector3f gravity = new Vector3f();
 		gravity.negate(cameraUp);
 		gravity.scale(10f);
-		dynamicsWorld.setGravity(gravity);
+		world.setGravity(gravity);
 
-		new BspToBulletConverter().convertBsp(getClass().getResourceAsStream("/exported.bsp.txt"));
-		
-		clientResetScene();
+		try {
+			new BspToBulletConverter().convertBsp(getClass().getResourceAsStream("/exported.bsp.txt"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+		return world;
 	}
 	
 	
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String... args) {
 		BspDemo demo = new BspDemo();
-		demo.initPhysics();
-		demo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(demo.gl));
 
-		JOGL.main(args, 800, 600, demo);
+		new JOGL(demo, 800, 600);
 	}
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -120,7 +124,7 @@ public class BspDemo extends DemoApplication {
 				collisionShapes.add(shape);
 
 				//btRigidBody* body = m_demoApp->localCreateRigidBody(mass, startTransform,shape);
-				localCreateRigidBody(mass, startTransform, shape);
+				world.localCreateRigidBody(mass, startTransform, shape);
 			}
 		}
 	}

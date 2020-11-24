@@ -33,20 +33,20 @@ import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.JOGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.ui.DemoApplication;
+import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
 import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Vector3f;
 
-import static com.bulletphysics.demos.opengl.IGL.GL_COLOR_BUFFER_BIT;
-import static com.bulletphysics.demos.opengl.IGL.GL_DEPTH_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_COLOR_BUFFER_BIT;
+import static com.bulletphysics.ui.IGL.GL_DEPTH_BUFFER_BIT;
 
 /**
  *
@@ -54,13 +54,13 @@ import static com.bulletphysics.demos.opengl.IGL.GL_DEPTH_BUFFER_BIT;
  */
 public class GenericJointDemo extends DemoApplication {
 
-	private ObjectArrayList<RagDoll> ragdolls = new ObjectArrayList<>();
+	private final ObjectArrayList<RagDoll> ragdolls = new ObjectArrayList<>();
 
 	public GenericJointDemo() {
 		super();
 	}
 
-	public void initPhysics() {
+	public DynamicsWorld physics() {
 		// Setup the basic world
 		DefaultCollisionConfiguration collision_config = new DefaultCollisionConfiguration();
 
@@ -78,11 +78,9 @@ public class GenericJointDemo extends DemoApplication {
 		ConstraintSolver constraintSolver = new SequentialImpulseConstraintSolver();
 		//#endif
 
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collision_config);
+		DynamicsWorld world = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collision_config);
 
-		dynamicsWorld.setGravity(new Vector3f(0f, -30f, 0f));
-
-		dynamicsWorld.setDebugDrawer(new GLDebugDrawer(gl));
+		world.setGravity(new Vector3f(0f, -30f, 0f));
 
 		// Setup a big ground box
 		{
@@ -90,21 +88,17 @@ public class GenericJointDemo extends DemoApplication {
 			Transform groundTransform = new Transform();
 			groundTransform.setIdentity();
 			groundTransform.origin.set(0f, -15f, 0f);
-			localCreateRigidBody(0f, groundTransform, groundShape);
+			world.localCreateRigidBody(0f, groundTransform, groundShape);
 		}
 
-		// Spawn one ragdoll
-		spawnRagdoll();
+		spawnRagdoll(world);
 
-		clientResetScene();
+		return world;
 	}
 
-	public void spawnRagdoll() {
-		spawnRagdoll(false);
-	}
 	
-	public void spawnRagdoll(boolean random) {
-		RagDoll ragDoll = new RagDoll(dynamicsWorld, new Vector3f(0f, 0f, 10f), 5f);
+	public void spawnRagdoll(DynamicsWorld world) {
+		RagDoll ragDoll = new RagDoll(world, new Vector3f(0f, 0f, 10f), 5f);
 		ragdolls.add(ragDoll);
 	}
 	
@@ -119,10 +113,10 @@ public class GenericJointDemo extends DemoApplication {
 			ms = minFPS;
 		}
 
-		if (dynamicsWorld != null) {
-			dynamicsWorld.stepSimulation(ms / 1000000.f);
+		if (world != null) {
+			world.stepSimulation(ms / 1000000.f);
 			// optional but useful: debug drawing
-			dynamicsWorld.debugDrawWorld();
+			world.debugDrawWorld();
 		}
 
 		renderme();
@@ -136,17 +130,16 @@ public class GenericJointDemo extends DemoApplication {
 	@Override
 	public void keyboardCallback(char key) {
 		switch (key) {
-			case 'e' -> spawnRagdoll(true);
+			case 'e' -> spawnRagdoll(world);
 			default -> super.keyboardCallback(key);
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		GenericJointDemo demoApp = new GenericJointDemo();
-		demoApp.initPhysics();
 		demoApp.setCameraDistance(10f);
 
-		JOGL.main(args, 800, 600, demoApp);
+		new JOGL(demoApp, 800, 600);
 	}
 	
 }

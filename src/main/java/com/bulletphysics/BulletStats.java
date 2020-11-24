@@ -37,17 +37,11 @@ public class BulletStats {
 	
 	public static int gTotalContactPoints;
 	
-	// GjkPairDetector
-	// temp globals, to improve GJK/EPA/penetration calculations
+
 	public static int gNumDeepPenetrationChecks = 0;
 	public static int gNumGjkChecks = 0;
 	public static int gNumSplitImpulseRecoveries = 0;
 	
-	public static int gNumAlignedAllocs;
-	public static int gNumAlignedFree;
-	public static int gTotalBytesAlignedAllocs;	
-	
-	public static int gPickingConstraintId = 0;
 	public static final Vector3f gOldPickingPos = new Vector3f();
 	public static float gOldPickingDist = 0.f;
 	
@@ -62,7 +56,6 @@ public class BulletStats {
 	public static int gNumClampedCcdMotions = 0;
 
 	// JAVA NOTE: added for statistics in applet demo
-	public static long stepSimulationTime;
 	public static long updateTime;
 	
 	private static boolean enableProfile = false;

@@ -92,7 +92,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
      * maxSubSteps/fixedTimeStep for interpolation is currently ignored for SimpleDynamicsWorld, use DiscreteDynamicsWorld instead.
      */
     @Override
-    public int stepSimulation(float timeStep, int maxSubSteps, float fixedTimeStep) {
+    public synchronized int stepSimulation(float timeStep, int maxSubSteps, float fixedTimeStep) {
         // apply gravity, predict motion
         predictUnconstraintMotion(timeStep);
 
@@ -176,7 +176,7 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
     @Override
     public void updateAabbs() {
         Transform tmpTrans = new Transform();
-        Transform predictedTrans = new Transform();
+        //Transform predictedTrans = new Transform();
         Vector3f minAabb = new Vector3f(), maxAabb = new Vector3f();
 
         for (int i = 0; i < collisionObjects.size(); i++) {

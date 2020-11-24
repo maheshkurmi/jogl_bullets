@@ -450,8 +450,8 @@ public class SequentialImpulseConstraintSolver extends ConstraintSolver {
                 // printf("empty\n");
                 return 0f;
             }
-            PersistentManifold manifold = null;
-            CollisionObject colObj0 = null, colObj1 = null;
+            PersistentManifold manifold;
+            CollisionObject colObj0, colObj1;
 
             //btRigidBody* rb0=0,*rb1=0;
 

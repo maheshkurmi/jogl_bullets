@@ -1,4 +1,4 @@
-package com.bulletphysics.demos.input;
+package com.bulletphysics.input;
 
 /**
  * Represents an input of an input device.
@@ -21,13 +21,13 @@ public class InputKey {
 	private InputKey.State state = InputKey.State.RELEASED;
 	
 	/** The keyCode id */
-	private short keyCode = 0;
+	private short keyCode;
 	
 	/** The input count  (the number of times key event  is generated) */
 	private short value = 0;
 
 	/**key char associated with key if any*/
-	private char keyChar=0;
+	private char keyChar;
 	
 	/**modifier associated with keyevent*/
 	private int modifiers=0;

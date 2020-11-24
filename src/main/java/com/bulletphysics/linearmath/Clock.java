@@ -45,19 +45,23 @@ public class Clock {
 	public void reset() {
 		startTime = System.nanoTime();
 	}
-	
+
+	private long getTimeNanoseconds() {
+		return System.nanoTime() - startTime;
+	}
+
 	/**
 	 * Returns the time in milliseconds since the last call to reset or since the Clock was created.
 	 */
 	public long getTimeMilliseconds() {
-		return (System.nanoTime() - startTime) / 1000000L;
+		return getTimeNanoseconds() / 1000000L;
 	}
-	
+
 	/**
 	 * Returns the time in microseconds since the last call to reset or since the Clock was created.
 	 */
 	public long getTimeMicroseconds() {
-		return (System.nanoTime() - startTime) / 1000L;
+		return getTimeNanoseconds() / 1000L;
 	}
 	
 }

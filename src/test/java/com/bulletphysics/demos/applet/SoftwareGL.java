@@ -20,7 +20,7 @@
 
 package com.bulletphysics.demos.applet;
 
-import com.bulletphysics.demos.opengl.IGL;
+import com.bulletphysics.ui.IGL;
 
 import javax.vecmath.Matrix4f;
 import java.awt.*;
@@ -33,9 +33,9 @@ import java.awt.image.DataBufferInt;
  */
 public class SoftwareGL implements IGL {
 	
-	private Graphics3D gl;
+	private final Graphics3D gl;
 	private int matrixMode = GL_MODELVIEW;
-	private Matrix4f tmpMat = new Matrix4f();
+	private final Matrix4f tmpMat = new Matrix4f();
 	private Graphics g;
 	
 	public SoftwareGL() {
@@ -243,9 +243,9 @@ public class SoftwareGL implements IGL {
 		glEnd();
 	}
 
-	private Sphere sphere = new Sphere();
-	private Cylinder cylinder = new Cylinder();
-	private Disk disk = new Disk();
+	private final Sphere sphere = new Sphere();
+	private final Cylinder cylinder = new Cylinder();
+	private final Disk disk = new Disk();
 	
 	public void drawSphere(float radius, int slices, int stacks) {
 		sphere.draw(gl, radius, 6, 6);

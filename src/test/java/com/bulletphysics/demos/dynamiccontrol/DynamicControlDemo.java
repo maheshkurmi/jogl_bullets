@@ -32,20 +32,21 @@ import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.JOGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.HingeConstraint;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.Transform;
+import com.bulletphysics.ui.DemoApplication;
+import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
 import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Vector3f;
 
-import static com.bulletphysics.demos.opengl.IGL.*;
+import static com.bulletphysics.ui.IGL.*;
 
 /**
  *
@@ -57,13 +58,13 @@ public class DynamicControlDemo extends DemoApplication {
 	private float cyclePeriod; // in milliseconds
 	private float muscleStrength;
 	
-	private ObjectArrayList<TestRig> rigs = new ObjectArrayList<>();
+	private final ObjectArrayList<TestRig> rigs = new ObjectArrayList<>();
 	
 	public DynamicControlDemo() {
 		super();
 	}
 
-	public void initPhysics() {
+	public DynamicsWorld physics() {
 		// Setup the basic world
 		time = 0.0f;
 		cyclePeriod = 2000.0f; // in milliseconds
@@ -83,7 +84,7 @@ public class DynamicControlDemo extends DemoApplication {
 
 		ConstraintSolver constraintSolver = new SequentialImpulseConstraintSolver();
 
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collision_config);
+		DynamicsWorld world = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collision_config);
 
 		// Setup a big ground box
 		{
@@ -93,20 +94,20 @@ public class DynamicControlDemo extends DemoApplication {
 			Transform groundTransform = new Transform();
 			groundTransform.setIdentity();
 			groundTransform.origin.set(0f, -10f, 0f);
-			localCreateRigidBody(0f, groundTransform, groundShape);
+			world.localCreateRigidBody(0f, groundTransform, groundShape);
 		}
 
 		// Spawn one TestRig
 		Vector3f startOffset = new Vector3f(1.0f, 0.5f, 0.0f);
-		spawnTestRig(startOffset, false);
+		spawnTestRig(world, startOffset, false);
 		startOffset.set(-2.0f, 0.5f, 0.0f);
-		spawnTestRig(startOffset, true);
+		spawnTestRig(world, startOffset, true);
 
-		clientResetScene();
+		return world;
 	}
 
-	public void spawnTestRig(Vector3f startOffset, boolean fixed) {
-		TestRig rig = new TestRig(dynamicsWorld, startOffset, fixed);
+	public void spawnTestRig(DynamicsWorld world, Vector3f startOffset, boolean fixed) {
+		TestRig rig = new TestRig(world, startOffset, fixed);
 		rigs.add(rig);
 	}
 	
@@ -141,14 +142,14 @@ public class DynamicControlDemo extends DemoApplication {
 			}
 		}
 		
-		if (dynamicsWorld != null) {
-			dynamicsWorld.stepSimulation(ms / 1000000.f);
+		if (world != null) {
+			world.stepSimulation(ms / 1000000.f);
 			// optional but useful: debug drawing
-			dynamicsWorld.debugDrawWorld();
+			world.debugDrawWorld();
 		}
 
 		for (int i=2; i>=0; i--) {
-			CollisionObject obj = dynamicsWorld.getCollisionObjectArray().get(i);
+			CollisionObject obj = world.getCollisionObjectArray().get(i);
 			RigidBody body = RigidBody.upcast(obj);
 			drawFrame(body.getWorldTransform(new Transform()));
 		}
@@ -212,11 +213,10 @@ public class DynamicControlDemo extends DemoApplication {
 		gl.glEnd();
 	}
 
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		DynamicControlDemo demoApp = new DynamicControlDemo();
-		demoApp.initPhysics();
 
-		JOGL.main(args, 800, 600, demoApp);
+		new JOGL(demoApp, 800, 600);
 	}
 	
 }

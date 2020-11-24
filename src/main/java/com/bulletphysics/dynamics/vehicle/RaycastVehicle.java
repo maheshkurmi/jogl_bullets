@@ -78,7 +78,7 @@ public class RaycastVehicle extends TypedConstraint {
     private static float calcRollingFriction(WheelContactPoint contactPoint) {
         Vector3f tmp = new Vector3f();
 
-        float j1 = 0f;
+        float j1;
 
         Vector3f contactPosWorld = contactPoint.frictionPositionWorld;
 
@@ -232,7 +232,7 @@ public class RaycastVehicle extends TypedConstraint {
         wheel.raycastInfo.contactPointWS.add(source, rayvector);
         Vector3f target = wheel.raycastInfo.contactPointWS;
 
-        float param = 0f;
+        float param;
 
         VehicleRaycasterResult rayResults = new VehicleRaycasterResult();
 
@@ -334,7 +334,7 @@ public class RaycastVehicle extends TypedConstraint {
         // simulate suspension
         //
 
-        int i = 0;
+        int i;
         for (i = 0; i < wheelInfo.size(); i++) {
             float depth;
             depth = rayCast(wheelInfo.get(i));

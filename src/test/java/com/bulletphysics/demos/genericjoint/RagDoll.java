@@ -87,10 +87,10 @@ public class RagDoll {
 		JOINT_COUNT
 	}
 
-	private DynamicsWorld ownerWorld;
-	private CollisionShape[] shapes = new CollisionShape[BodyPart.BODYPART_COUNT.ordinal()];
-	private RigidBody[] bodies = new RigidBody[BodyPart.BODYPART_COUNT.ordinal()];
-	private TypedConstraint[] joints = new TypedConstraint[JointType.JOINT_COUNT.ordinal()];
+	private final DynamicsWorld ownerWorld;
+	private final CollisionShape[] shapes = new CollisionShape[BodyPart.BODYPART_COUNT.ordinal()];
+	private final RigidBody[] bodies = new RigidBody[BodyPart.BODYPART_COUNT.ordinal()];
+	private final TypedConstraint[] joints = new TypedConstraint[JointType.JOINT_COUNT.ordinal()];
 
 	public RagDoll(DynamicsWorld ownerWorld, Vector3f positionOffset) {
 		this(ownerWorld, positionOffset, 1.0f);

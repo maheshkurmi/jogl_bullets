@@ -530,8 +530,7 @@ public class VoronoiSimplexSolver extends SimplexSolverInterface {
 				float sqDist = tmp.dot(tmp);
 				if (sqDist < bestSqDist) 
 				{
-					bestSqDist = sqDist;
-					finalResult.closestPointOnSimplex.set(q);
+                    finalResult.closestPointOnSimplex.set(q);
 					finalResult.usedVertices.reset();
 					//
 					finalResult.usedVertices.usedVertexB = tempResult.usedVertices.usedVertexA;

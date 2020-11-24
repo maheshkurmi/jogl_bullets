@@ -53,10 +53,10 @@ public class TestRig {
 	private static final int BODYPART_COUNT = 2 * NUM_LEGS + 1;
 	private static final int JOINT_COUNT = BODYPART_COUNT - 1;
 	
-	private DynamicsWorld ownerWorld;
-	private CollisionShape[] shapes = new CollisionShape[BODYPART_COUNT];
-	private RigidBody[] bodies = new RigidBody[BODYPART_COUNT];
-	private TypedConstraint[] joints = new TypedConstraint[JOINT_COUNT];
+	private final DynamicsWorld ownerWorld;
+	private final CollisionShape[] shapes = new CollisionShape[BODYPART_COUNT];
+	private final RigidBody[] bodies = new RigidBody[BODYPART_COUNT];
+	private final TypedConstraint[] joints = new TypedConstraint[JOINT_COUNT];
 
 	public TestRig(DynamicsWorld ownerWorld, Vector3f positionOffset, boolean fixed) {
 		this.ownerWorld = ownerWorld;

@@ -329,7 +329,7 @@ public class CollisionWorld {
 				// todo: use AABB tree or other BVH acceleration structure!
 				if (collisionShape.isCompound()) {
 					CompoundShape compoundShape = (CompoundShape) collisionShape;
-					int i = 0;
+					int i;
 					Transform childTrans = new Transform();
 					for (i = 0; i < compoundShape.getNumChildShapes(); i++) {
 						compoundShape.getChildTransform(i, childTrans);

@@ -21,15 +21,15 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-package com.bulletphysics.demos.opengl;
+package com.bulletphysics.ui;
 
 import com.bulletphysics.linearmath.DebugDrawModes;
 import com.bulletphysics.linearmath.IDebugDraw;
 
 import javax.vecmath.Vector3f;
 
-import static com.bulletphysics.demos.opengl.IGL.GL_LINES;
-import static com.bulletphysics.demos.opengl.IGL.GL_POINTS;
+import static com.bulletphysics.ui.IGL.GL_LINES;
+import static com.bulletphysics.ui.IGL.GL_POINTS;
 
 /**
  *
@@ -40,7 +40,7 @@ public class GLDebugDrawer extends IDebugDraw {
 	// JAVA NOTE: added
 	private static final boolean DEBUG_NORMALS = false;
 	
-	private IGL gl;
+	private final IGL gl;
 	private int debugMode;
 	
 	private final Vector3f tmpVec = new Vector3f();

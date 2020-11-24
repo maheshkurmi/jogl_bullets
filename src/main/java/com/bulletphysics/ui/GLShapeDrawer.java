@@ -21,7 +21,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-package com.bulletphysics.demos.opengl;
+package com.bulletphysics.ui;
 
 import com.bulletphysics.collision.broadphase.BroadphaseNativeType;
 import com.bulletphysics.collision.shapes.*;
@@ -34,8 +34,6 @@ import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.util.ObjectPool;
 
 import javax.vecmath.Vector3f;
-
-import static com.bulletphysics.demos.opengl.IGL.*;
 
 /**
  *
@@ -67,7 +65,7 @@ public class GLShapeDrawer {
 	*/
 
 	public static void drawCoordSystem(IGL gl) {
-		gl.glBegin(GL_LINES);
+		gl.glBegin(IGL.GL_LINES);
 		gl.glColor3f(1, 0, 0);
 		gl.glVertex3f(0, 0, 0);
 		gl.glVertex3f(1, 0, 0);
@@ -80,7 +78,7 @@ public class GLShapeDrawer {
 		gl.glEnd();
 	}
 
-	private static float[] glMat = new float[16];
+	private static final float[] glMat = new float[16];
 	
 	public static void drawOpenGL(IGL gl, Transform trans, CollisionShape shape, Vector3f color, int debugMode) {
 		ObjectPool<Transform> transformsPool = ObjectPool.get(Transform.class);
@@ -123,7 +121,7 @@ public class GLShapeDrawer {
 
 			//glPushMatrix();
 
-			gl.glEnable(GL_COLOR_MATERIAL);
+			gl.glEnable(IGL.GL_COLOR_MATERIAL);
 			gl.glColor3f(color.x, color.y, color.z);
 
 			boolean useWireframeFallback = true;
@@ -167,7 +165,6 @@ public class GLShapeDrawer {
 						gl.drawCube(1f);
 						vectorsPool.release(halfExtent);
 						useWireframeFallback = false;
-						break;
 					}
 					case SPHERE_SHAPE_PROXYTYPE -> {
 						SphereShape sphereShape = (SphereShape) shape;
@@ -183,7 +180,6 @@ public class GLShapeDrawer {
 						glPointSize(1f);
 						*/
 						useWireframeFallback = false;
-						break;
 					}
 					case STATIC_PLANE_PROXYTYPE -> {
 						StaticPlaneShape staticPlaneShape = (StaticPlaneShape) shape;
@@ -226,7 +222,6 @@ public class GLShapeDrawer {
 						vectorsPool.release(pt2);
 						vectorsPool.release(pt3);
 
-						break;
 					}
 					case CYLINDER_SHAPE_PROXYTYPE -> {
 						CylinderShape cylinder = (CylinderShape) shape;
@@ -240,7 +235,6 @@ public class GLShapeDrawer {
 
 						vectorsPool.release(halfVec);
 
-						break;
 					}
 					default -> {
 						if (shape.isConvex()) {
@@ -327,7 +321,7 @@ public class GLShapeDrawer {
 				if (shape.isPolyhedral()) {
 					PolyhedralConvexShape polyshape = (PolyhedralConvexShape) shape;
 
-					gl.glBegin(GL_LINES);
+					gl.glBegin(IGL.GL_LINES);
 
 					Vector3f a = vectorsPool.get(), b = vectorsPool.get();
 					int i;
@@ -454,7 +448,7 @@ public class GLShapeDrawer {
 	}
 	
 	private static class GlDisplaylistDrawcallback extends TriangleCallback {
-		private IGL gl;
+		private final IGL gl;
 		
 		private final Vector3f diff1 = new Vector3f();
 		private final Vector3f diff2 = new Vector3f();
@@ -471,7 +465,7 @@ public class GLShapeDrawer {
 
 			normal.normalize();
 
-			gl.glBegin(GL_TRIANGLES);
+			gl.glBegin(IGL.GL_TRIANGLES);
 			gl.glColor3f(0, 1, 0);
 			gl.glNormal3f(normal.x, normal.y, normal.z);
 			gl.glVertex3f(triangle[0].x, triangle[0].y, triangle[0].z);
@@ -506,7 +500,7 @@ public class GLShapeDrawer {
 	}
 	
 	private static class GlDrawcallback extends TriangleCallback {
-		private IGL gl;
+		private final IGL gl;
 		public boolean wireframe = false;
 
 		public GlDrawcallback(IGL gl) {
@@ -515,7 +509,7 @@ public class GLShapeDrawer {
 		
 		public void processTriangle(Vector3f[] triangle, int partId, int triangleIndex) {
 			if (wireframe) {
-				gl.glBegin(GL_LINES);
+				gl.glBegin(IGL.GL_LINES);
 				gl.glColor3f(1, 0, 0);
 				gl.glVertex3f(triangle[0].x, triangle[0].y, triangle[0].z);
 				gl.glVertex3f(triangle[1].x, triangle[1].y, triangle[1].z);
@@ -527,7 +521,7 @@ public class GLShapeDrawer {
 				gl.glVertex3f(triangle[0].x, triangle[0].y, triangle[0].z);
 			}
 			else {
-				gl.glBegin(GL_TRIANGLES);
+				gl.glBegin(IGL.GL_TRIANGLES);
 				gl.glColor3f(1, 0, 0);
 				gl.glVertex3f(triangle[0].x, triangle[0].y, triangle[0].z);
 				gl.glColor3f(0, 1, 0);
@@ -540,14 +534,14 @@ public class GLShapeDrawer {
 	}
 	
 	private static class TriangleGlDrawcallback extends InternalTriangleIndexCallback {
-		private IGL gl;
+		private final IGL gl;
 
 		public TriangleGlDrawcallback(IGL gl) {
 			this.gl = gl;
 		}
 		
 		public void internalProcessTriangleIndex(Vector3f[] triangle, int partId, int triangleIndex) {
-			gl.glBegin(GL_TRIANGLES);//LINES);
+			gl.glBegin(IGL.GL_TRIANGLES);//LINES);
 			gl.glColor3f(1, 0, 0);
 			gl.glVertex3f(triangle[0].x, triangle[0].y, triangle[0].z);
 			gl.glVertex3f(triangle[1].x, triangle[1].y, triangle[1].z);

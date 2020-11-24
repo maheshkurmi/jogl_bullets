@@ -126,7 +126,7 @@ public class SimulationIslandManager {
 			getUnionFind().sortIslands();
 			int numElem = getUnionFind().getNumElements();
 
-			int endIslandIndex = 1;
+			int endIslandIndex;
 			int startIslandIndex;
 
 			// update the sleeping state for bodies, if all are sleeping
@@ -240,7 +240,7 @@ public class SimulationIslandManager {
 	public void buildAndProcessIslands(Dispatcher dispatcher, ObjectArrayList<CollisionObject> collisionObjects, IslandCallback callback) {
 		buildIslands(dispatcher, collisionObjects);
 
-		int endIslandIndex = 1;
+		int endIslandIndex;
 		int startIslandIndex;
 		int numElem = getUnionFind().getNumElements();
 

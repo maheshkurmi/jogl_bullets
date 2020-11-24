@@ -67,9 +67,7 @@ class GeometryOperations {
         cp.sub(v, e1);
         float _scalar = cp.dot(n) / n.dot(n);
         if (_scalar < 0.0f) {
-            cp = e1;
         } else if (_scalar > 1.0f) {
-            cp = e2;
         } else {
             cp.scaleAdd(_scalar, n, e1);
         }
@@ -141,8 +139,6 @@ class GeometryOperations {
 
             if (N.x < N.y) {
                 if (_M.y < _M.z) {
-                    vPointB = invert_b_order ? vB1 : vB2;
-                    vPointA = vA1;
                 } else if (_M.y < _M.w) {
                     vPointB = invert_b_order ? vB1 : vB2;
                     closest_point_on_segment(vPointA, vPointB, vA1, vA2);
@@ -152,8 +148,6 @@ class GeometryOperations {
                 }
             } else {
                 if (_M.w < _M.x) {
-                    vPointB = invert_b_order ? vB2 : vB1;
-                    vPointA = vA2;
                 } else if (_M.w < _M.y) {
                     vPointA = vA2;
                     closest_point_on_segment(vPointB, vPointA, vB1, vB2);

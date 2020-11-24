@@ -280,7 +280,7 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
     }
 
     @Override
-    public int stepSimulation(float timeStep, int maxSubSteps, float fixedTimeStep) {
+    public synchronized int stepSimulation(float timeStep, int maxSubSteps, float fixedTimeStep) {
         startProfiling(timeStep);
 
         long t0 = System.nanoTime();
@@ -339,7 +339,6 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
         } finally {
             BulletStats.popProfile();
 
-            BulletStats.stepSimulationTime = (System.nanoTime() - t0) / 1000000;
         }
     }
 

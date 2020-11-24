@@ -29,9 +29,6 @@ import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.demos.opengl.DemoApplication;
-import com.bulletphysics.demos.opengl.GLDebugDrawer;
-import com.bulletphysics.demos.opengl.JOGL;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
@@ -39,7 +36,8 @@ import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.Transform;
-import com.bulletphysics.util.ObjectArrayList;
+import com.bulletphysics.ui.DemoApplication;
+import com.bulletphysics.ui.JOGL;
 
 import javax.vecmath.Vector3f;
 
@@ -62,8 +60,6 @@ public class BasicDemo extends DemoApplication {
 	private static final int START_POS_Y = -5;
 	private static final int START_POS_Z = -3;
 	
-	// keep the collision shapes, for deletion/cleanup
-	private ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
 	private BroadphaseInterface broadphase;
 	private CollisionDispatcher dispatcher;
 	private ConstraintSolver solver;
@@ -74,7 +70,7 @@ public class BasicDemo extends DemoApplication {
 	}
 	
 
-	public void initPhysics() {
+	public DiscreteDynamicsWorld physics() {
 		setCameraDistance(50f);
 
 		// collision configuration contains default setup for memory, collision setup
@@ -90,10 +86,10 @@ public class BasicDemo extends DemoApplication {
 		
 		// TODO: needed for SimpleDynamicsWorld
 		//sol.setSolverMode(sol.getSolverMode() & ~SolverMode.SOLVER_CACHE_FRIENDLY.getMask());
-		
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
-		dynamicsWorld.setGravity(new Vector3f(0f, -10f, 0f));
+		DiscreteDynamicsWorld world = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+
+		world.setGravity(new Vector3f(0f, -10f, 0f));
 
 		// create a few basic rigid bodies
 		CollisionShape groundShape = new BoxShape(new Vector3f(50f, 50f, 50f));
@@ -123,7 +119,7 @@ public class BasicDemo extends DemoApplication {
 			RigidBody body = new RigidBody(rbInfo);
 
 			// add the body to the dynamics world
-			dynamicsWorld.addRigidBody(body);
+			world.addRigidBody(body);
 		}
 
 		{
@@ -165,22 +161,20 @@ public class BasicDemo extends DemoApplication {
 						RigidBody body = new RigidBody(rbInfo);
 						body.setActivationState(RigidBody.ISLAND_SLEEPING);
 
-						dynamicsWorld.addRigidBody(body);
+						world.addRigidBody(body);
 						body.setActivationState(RigidBody.ISLAND_SLEEPING);
 					}
 				}
 			}
 		}
 
-		clientResetScene();
+		return world;
 	}
 	
-	public static void main(String[] args)  {
+	public static void main(String... args)  {
 		BasicDemo ccdDemo = new BasicDemo();
-		ccdDemo.initPhysics();
-		ccdDemo.getDynamicsWorld().setDebugDrawer(new GLDebugDrawer(ccdDemo.gl));
 
-		JOGL.main(args, 800, 600, ccdDemo);
+		new JOGL(ccdDemo, 800, 600);
 	}
 	
 }

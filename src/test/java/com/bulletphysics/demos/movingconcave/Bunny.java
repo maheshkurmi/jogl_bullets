@@ -56,7 +56,7 @@ public class Bunny {
 	public static final int NUM_VERTICES = 453;
 	public static final int NUM_INDICES  = NUM_TRIANGLES * 3;
 
-	public static float[] gVertices = new float[] {
+	public static final float[] gVertices = new float[] {
 		-0.334392f, 0.133007f, 0.062259f,
 		-0.350189f, 0.150354f, -0.147769f,
 		-0.234201f, 0.343811f, -0.174307f,
@@ -512,7 +512,7 @@ public class Bunny {
 		0.337656f, 0.131992f, 0.066374f
 	};
 
-	public static int[] gIndices = new int[] {
+	public static final int[] gIndices = new int[] {
 		126,134,133,
 		342,138,134,
 		133,134,138,

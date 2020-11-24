@@ -87,8 +87,7 @@ public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 			newDot = vec.dot(vtx);
 			if (newDot > maxDot) {
 				maxDot = newDot;
-				supVec = vtx;
-			}
+            }
 		}
 
 		return out;

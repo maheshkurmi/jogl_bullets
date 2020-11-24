@@ -532,7 +532,7 @@ public class Dbvt {
 	}
 	
 	public static int nearest(IntArrayList i, ObjectArrayList<sStkNPS> a, float v, int l, int h) {
-		int m = 0;
+		int m;
 		while (l < h) {
 			m = (l + h) >> 1;
 			if (a.get(i.get(m)).value >= v) {

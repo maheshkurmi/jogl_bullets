@@ -267,8 +267,7 @@ public class DbvtAabbMm {
 		}
 		
 		if (tzmin > txmin) {
-			txmin = tzmin;
-		}
+        }
 		if (tzmax < txmax) {
 			txmax = tzmax;
 		}
