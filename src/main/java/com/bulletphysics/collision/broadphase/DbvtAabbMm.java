@@ -31,6 +31,12 @@ import com.bulletphysics.linearmath.VectorUtil;
 
 import javax.vecmath.Vector3f;
 
+import java.util.List;
+
+import static com.bulletphysics.linearmath.VectorUtil.coord;
+import static java.lang.Float.NEGATIVE_INFINITY;
+import static java.lang.Float.POSITIVE_INFINITY;
+
 /**
  *
  * @author jezek2
@@ -115,12 +121,12 @@ public class DbvtAabbMm {
 	//public static  DbvtAabbMm	FromPoints( btVector3* pts,int n);
 	//public static  DbvtAabbMm	FromPoints( btVector3** ppts,int n);
 	
-	public void Expand(Vector3f e) {
+	public void expand(Vector3f e) {
 		min.sub(e);
 		max.add(e);
 	}
 
-	public void SignedExpand(Vector3f e) {
+	public void expandSigned(Vector3f e) {
 		if (e.x > 0) {
 			max.x += e.x;
 		}
@@ -143,7 +149,7 @@ public class DbvtAabbMm {
 		}
 	}
 
-	public boolean Contain(DbvtAabbMm a) {
+	public boolean contains(DbvtAabbMm a) {
 		return ((min.x <= a.min.x) &&
 		        (min.y <= a.min.y) &&
 		        (min.z <= a.min.z) &&
@@ -290,11 +296,20 @@ public class DbvtAabbMm {
 				Math.abs((aMin.z + aMax.z) - (bMin.z + bMax.z));
 	}
 
+	public DbvtAabbMm merge(Vector3f v) {
+		for (int i=0; i<3; i++) {
+			final float vi = coord(v, i);
+			coord(min, i, Math.min(coord(min, i), vi));
+			coord(max, i, Math.max(coord(max, i), vi));
+		}
+		return this;
+	}
+
 	public static void merge(DbvtAabbMm a, DbvtAabbMm b, DbvtAabbMm r) {
 		for (int i=0; i<3; i++) {
-			VectorUtil.coord(r.min, i, Math.min(VectorUtil.coord(a.min, i), VectorUtil.coord(b.min, i)));
+			coord(r.min, i, Math.min(coord(a.min, i), coord(b.min, i)));
 
-			VectorUtil.coord(r.max, i, Math.max(VectorUtil.coord(a.max, i), VectorUtil.coord(b.max, i)));
+			coord(r.max, i, Math.max(coord(a.max, i), coord(b.max, i)));
 		}
 	}
 
@@ -309,18 +324,26 @@ public class DbvtAabbMm {
 	
 	private void AddSpan(Vector3f d, float[] smi, int smi_idx, float[] smx, int smx_idx) {
 		for (int i=0; i<3; i++) {
-			if (VectorUtil.coord(d, i) < 0) {
-				smi[smi_idx] += VectorUtil.coord(max, i) * VectorUtil.coord(d, i);
-				smx[smx_idx] += VectorUtil.coord(min, i) * VectorUtil.coord(d, i);
+			if (coord(d, i) < 0) {
+				smi[smi_idx] += coord(max, i) * coord(d, i);
+				smx[smx_idx] += coord(min, i) * coord(d, i);
 			}
 			else {
-				smi[smi_idx] += VectorUtil.coord(min, i) * VectorUtil.coord(d, i);
-				smx[smx_idx] += VectorUtil.coord(max, i) * VectorUtil.coord(d, i);
+				smi[smi_idx] += coord(min, i) * coord(d, i);
+				smx[smx_idx] += coord(max, i) * coord(d, i);
 			}
 		}
 	}
 
 	public boolean intersects(DbvtAabbMm v) {
 		return this==v || DbvtAabbMm.intersects(this, v);
+	}
+
+	public DbvtAabbMm merge(Iterable<Vector3f> vv) {
+		min.set(POSITIVE_INFINITY,POSITIVE_INFINITY,POSITIVE_INFINITY);
+		max.set(NEGATIVE_INFINITY,NEGATIVE_INFINITY,NEGATIVE_INFINITY);
+		for (Vector3f v : vv)
+			merge(v);
+		return this;
 	}
 }

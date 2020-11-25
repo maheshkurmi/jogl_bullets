@@ -106,8 +106,8 @@ public class DbvtBroadphase extends BroadphaseInterface {
 
         // optimize:
         final Dbvt s0 = sets[0], s1 = sets[1];
-        s0.optimizeIncremental(1 + (s0.leaves * dupdates) / 100);
-        s1.optimizeIncremental(1 + (s1.leaves * fupdates) / 100);
+        s0.optimizeIncremental(1 + (s0.leaves.get() * dupdates) / 100);
+        s1.optimizeIncremental(1 + (s1.leaves.get() * fupdates) / 100);
 
         // dynamic -> fixed set:
         stageCurrent = (stageCurrent + 1) % STAGECOUNT;

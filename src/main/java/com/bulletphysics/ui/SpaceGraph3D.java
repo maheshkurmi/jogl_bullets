@@ -30,6 +30,11 @@ import javax.vecmath.Vector3f;
 import static com.bulletphysics.linearmath.QuaternionUtil.setRotation;
 import static com.bulletphysics.linearmath.VectorUtil.coord;
 import static com.bulletphysics.ui.IGL.*;
+import static com.bulletphysics.ui.IGL.GL_DEPTH_TEST;
+import static com.bulletphysics.ui.IGL.GL_LESS;
+import static com.jogamp.opengl.GL.*;
+import static com.jogamp.opengl.GL2GL3.GL_POLYGON_SMOOTH;
+import static com.jogamp.opengl.GL2GL3.GL_POLYGON_SMOOTH_HINT;
 
 public abstract class SpaceGraph3D implements GLEventListener {
     private static final float STEPSIZE = 5;
@@ -153,14 +158,26 @@ public abstract class SpaceGraph3D implements GLEventListener {
         gl.glEnable(GL_LIGHT0);
         gl.glEnable(GL_LIGHT1);
 
+        //Set blending
+        gl.glEnable( GL_BLEND );
+        gl.glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+        /* Set antialiasing/multisampling */
+        gl.glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
+        gl.glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
+        gl.glDisable( GL_LINE_SMOOTH );
+        gl.glDisable( GL_POLYGON_SMOOTH );
+        gl.glDisable( GL_MULTISAMPLE );
+
         gl.glShadeModel(GL_SMOOTH);
+
         gl.glEnable(GL_DEPTH_TEST);
         gl.glDepthFunc(GL_LESS);
 
-        gl.glClearColor(0.7f, 0.7f, 0.7f, 0f);
+        gl.glClearColor(0f, 0f, 0f, 0f);
 
-        //glEnable(GL_CULL_FACE);
-        //glCullFace(GL_BACK);
+        gl.glEnable(GL_CULL_FACE);
+        gl.glCullFace(GL_BACK);
     }
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
@@ -373,12 +390,13 @@ public abstract class SpaceGraph3D implements GLEventListener {
         int y = mouse.getLocation().y;
 
         for (MouseButton btn : mouse.getActiveButtons().values()) {
-            if (btn.getAWTEventId() == 0) continue;
-            if (btn.getAWTEventId() == java.awt.event.MouseEvent.MOUSE_PRESSED) {
+            final int event = btn.getAWTEventId();
+            if (event == 0) continue;
+            if (event == java.awt.event.MouseEvent.MOUSE_PRESSED) {
                 mouseFunc(btn.getCode() - 1, 1, x, y);
-            } else if (btn.getAWTEventId() == java.awt.event.MouseEvent.MOUSE_RELEASED) {
+            } else if (event == java.awt.event.MouseEvent.MOUSE_RELEASED) {
                 mouseFunc(btn.getCode() - 1, 0, x, y);
-            } else if (btn.getAWTEventId() == java.awt.event.MouseEvent.MOUSE_DRAGGED) {
+            } else if (event == java.awt.event.MouseEvent.MOUSE_DRAGGED) {
                 mouseMotionFunc(x, y);
             }
         }
@@ -433,7 +451,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
 
     }
 
-    private Vector3f getRayTo(int x, int y) {
+    private Vector3f rayTo(int x, int y) {
         float top = 1f;
         float bottom = -1f;
         float nearPlane = 1f;
@@ -502,7 +520,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
         //printf("button %i, state %i, x=%i,y=%i\n",button,state,x,y);
         //button 0, state 0 means left mouse down
 
-        Vector3f rayTo = new Vector3f(getRayTo(x, y));
+        Vector3f rayTo = new Vector3f(rayTo(x, y));
 
 
         switch (button) {
@@ -596,20 +614,18 @@ public abstract class SpaceGraph3D implements GLEventListener {
         if (pickConstraint != null) {
             // move the constraint pivot
             Point2PointConstraint p2p = (Point2PointConstraint) pickConstraint;
-            if (p2p != null) {
-                // keep it at the same picking distance
+            // keep it at the same picking distance
 
-                Vector3f newRayTo = new Vector3f(getRayTo(x, y));
-                Vector3f eyePos = new Vector3f(cameraPosition);
-                Vector3f dir = new Vector3f();
-                dir.sub(newRayTo, eyePos);
-                dir.normalize();
-                dir.scale(BulletStats.gOldPickingDist);
+            Vector3f newRayTo = new Vector3f(rayTo(x, y));
+            Vector3f eyePos = new Vector3f(cameraPosition);
+            Vector3f dir = new Vector3f();
+            dir.sub(newRayTo, eyePos);
+            dir.normalize();
+            dir.scale(BulletStats.gOldPickingDist);
 
-                Vector3f newPos = new Vector3f();
-                newPos.add(eyePos, dir);
-                p2p.setPivotB(newPos);
-            }
+            Vector3f newPos = new Vector3f();
+            newPos.add(eyePos, dir);
+            p2p.setPivotB(newPos);
         }
     }
 

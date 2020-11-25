@@ -33,6 +33,9 @@ import com.bulletphysics.util.ObjectArrayList;
 
 import javax.vecmath.Vector3f;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.bulletphysics.collision.broadphase.DbvtAabbMm.proximity;
 
 /**
  * @author jezek2
@@ -44,7 +47,7 @@ public class Dbvt<X> {
     private static final Vector3f[] axis = new Vector3f[]{new Vector3f(1, 0, 0), new Vector3f(0, 1, 0), new Vector3f(0, 0, 1)};
     private final int lkhd = -1;
     public Node<X> root = null;
-    public int leaves = 0;
+    public final AtomicInteger leaves = new AtomicInteger();
     private Node<X> free = null;
     private/*unsigned*/ int opath = 0;
 
@@ -450,24 +453,22 @@ public class Dbvt<X> {
         return node;
     }
 
-    private static void insertleaf(Dbvt pdbvt, Node root, Node leaf) {
+    private static void insertleaf(Dbvt pdbvt, Node root, final Node leaf) {
         if (pdbvt.root == null) {
             pdbvt.root = leaf;
             leaf.parent = null;
         } else {
-            if (!root.isleaf()) {
-                do {
-                    if (DbvtAabbMm.proximity(root.childs[0].volume, leaf.volume) <
-                            DbvtAabbMm.proximity(root.childs[1].volume, leaf.volume)) {
-                        root = root.childs[0];
-                    } else {
-                        root = root.childs[1];
-                    }
-                }
-                while (!root.isleaf());
+
+            final DbvtAabbMm leafVolume = leaf.volume;
+
+            while (!root.isleaf()) {
+                Node[] rc = root.childs;
+                root = rc[proximity(rc[0].volume, leafVolume) <
+                        proximity(rc[1].volume, leafVolume) ? 0 : 1];
             }
+
             Node prev = root.parent;
-            Node node = node(pdbvt, prev, merge(leaf.volume, root.volume, new DbvtAabbMm()), null);
+            Node node = node(pdbvt, prev, merge(leafVolume, root.volume, new DbvtAabbMm()), null);
             if (prev != null) {
                 prev.childs[indexOf(root)] = node;
                 node.childs[0] = root;
@@ -475,14 +476,12 @@ public class Dbvt<X> {
                 node.childs[1] = leaf;
                 leaf.parent = node;
                 do {
-                    if (!prev.volume.Contain(node.volume)) {
-                        DbvtAabbMm.merge(prev.childs[0].volume, prev.childs[1].volume, prev.volume);
-                    } else {
+                    if (prev.volume.contains(node.volume))
                         break;
-                    }
+
+                    DbvtAabbMm.merge(prev.childs[0].volume, prev.childs[1].volume, prev.volume);
                     node = prev;
-                }
-                while (null != (prev = node.parent));
+                } while (null != (prev = node.parent));
             } else {
                 node.childs[0] = root;
                 root.parent = node;
@@ -508,11 +507,10 @@ public class Dbvt<X> {
                 while (prev != null) {
                     DbvtAabbMm pb = prev.volume;
                     DbvtAabbMm.merge(prev.childs[0].volume, prev.childs[1].volume, prev.volume);
-                    if (DbvtAabbMm.notEqual(pb, prev.volume)) {
-                        prev = prev.parent;
-                    } else {
+                    if (!DbvtAabbMm.notEqual(pb, prev.volume))
                         break;
-                    }
+
+                    prev = prev.parent;
                 }
                 return (prev != null ? prev : pdbvt.root);
             } else {
@@ -712,7 +710,7 @@ public class Dbvt<X> {
 
     public void optimizeBottomUp() {
         if (root != null) {
-            ObjectArrayList<Node> leaves = new ObjectArrayList<>(this.leaves);
+            ObjectArrayList<Node> leaves = new ObjectArrayList<>(this.leaves.get());
             fetchleaves(this, root, leaves);
             bottomup(this, leaves);
             root = leaves.get(0);
@@ -725,7 +723,7 @@ public class Dbvt<X> {
 
     private void optimizeTopDown(int bu_treshold) {
         if (root != null) {
-            ObjectArrayList<Node> leaves = new ObjectArrayList<>(this.leaves);
+            ObjectArrayList<Node> leaves = new ObjectArrayList<>(this.leaves.get());
             fetchleaves(this, root, leaves);
             root = topdown(this, leaves, bu_treshold);
         }
@@ -733,7 +731,7 @@ public class Dbvt<X> {
 
     public void optimizeIncremental(int passes) {
         if (passes < 0) {
-            passes = leaves;
+            passes = leaves.get();
         }
 
         if (root != null && (passes > 0)) {
@@ -757,8 +755,10 @@ public class Dbvt<X> {
 
     public Node<X> put(X data, DbvtAabbMm box) {
         Node<X> leaf = node(this, null, box, data);
-        insertleaf(this, root, leaf);
-        leaves++;
+        synchronized(this) {
+            insertleaf(this, root, leaf);
+            leaves.getAndIncrement();
+        }
         return leaf;
     }
 
@@ -800,33 +800,33 @@ public class Dbvt<X> {
     }
 
     public boolean update(Node leaf, DbvtAabbMm volume, Vector3f velocity, float margin) {
-        if (leaf.volume.Contain(volume)) {
+        if (leaf.volume.contains(volume)) {
             return false;
         }
         Vector3f tmp = new Vector3f();
         tmp.set(margin, margin, margin);
-        volume.Expand(tmp);
-        volume.SignedExpand(velocity);
+        volume.expand(tmp);
+        volume.expandSigned(velocity);
         update(leaf, volume);
         return true;
     }
 
     public boolean update(Node leaf, DbvtAabbMm volume, Vector3f velocity) {
-        if (leaf.volume.Contain(volume)) {
+        if (leaf.volume.contains(volume)) {
             return false;
         }
-        volume.SignedExpand(velocity);
+        volume.expandSigned(velocity);
         update(leaf, volume);
         return true;
     }
 
     public boolean update(Node leaf, DbvtAabbMm volume, float margin) {
-        if (leaf.volume.Contain(volume)) {
+        if (leaf.volume.contains(volume)) {
             return false;
         }
         Vector3f tmp = new Vector3f();
         tmp.set(margin, margin, margin);
-        volume.Expand(tmp);
+        volume.expand(tmp);
         update(leaf, volume);
         return true;
     }
@@ -834,7 +834,7 @@ public class Dbvt<X> {
     public void remove(Node leaf) {
         removeleaf(this, leaf);
         deletenode(this, leaf);
-        leaves--;
+        leaves.getAndDecrement();
     }
 
     ////////////////////////////////////////////////////////////////////////////
