@@ -23,7 +23,6 @@
 
 package com.bulletphysics.demos.concaveconvexcast;
 
-import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
 import com.bulletphysics.collision.dispatch.CollisionDispatcher;
@@ -43,14 +42,10 @@ import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.ui.DemoApplication;
 import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
-import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Vector3f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import static com.bulletphysics.ui.IGL.GL_COLOR_BUFFER_BIT;
-import static com.bulletphysics.ui.IGL.GL_DEPTH_BUFFER_BIT;
 
 /**
  * 

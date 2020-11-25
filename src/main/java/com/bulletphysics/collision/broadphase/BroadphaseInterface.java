@@ -47,6 +47,4 @@ public abstract class BroadphaseInterface {
 	///will add some transform later
 	public abstract void getBroadphaseAabb(Vector3f aabbMin, Vector3f aabbMax);
 
-	public abstract void printStats();
-	
 }

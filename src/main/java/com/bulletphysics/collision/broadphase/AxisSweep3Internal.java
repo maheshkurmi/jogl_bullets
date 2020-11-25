@@ -623,14 +623,14 @@ public abstract class AxisSweep3Internal extends BroadphaseInterface {
 		aabbMax.set(worldAabbMax);
 	}
 
-	public void printStats() {
-		/*
-		printf("btAxisSweep3.h\n");
-		printf("numHandles = %d, maxHandles = %d\n",m_numHandles,m_maxHandles);
-		printf("aabbMin=%f,%f,%f,aabbMax=%f,%f,%f\n",m_worldAabbMin.getX(),m_worldAabbMin.getY(),m_worldAabbMin.getZ(),
-		m_worldAabbMax.getX(),m_worldAabbMax.getY(),m_worldAabbMax.getZ());
-		*/
-	}
+//	public void printStats() {
+//		/*
+//		printf("btAxisSweep3.h\n");
+//		printf("numHandles = %d, maxHandles = %d\n",m_numHandles,m_maxHandles);
+//		printf("aabbMin=%f,%f,%f,aabbMax=%f,%f,%f\n",m_worldAabbMin.getX(),m_worldAabbMin.getY(),m_worldAabbMin.getZ(),
+//		m_worldAabbMax.getX(),m_worldAabbMax.getY(),m_worldAabbMax.getZ());
+//		*/
+//	}
 	
 	////////////////////////////////////////////////////////////////////////////
 	

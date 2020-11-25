@@ -49,9 +49,9 @@ import javax.vecmath.Vector3f;
 public class BasicDemo extends DemoApplication {
 
 	// create 125 (5x5x5) dynamic object
-	private static final int ARRAY_SIZE_X = 5;
-	private static final int ARRAY_SIZE_Y = 5;
-	private static final int ARRAY_SIZE_Z = 5;
+	private static final int ARRAY_SIZE_X = 8;
+	private static final int ARRAY_SIZE_Y = 8;
+	private static final int ARRAY_SIZE_Z = 8;
 
 	// maximum number of objects (and allow user to shoot additional boxes)
 	private static final int MAX_PROXIES = (ARRAY_SIZE_X*ARRAY_SIZE_Y*ARRAY_SIZE_Z + 1024);
@@ -71,7 +71,7 @@ public class BasicDemo extends DemoApplication {
 	
 
 	public DiscreteDynamicsWorld physics() {
-		setCameraDistance(50f);
+		setCameraDistance(20f);
 
 		// collision configuration contains default setup for memory, collision setup
 		collisionConfiguration = new DefaultCollisionConfiguration();

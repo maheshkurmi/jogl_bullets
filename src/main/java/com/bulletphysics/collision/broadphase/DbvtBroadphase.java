@@ -77,21 +77,14 @@ public class DbvtBroadphase extends BroadphaseInterface {
         this.paircache = (paircache != null ? paircache : new HashedOverlappingPairCache());
         gid = 0;
         pid = 0;
-
-        for (int i = 0; i <= STAGECOUNT; i++) {
-            stageRoots[i] = null;
-        }
-        //#if DBVT_BP_PROFILE
-        //clear(m_profiling);
-        //#endif
     }
 
-    private static DbvtProxy listappend(DbvtProxy item, DbvtProxy list) {
-        item.links[0] = null;
-        item.links[1] = list;
+    private static DbvtProxy listappend(final DbvtProxy item, DbvtProxy list) {
+        final DbvtProxy[] itemLinks = item.links;
+        itemLinks[0] = null;
+        itemLinks[1] = list;
         if (list != null) list.links[0] = item;
-        list = item;
-        return list;
+        return item;
     }
 
     private static DbvtProxy listremove(final DbvtProxy item, DbvtProxy list) {
@@ -270,9 +263,6 @@ public class DbvtBroadphase extends BroadphaseInterface {
         }
         aabbMin.set(bounds.min);
         aabbMax.set(bounds.max);
-    }
-
-    public void printStats() {
     }
 
 }

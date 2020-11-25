@@ -27,8 +27,6 @@ import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.dynamics.DynamicsWorld;
 
-import javax.vecmath.Color3f;
-import javax.vecmath.Tuple3f;
 import javax.vecmath.Vector3f;
 
 /**

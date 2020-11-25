@@ -24,7 +24,6 @@
 package com.bulletphysics.demos.concave;
 
 import com.bulletphysics.BulletGlobals;
-import com.bulletphysics.BulletStats;
 import com.bulletphysics.ContactAddedCallback;
 import com.bulletphysics.collision.broadphase.BroadphaseInterface;
 import com.bulletphysics.collision.broadphase.DbvtBroadphase;
@@ -50,8 +49,6 @@ import com.bulletphysics.ui.DemoApplication;
 import com.bulletphysics.ui.JOGL;
 import com.bulletphysics.util.ObjectArrayList;
 import com.bulletphysics.util.bvh.optimized.OptimizedBvh;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
