@@ -44,7 +44,7 @@ public class StaticPlaneShape extends ConcaveShape {
 
     private final Vector3f planeNormal = new Vector3f();
     private final float planeConstant;
-    private final Vector3f localScaling = new Vector3f(0f, 0f, 0f);
+    private final Vector3f localScaling = new Vector3f();
 
     public StaticPlaneShape(Vector3f planeNormal, float planeConstant) {
         this.planeNormal.normalize(planeNormal);

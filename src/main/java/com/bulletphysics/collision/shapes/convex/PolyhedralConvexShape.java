@@ -46,12 +46,12 @@ public abstract class PolyhedralConvexShape extends ConvexInternalShape {
 	};
 
 	private static final Vector3f[] _supporting = new Vector3f[] {
-		new Vector3f(0f, 0f, 0f),
-		new Vector3f(0f, 0f, 0f),
-		new Vector3f(0f, 0f, 0f),
-		new Vector3f(0f, 0f, 0f),
-		new Vector3f(0f, 0f, 0f),
-		new Vector3f(0f, 0f, 0f)
+		new Vector3f(),
+		new Vector3f(),
+		new Vector3f(),
+		new Vector3f(),
+		new Vector3f(),
+		new Vector3f()
 	};
 	
 	private final Vector3f localAabbMin = new Vector3f(1f, 1f, 1f);

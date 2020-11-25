@@ -176,7 +176,7 @@ public abstract class TriangleMeshShape extends ConcaveShape {
 	////////////////////////////////////////////////////////////////////////////
 	
 	private static class SupportVertexCallback extends TriangleCallback {
-		private final Vector3f supportVertexLocal = new Vector3f(0f, 0f, 0f);
+		private final Vector3f supportVertexLocal = new Vector3f();
 		final Transform worldTrans = new Transform();
 		float maxDot = -1e30f;
 		final Vector3f supportVecLocal = new Vector3f();

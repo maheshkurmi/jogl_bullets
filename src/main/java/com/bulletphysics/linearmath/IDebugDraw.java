@@ -24,8 +24,11 @@
 package com.bulletphysics.linearmath;
 
 import com.bulletphysics.collision.dispatch.CollisionWorld;
+import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.dynamics.DynamicsWorld;
 
+import javax.vecmath.Color3f;
+import javax.vecmath.Tuple3f;
 import javax.vecmath.Vector3f;
 
 /**
@@ -98,5 +101,9 @@ public abstract class IDebugDraw {
 				VectorUtil.mulCoord(edgecoord, i, -1f);
 			}
 		}
+	}
+
+	public void drawContactPoint(ManifoldPoint cp, Vector3f color) {
+		drawContactPoint(cp.positionWorldOnB, cp.normalWorldOnB, cp.getDistance(), cp.getLifeTime(), color);
 	}
 }

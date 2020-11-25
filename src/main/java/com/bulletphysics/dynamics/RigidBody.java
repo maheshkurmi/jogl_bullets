@@ -36,6 +36,7 @@ import com.bulletphysics.util.ObjectArrayList;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * RigidBody is the main class for rigid body objects. It is derived from
@@ -65,7 +66,7 @@ import javax.vecmath.Vector3f;
 public class RigidBody extends CollisionObject {
 
     private static final float MAX_ANGVEL = BulletGlobals.SIMD_HALF_PI;
-    private static int uniqueId = 0;
+    private static final AtomicInteger uniqueId = new AtomicInteger();
     private final Matrix3f invInertiaTensorWorld = new Matrix3f();
     private final Vector3f linearVelocity = new Vector3f();
     private final Vector3f angularVelocity = new Vector3f();
@@ -93,17 +94,52 @@ public class RigidBody extends CollisionObject {
     // optionalMotionState allows to automatic synchronize the world transform for active objects
     private MotionState optionalMotionState;
 
-    public RigidBody(RigidBodyConstructionInfo constructionInfo) {
-        setupRigidBody(constructionInfo);
+    public RigidBody(RigidBodyConstructionInfo c) {
+        debugBodyId = uniqueId.getAndIncrement();
+
+        internalType = CollisionObjectType.RIGID_BODY;
+        angularFactor = 1f;
+        linearDamping = 0f;
+        angularDamping = 0.5f;
+        linearSleepingThreshold = c.linearSleepingThreshold;
+        angularSleepingThreshold = c.angularSleepingThreshold;
+        optionalMotionState = c.motionState;
+        contactSolverType = 0;
+        frictionSolverType = 0;
+        additionalDamping = c.additionalDamping;
+        additionalDampingFactor = c.additionalDampingFactor;
+        additionalLinearDampingThresholdSqr = c.additionalLinearDampingThresholdSqr;
+        additionalAngularDampingThresholdSqr = c.additionalAngularDampingThresholdSqr;
+        //additionalAngularDampingFactor = constructionInfo.additionalAngularDampingFactor;
+
+        if (optionalMotionState != null) {
+            optionalMotionState.getWorldTransform(worldTransform);
+        } else {
+            worldTransform.set(c.startWorldTransform);
+        }
+
+        interpolationWorldTransform.set(worldTransform);
+        interpolationLinearVelocity.set(0f, 0f, 0f);
+        interpolationAngularVelocity.set(0f, 0f, 0f);
+
+        // moved to CollisionObject
+        friction = c.friction;
+        restitution = c.restitution;
+
+        setCollisionShape(c.collisionShape);
+
+        setMassProps(c.mass, c.localInertia);
+        setDamping(c.linearDamping, c.angularDamping);
+        updateInertiaTensor();
+
     }
 
     public RigidBody(float mass, MotionState motionState, CollisionShape collisionShape) {
-        this(mass, motionState, collisionShape, new Vector3f(0f, 0f, 0f));
+        this(mass, motionState, collisionShape, new Vector3f());
     }
 
     private RigidBody(float mass, MotionState motionState, CollisionShape collisionShape, Vector3f localInertia) {
-        RigidBodyConstructionInfo cinfo = new RigidBodyConstructionInfo(mass, motionState, collisionShape, localInertia);
-        setupRigidBody(cinfo);
+        this(new RigidBodyConstructionInfo(mass, motionState, collisionShape, localInertia));
     }
 
     /**
@@ -112,50 +148,6 @@ public class RigidBody extends CollisionObject {
      */
     public static RigidBody upcast(CollisionObject colObj) {
         return colObj.getInternalType() == CollisionObjectType.RIGID_BODY ? (RigidBody) colObj : null;
-    }
-
-    private void setupRigidBody(RigidBodyConstructionInfo constructionInfo) {
-        internalType = CollisionObjectType.RIGID_BODY;
-
-        linearVelocity.set(0f, 0f, 0f);
-        angularVelocity.set(0f, 0f, 0f);
-        angularFactor = 1f;
-        gravity.set(0f, 0f, 0f);
-        totalForce.set(0f, 0f, 0f);
-        totalTorque.set(0f, 0f, 0f);
-        linearDamping = 0f;
-        angularDamping = 0.5f;
-        linearSleepingThreshold = constructionInfo.linearSleepingThreshold;
-        angularSleepingThreshold = constructionInfo.angularSleepingThreshold;
-        optionalMotionState = constructionInfo.motionState;
-        contactSolverType = 0;
-        frictionSolverType = 0;
-        additionalDamping = constructionInfo.additionalDamping;
-        additionalDampingFactor = constructionInfo.additionalDampingFactor;
-        additionalLinearDampingThresholdSqr = constructionInfo.additionalLinearDampingThresholdSqr;
-        additionalAngularDampingThresholdSqr = constructionInfo.additionalAngularDampingThresholdSqr;
-        //additionalAngularDampingFactor = constructionInfo.additionalAngularDampingFactor;
-
-        if (optionalMotionState != null) {
-            optionalMotionState.getWorldTransform(worldTransform);
-        } else {
-            worldTransform.set(constructionInfo.startWorldTransform);
-        }
-
-        interpolationWorldTransform.set(worldTransform);
-        interpolationLinearVelocity.set(0f, 0f, 0f);
-        interpolationAngularVelocity.set(0f, 0f, 0f);
-
-        // moved to CollisionObject
-        friction = constructionInfo.friction;
-        restitution = constructionInfo.restitution;
-
-        setCollisionShape(constructionInfo.collisionShape);
-        debugBodyId = uniqueId++;
-
-        setMassProps(constructionInfo.mass, constructionInfo.localInertia);
-        setDamping(constructionInfo.linearDamping, constructionInfo.angularDamping);
-        updateInertiaTensor();
     }
 
     public void destroy() {

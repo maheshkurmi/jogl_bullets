@@ -83,7 +83,7 @@ public class RigidBodyConstructionInfo {
     //public float additionalAngularDampingFactor = 0.01f;
 
     public RigidBodyConstructionInfo(float mass, MotionState motionState, CollisionShape collisionShape) {
-        this(mass, motionState, collisionShape, new Vector3f(0f, 0f, 0f));
+        this(mass, motionState, collisionShape, new Vector3f());
     }
 
     public RigidBodyConstructionInfo(float mass, MotionState motionState, CollisionShape collisionShape, Vector3f localInertia) {

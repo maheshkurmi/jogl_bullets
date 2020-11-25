@@ -41,20 +41,20 @@ public abstract class StridingMeshInterface {
 	private final Vector3f scaling = new Vector3f(1f, 1f, 1f);
 	
 	public void internalProcessAllTriangles(InternalTriangleIndexCallback callback, Vector3f aabbMin, Vector3f aabbMax) {
-		int graphicssubparts = getNumSubParts();
 		Vector3f[] triangle/*[3]*/ = new Vector3f[]{ new Vector3f(), new Vector3f(), new Vector3f() };
 
 		Vector3f meshScaling = getScaling(new Vector3f());
 
-		for (int part=0; part<graphicssubparts; part++) {
-			VertexData data = getLockedReadOnlyVertexIndexBase(part);
+		int graphicssubparts = getNumSubParts();
+		for (int p=0; p<graphicssubparts; p++) {
+			VertexData data = getLockedReadOnlyVertexIndexBase(p);
 
 			for (int i=0, cnt=data.getIndexCount()/3; i<cnt; i++) {
 				data.getTriangle(i*3, meshScaling, triangle);
-				callback.internalProcessTriangleIndex(triangle, part, i);
+				callback.internalProcessTriangleIndex(triangle, p, i);
 			}
 
-			unLockReadOnlyVertexBase(part);
+			unLockReadOnlyVertexBase(p);
 		}
 	}
 

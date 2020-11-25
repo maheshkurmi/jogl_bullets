@@ -25,42 +25,50 @@ import javax.vecmath.Matrix3f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
+import static com.bulletphysics.linearmath.QuaternionUtil.setRotation;
+import static com.bulletphysics.linearmath.VectorUtil.coord;
 import static com.bulletphysics.ui.IGL.*;
 
 public abstract class SpaceGraph3D implements GLEventListener {
     private static final float STEPSIZE = 5;
-    private static RigidBody pickedBody = null; // for deactivation state
     private static final float mousePickClamping = 3f;
-    protected final Vector3f cameraPosition = new Vector3f(0f, 0f, 0f);
-    protected final Vector3f cameraTargetPosition = new Vector3f(0f, 0f, 0f); // look at
+    private static RigidBody pickedBody = null; // for deactivation state
+
+    protected final Vector3f cameraPosition = new Vector3f();
+    protected final Vector3f cameraTargetPosition = new Vector3f(); // look at
     protected final Vector3f cameraUp = new Vector3f(0f, 1f, 0f);
+
+    float farPlane = 10000f;
+    // keep the collision shapes, for deletion/cleanup
+    protected final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
+    protected final float fps = 60f;
     final Mouse mouse;
     final Keyboard keyboard;
     private final Clock clock = new Clock();
-    public DynamicsWorld world;
-    private TypedConstraint pickConstraint = null;
-    private float cameraDistance = 15f;
-    int debugMode = 0;
-    private float ele = 20f;
-    private float azi = 0f;
-    @Deprecated
-    protected int forwardAxis = 2;
-    private int glutScreenWidth = 0;
-    private int glutScreenHeight = 0;
-    boolean stepping = true;
-    protected boolean idle = false;
     private final Transform m = new Transform();
     private final Vector3f wireColor = new Vector3f();
-
-    // keep the collision shapes, for deletion/cleanup
-    protected final ObjectArrayList<CollisionShape> collisionShapes = new ObjectArrayList<>();
-
-    protected final float fps = 60f;
+    public DynamicsWorld world;
     @Deprecated public transient IGL gl = null;
+    @Deprecated protected int forwardAxis = 2;
+    protected boolean idle = false;
+    int debugMode = 0;
+    boolean stepping = true;
+    private TypedConstraint pickConstraint = null;
+    @Deprecated private float cameraDistance = 15f;
+    @Deprecated private float ele = 20f;
+    @Deprecated private float azi = 0f;
+    private int glutScreenWidth = 0;
+    private int glutScreenHeight = 0;
+    protected float zNear = 1f;
+    protected float zFar = 10000;
 
     public SpaceGraph3D() {
         mouse = new Mouse();
         keyboard = new Keyboard();
+    }
+
+    public static void stop() {
+        throw new RuntimeException("TODO");
     }
 
     public void start() {
@@ -68,10 +76,6 @@ public abstract class SpaceGraph3D implements GLEventListener {
             world = physics();
             reset();
         }
-    }
-
-    public static void stop() {
-        throw new RuntimeException("TODO");
     }
 
     protected void reset() {
@@ -82,7 +86,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
 
         int numObjects = 0;
         if (world != null) {
-            world.stepSimulation(1/fps, 0);
+            world.stepSimulation(1 / fps, 0);
             numObjects = world.getNumCollisionObjects();
         }
 
@@ -98,7 +102,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
                     o.activate();
                 }
                 // removed cached contact points
-                world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(o.getBroadphaseHandle(), getWorld().getDispatcher());
+                world.broadphase().getOverlappingPairCache().cleanProxyFromPairs(o.getBroadphaseHandle(), world().dispatcher());
 
                 if (!b.isStaticObject()) {
                     b.setLinearVelocity(new Vector3f());
@@ -121,8 +125,8 @@ public abstract class SpaceGraph3D implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable g) {
-        if (((JoglGL)gl).gl == null) {
-            ((JoglGL)gl).init(g.getGL().getGL2()); //HACK
+        if (((JoglGL) gl).gl == null) {
+            ((JoglGL) gl).init(g.getGL().getGL2()); //HACK
         }
 
         float[] light_ambient = new float[]{0.2f, 0.2f, 0.2f, 1.0f};
@@ -189,84 +193,74 @@ public abstract class SpaceGraph3D implements GLEventListener {
 
         update();
 
+        {
+            updateCamera();
+            gl.glEnable(GL_LIGHTING);
+            renderVolume(drawable);
+            gl.glDisable(GL_LIGHTING);
+        }
 
-        renderVolume();
-
-        setOrthographicProjection();
-        renderHUD();
+        {
+            setOrthographicProjection();
+            renderHUD();
+        }
     }
 
     void renderHUD() {
 
     }
 
-    private void renderVolume() {
+    protected void renderVolume(GLAutoDrawable drawable) {
 
-        updateCamera();
 
 
         // optional but useful: debug drawing
         world.debugDrawWorld();
 
-        gl.glEnable(GL_LIGHTING);
         int numObjects = world.getNumCollisionObjects();
+
+        final ObjectArrayList<CollisionObject> xx = world.getCollisionObjectArray();
+
         wireColor.set(1f, 0f, 0f);
+
         for (int i = 0; i < numObjects; i++) {
-            CollisionObject colObj = world.getCollisionObjectArray().get(i);
-            RigidBody body = RigidBody.upcast(colObj);
 
+            CollisionObject x = xx.get(i);
+
+            RigidBody body = RigidBody.upcast(x);
             if (body != null && body.getMotionState() != null) {
-                DefaultMotionState myMotionState = (DefaultMotionState) body.getMotionState();
-                m.set(myMotionState.graphicsWorldTrans);
-            }
-            else {
-                colObj.getWorldTransform(m);
+                m.set(((DefaultMotionState) body.getMotionState()).graphicsWorldTrans);
+            } else {
+                x.getWorldTransform(m);
             }
 
-            wireColor.set(1f, 1f, 0.5f); // wants deactivation
-            if ((i & 1) != 0) {
+
+            if ((i & 1) != 0)
                 wireColor.set(0f, 0f, 1f);
-            }
+            else
+                wireColor.set(1f, 1f, 0.5f); // wants deactivation
 
             // color differently for active, sleeping, wantsdeactivation states
-            if (colObj.getActivationState() == 1) // active
-            {
-                if ((i & 1) != 0) {
-                    //wireColor.add(new Vector3f(1f, 0f, 0f));
-                    wireColor.x += 1f;
-                }
-                else {
-                    //wireColor.add(new Vector3f(0.5f, 0f, 0f));
-                    wireColor.x += 0.5f;
-                }
-            }
-            if (colObj.getActivationState() == 2) // ISLAND_SLEEPING
-            {
-                if ((i & 1) != 0) {
-                    //wireColor.add(new Vector3f(0f, 1f, 0f));
-                    wireColor.y += 1f;
-                }
-                else {
-                    //wireColor.add(new Vector3f(0f, 0.5f, 0f));
-                    wireColor.y += 0.5f;
-                }
+            final int state = x.getActivationState();
+            if (state == 1) { //active
+                wireColor.x += (i & 1) != 0 ? 1f : 0.5f;
+            } else if (state == 2) { // ISLAND_SLEEPING
+                wireColor.y += (i & 1) != 0 ? 1f : 0.5f;
             }
 
             wireColor.clamp(0, 1);
 
-            GLShapeDrawer.drawOpenGL(gl, m, colObj.getCollisionShape(), wireColor, getDebugMode());
+            GLShapeDrawer.drawOpenGL(gl, m, x.getCollisionShape(), wireColor, getDebugMode());
         }
 
-        gl.glDisable(GL_LIGHTING);
-    }
-
-
-    public void setCameraDistance(float dist) {
-        cameraDistance = dist;
     }
 
     public float getCameraDistance() {
         return cameraDistance;
+    }
+
+    public void setCameraDistance(float dist) {
+        cameraDistance = dist;
     }
 
     void toggleIdle() {
@@ -274,50 +268,56 @@ public abstract class SpaceGraph3D implements GLEventListener {
     }
 
     public void updateCamera() {
-        gl.glMatrixMode(GL_PROJECTION);
-        gl.glLoadIdentity();
+
         float rele = ele * 0.01745329251994329547f; // rads per deg
         float razi = azi * 0.01745329251994329547f; // rads per deg
 
-        Quat4f rot = new Quat4f();
-        QuaternionUtil.setRotation(rot, cameraUp, razi);
+        Quat4f rot = new Quat4f(); setRotation(rot, cameraUp, razi);
 
-        Vector3f eyePos = new Vector3f();
-        eyePos.set(0f, 0f, 0f);
-        VectorUtil.coord(eyePos, forwardAxis, -cameraDistance);
+        Vector3f cameraPosition = new Vector3f(); coord(cameraPosition, forwardAxis, -cameraDistance);
 
-        Vector3f forward = new Vector3f();
-        forward.set(eyePos.x, eyePos.y, eyePos.z);
-        if (forward.lengthSquared() < BulletGlobals.FLT_EPSILON) {
+        Vector3f forward = new Vector3f(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+        if (forward.lengthSquared() < BulletGlobals.FLT_EPSILON)
             forward.set(1f, 0f, 0f);
-        }
+
         Vector3f right = new Vector3f();
         right.cross(cameraUp, forward);
-        Quat4f roll = new Quat4f();
-        QuaternionUtil.setRotation(roll, right, -rele);
+
+        Quat4f roll = new Quat4f(); setRotation(roll, right, -rele);
 
         Matrix3f tmpMat1 = new Matrix3f();
-        Matrix3f tmpMat2 = new Matrix3f();
         tmpMat1.set(rot);
+        Matrix3f tmpMat2 = new Matrix3f();
         tmpMat2.set(roll);
         tmpMat1.mul(tmpMat2);
-        tmpMat1.transform(eyePos);
+        tmpMat1.transform(cameraPosition);
 
-        cameraPosition.set(eyePos);
+        Vector3f cameraTargetPosition = this.cameraTargetPosition;
+        Vector3f cameraUp = this.cameraUp;
+        updateCamera(cameraPosition, cameraTargetPosition, cameraUp);
+    }
+
+    public void updateCamera(Vector3f pos, Vector3f target, Vector3f up) {
+        this.cameraPosition.set(pos);
+        this.cameraTargetPosition.set(target);
+        this.cameraUp.set(up);
+
+        gl.glMatrixMode(GL_PROJECTION);
+        gl.glLoadIdentity();
 
         if (glutScreenWidth > glutScreenHeight) {
             float aspect = glutScreenWidth / (float) glutScreenHeight;
-            gl.glFrustum(-aspect, aspect, -1.0, 1.0, 1.0, 10000.0);
+            gl.glFrustum(-aspect, aspect, -1.0, 1.0, zNear, zFar);
         } else {
             float aspect = glutScreenHeight / (float) glutScreenWidth;
-            gl.glFrustum(-1.0, 1.0, -aspect, aspect, 1.0, 10000.0);
+            gl.glFrustum(-1.0, 1.0, -aspect, aspect, zNear, zFar);
         }
 
         gl.glMatrixMode(GL_MODELVIEW);
         gl.glLoadIdentity();
-        gl.gluLookAt(cameraPosition.x, cameraPosition.y, cameraPosition.z,
-                cameraTargetPosition.x, cameraTargetPosition.y, cameraTargetPosition.z,
-                cameraUp.x, cameraUp.y, cameraUp.z);
+        gl.gluLookAt(pos.x, pos.y, pos.z,
+                target.x, target.y, target.z,
+                up.x, up.y, up.z);
     }
 
     void stepLeft() {
@@ -404,11 +404,11 @@ public abstract class SpaceGraph3D implements GLEventListener {
         keyboard.reset();
     }
 
-    void keyboardCallbackUp(char key) {
+    protected void keyboardCallbackUp(char key) {
 
     }
 
-    void keyboardCallback(char key) {
+    protected void keyboardCallback(char key) {
 
     }
 
@@ -418,16 +418,16 @@ public abstract class SpaceGraph3D implements GLEventListener {
 
     public void setDebugMode(int mode) {
         debugMode = mode;
-        if (getWorld() != null && getWorld().getDebugDrawer() != null) {
-            getWorld().getDebugDrawer().setDebugMode(mode);
+        if (world() != null && world().getDebugDrawer() != null) {
+            world().getDebugDrawer().setDebugMode(mode);
         }
     }
 
-    void specialKeyboardUp(int key) {
+    protected void specialKeyboardUp(int key) {
 
     }
 
-    void specialKeyboard(int key) {
+    protected void specialKeyboard(int key) {
 
     }
 
@@ -438,14 +438,13 @@ public abstract class SpaceGraph3D implements GLEventListener {
         float tanFov = (top - bottom) * 0.5f / nearPlane;
         float fov = 2f * (float) Math.atan(tanFov);
 
-        Vector3f rayFrom = new Vector3f(getCameraPosition());
+        Vector3f rayFrom = new Vector3f(cameraPosition());
         Vector3f rayForward = new Vector3f();
-        rayForward.sub(getCameraTargetPosition(), getCameraPosition());
+        rayForward.sub(cameraTarget(), cameraPosition());
         rayForward.normalize();
-        float farPlane = 10000f;
         rayForward.scale(farPlane);
 
-        Vector3f rightOffset = new Vector3f();
+//        Vector3f rightOffset = new Vector3f();
         Vector3f vertical = new Vector3f(cameraUp);
 
         Vector3f hor = new Vector3f();
@@ -456,17 +455,17 @@ public abstract class SpaceGraph3D implements GLEventListener {
         vertical.cross(hor, rayForward);
         vertical.normalize();
 
-        float tanfov = (float) Math.tan(0.5f * fov);
+        double tanfov = (float) Math.tan(0.5 * fov);
 
-        float aspect = glutScreenHeight / (float) glutScreenWidth;
+        double aspect = glutScreenHeight / (float) glutScreenWidth;
 
-        hor.scale(2f * farPlane * tanfov);
-        vertical.scale(2f * farPlane * tanfov);
+        hor.scale((float)(2 * farPlane * tanfov));
+        vertical.scale((float)(2 * farPlane * tanfov));
 
-        if (aspect < 1f) {
-            hor.scale(1f / aspect);
+        if (aspect < 1) {
+            hor.scale((float)(1 / aspect));
         } else {
-            vertical.scale(aspect);
+            vertical.scale((float)aspect);
         }
 
         Vector3f rayToCenter = new Vector3f();
@@ -474,12 +473,10 @@ public abstract class SpaceGraph3D implements GLEventListener {
         Vector3f dHor = new Vector3f(hor);
         dHor.scale(1f / glutScreenWidth);
         Vector3f dVert = new Vector3f(vertical);
-        dVert.scale(1.f / glutScreenHeight);
+        dVert.scale(1f / glutScreenHeight);
 
-        Vector3f tmp1 = new Vector3f();
-        Vector3f tmp2 = new Vector3f();
-        tmp1.scale(0.5f, hor);
-        tmp2.scale(0.5f, vertical);
+        Vector3f tmp1 = new Vector3f(); tmp1.scale(0.5f, hor);
+        Vector3f tmp2 = new Vector3f(); tmp2.scale(0.5f, vertical);
 
         Vector3f rayTo = new Vector3f();
         rayTo.sub(rayToCenter, tmp1);
@@ -623,8 +620,7 @@ public abstract class SpaceGraph3D implements GLEventListener {
     }
 
 
-
-    protected DynamicsWorld getWorld() {
+    protected DynamicsWorld world() {
         return world;
     }
 
@@ -636,11 +632,11 @@ public abstract class SpaceGraph3D implements GLEventListener {
         forwardAxis = axis;
     }
 
-    protected Vector3f getCameraPosition() {
+    protected Vector3f cameraPosition() {
         return cameraPosition;
     }
 
-    protected Vector3f getCameraTargetPosition() {
+    protected Vector3f cameraTarget() {
         return cameraTargetPosition;
     }
 

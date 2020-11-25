@@ -38,7 +38,7 @@ public abstract class ConvexCast {
 	/**
 	 * Cast a convex against another convex object.
 	 */
-	public abstract boolean calcTimeOfImpact(Transform fromA, Transform toA, Transform fromB, Transform toB, CastResult result);
+	public abstract boolean timeOfImpact(Transform fromA, Transform toA, Transform fromB, Transform toB, CastResult result);
 	
 	////////////////////////////////////////////////////////////////////////////
 	

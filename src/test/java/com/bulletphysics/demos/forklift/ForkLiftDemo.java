@@ -266,7 +266,7 @@ public class ForkLiftDemo extends DemoApplication {
 		carChassis.setCenterOfMassTransform(tr);
 		carChassis.setLinearVelocity(new Vector3f(0,0,0));
 		carChassis.setAngularVelocity(new Vector3f(0,0,0));
-		world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(carChassis.getBroadphaseHandle(), getWorld().getDispatcher());
+		world.broadphase().getOverlappingPairCache().cleanProxyFromPairs(carChassis.getBroadphaseHandle(), world().dispatcher());
 		if (vehicle != null)
 		{
 			vehicle.resetSuspension();
@@ -501,7 +501,7 @@ public class ForkLiftDemo extends DemoApplication {
 		Vector3f wheelColor = new Vector3f(1,0,0);
 
 		Vector3f worldBoundsMin = new Vector3f(),worldBoundsMax = new Vector3f();
-		getWorld().getBroadphase().getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
+		world().broadphase().getBroadphaseAabb(worldBoundsMin,worldBoundsMax);
 
 		for (int i=0;i<vehicle.getNumWheels();i++)
 		{

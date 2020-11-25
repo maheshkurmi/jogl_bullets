@@ -85,7 +85,7 @@ class ConvexcastBatch {
 	private final BoxShape boxShape;
 
 	public ConvexcastBatch() {
-		boxShape = new BoxShape(new Vector3f(0f, 0f, 0f));
+		boxShape = new BoxShape(new Vector3f());
 		ms = 0;
 		max_ms = 0;
 		min_ms = 9999;

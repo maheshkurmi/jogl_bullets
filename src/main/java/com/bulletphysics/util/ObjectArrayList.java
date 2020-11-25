@@ -155,4 +155,8 @@ public final class ObjectArrayList<T> extends AbstractList<T> implements RandomA
         }
     }
 
+    /** removeLast */
+    public final T pop() {
+        return remove(size - 1);
+    }
 }

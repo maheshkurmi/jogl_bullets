@@ -206,7 +206,7 @@ public class ConvexConcaveCollisionAlgorithm extends CollisionAlgorithm {
 			//ContinuousConvexCollision convexCaster(&pointShape,convexShape,&simplexSolver,0);
 			//local space?
 
-			if (convexCaster.calcTimeOfImpact(ccdSphereFromTrans, ccdSphereToTrans, ident, ident, castResult)) {
+			if (convexCaster.timeOfImpact(ccdSphereFromTrans, ccdSphereToTrans, ident, ident, castResult)) {
 				if (hitFraction > castResult.fraction) {
 					hitFraction = castResult.fraction;
 				}

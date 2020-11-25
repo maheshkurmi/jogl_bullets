@@ -105,14 +105,14 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
         performDiscreteCollisionDetection();
 
         // solve contact constraints
-        int numManifolds = dispatcher1.getNumManifolds();
+        int numManifolds = dispatcher.getNumManifolds();
         if (numManifolds != 0) {
-            ObjectArrayList<PersistentManifold> manifoldPtr = dispatcher1.getInternalManifoldPointer();
+            ObjectArrayList<PersistentManifold> manifoldPtr = dispatcher.getInternalManifoldPointer();
 
             ContactSolverInfo infoGlobal = new ContactSolverInfo();
             infoGlobal.timeStep = timeStep;
             constraintSolver.prepareSolve(0, numManifolds);
-            constraintSolver.solveGroup(null, 0, manifoldPtr, 0, numManifolds, null, 0, 0, infoGlobal, debugDrawer/*, m_stackAlloc*/, dispatcher1);
+            constraintSolver.solveGroup(null, 0, manifoldPtr, 0, numManifolds, null, 0, 0, infoGlobal, debugDrawer/*, m_stackAlloc*/, dispatcher);
             constraintSolver.allSolved(infoGlobal, debugDrawer/*, m_stackAlloc*/);
         }
 
@@ -185,8 +185,8 @@ public class SimpleDynamicsWorld extends DynamicsWorld {
             if (body != null) {
                 if (body.isActive() && (!body.isStaticObject())) {
                     colObj.getCollisionShape().getAabb(colObj.getWorldTransform(tmpTrans), minAabb, maxAabb);
-                    BroadphaseInterface bp = getBroadphase();
-                    bp.setAabb(body.getBroadphaseHandle(), minAabb, maxAabb, dispatcher1);
+                    BroadphaseInterface bp = broadphase();
+                    bp.setAabb(body.getBroadphaseHandle(), minAabb, maxAabb, dispatcher);
                 }
             }
         }

@@ -37,8 +37,8 @@ import javax.vecmath.Vector3f;
  */
 public class DbvtAabbMm {
 
-	private final Vector3f mi = new Vector3f();
-	private final Vector3f mx = new Vector3f();
+	public final Vector3f min = new Vector3f();
+	public final Vector3f max = new Vector3f();
 
 	public DbvtAabbMm() {
 	}
@@ -48,62 +48,67 @@ public class DbvtAabbMm {
 	}
 	
 	public void set(DbvtAabbMm o) {
-		mi.set(o.mi);
-		mx.set(o.mx);
+		min.set(o.min);
+		max.set(o.max);
 	}
 	
 	public static void swap(DbvtAabbMm p1, DbvtAabbMm p2) {
 		Vector3f tmp = new Vector3f();
 		
-		tmp.set(p1.mi);
-		p1.mi.set(p2.mi);
-		p2.mi.set(tmp);
+		tmp.set(p1.min);
+		p1.min.set(p2.min);
+		p2.min.set(tmp);
 
-		tmp.set(p1.mx);
-		p1.mx.set(p2.mx);
-		p2.mx.set(tmp);
+		tmp.set(p1.max);
+		p1.max.set(p2.max);
+		p2.max.set(tmp);
 	}
 
-	public Vector3f Center(Vector3f out) {
-		out.add(mi, mx);
+	public Vector3f center(Vector3f out) {
+		out.add(min, max);
 		out.scale(0.5f);
 		return out;
 	}
 	
-	public Vector3f Lengths(Vector3f out) {
-		out.sub(mx, mi);
+	public Vector3f lengths(Vector3f out) {
+		out.sub(max, min);
 		return out;
 	}
 	
 	public Vector3f Extents(Vector3f out) {
-		out.sub(mx, mi);
+		out.sub(max, min);
 		out.scale(0.5f);
 		return out;
 	}
-	
-	public Vector3f Mins() {
-		return mi;
+
+	public final DbvtAabbMm set(Vector3f min, Vector3f max) {
+		fromMinMax(min, max, this);
+		return this;
+	}
+	public final DbvtAabbMm setRadius(Vector3f center, float rad) {
+		fromRadius(center, rad, this);
+		return this;
+	}
+	public final DbvtAabbMm setExtents(Vector3f center, Vector3f extents) {
+		fromExtents(center, extents, this);
+		return this;
 	}
 
-	public Vector3f Maxs() {
-		return mx;
-	}
-	
-	private static DbvtAabbMm FromCE(Vector3f c, Vector3f e, DbvtAabbMm out) {
-		out.mi.sub(c, e);
-		out.mx.add(c, e);
+	private static DbvtAabbMm fromExtents(Vector3f center, Vector3f e, DbvtAabbMm out) {
+		out.min.sub(center, e);
+		out.max.add(center, e);
 		return out;
 	}
 
-	public static DbvtAabbMm FromCR(Vector3f c, float r, DbvtAabbMm out) {
+	public static DbvtAabbMm fromRadius(Vector3f center, float r, DbvtAabbMm out) {
 		Vector3f tmp = new Vector3f();
 		tmp.set(r, r, r);
-		return FromCE(c, tmp, out);
+		return fromExtents(center, tmp, out);
 	}
 
-	public static DbvtAabbMm FromMM(Vector3f mi, Vector3f mx, DbvtAabbMm out) {
-		out.mi.set(mi);
-		out.mx.set(mx);
+	public static DbvtAabbMm fromMinMax(Vector3f mi, Vector3f mx, DbvtAabbMm out) {
+		out.min.set(mi);
+		out.max.set(mx);
 		return out;
 	}
 	
@@ -111,40 +116,40 @@ public class DbvtAabbMm {
 	//public static  DbvtAabbMm	FromPoints( btVector3** ppts,int n);
 	
 	public void Expand(Vector3f e) {
-		mi.sub(e);
-		mx.add(e);
+		min.sub(e);
+		max.add(e);
 	}
 
 	public void SignedExpand(Vector3f e) {
 		if (e.x > 0) {
-			mx.x += e.x;
+			max.x += e.x;
 		}
 		else {
-			mi.x += e.x;
+			min.x += e.x;
 		}
 		
 		if (e.y > 0) {
-			mx.y += e.y;
+			max.y += e.y;
 		}
 		else {
-			mi.y += e.y;
+			min.y += e.y;
 		}
 		
 		if (e.z > 0) {
-			mx.z += e.z;
+			max.z += e.z;
 		}
 		else {
-			mi.z += e.z;
+			min.z += e.z;
 		}
 	}
 
 	public boolean Contain(DbvtAabbMm a) {
-		return ((mi.x <= a.mi.x) &&
-		        (mi.y <= a.mi.y) &&
-		        (mi.z <= a.mi.z) &&
-		        (mx.x >= a.mx.x) &&
-		        (mx.y >= a.mx.y) &&
-		        (mx.z >= a.mx.z));
+		return ((min.x <= a.min.x) &&
+		        (min.y <= a.min.y) &&
+		        (min.z <= a.min.z) &&
+		        (max.x >= a.max.x) &&
+		        (max.y >= a.max.y) &&
+		        (max.z >= a.max.z));
 	}
 
 	public int Classify(Vector3f n, float o, int s) {
@@ -153,36 +158,36 @@ public class DbvtAabbMm {
 
 		switch (s) {
 			case (0 + 0 + 0) -> {
-				px.set(mi.x, mi.y, mi.z);
-				pi.set(mx.x, mx.y, mx.z);
+				px.set(min.x, min.y, min.z);
+				pi.set(max.x, max.y, max.z);
 			}
 			case (1 + 0 + 0) -> {
-				px.set(mx.x, mi.y, mi.z);
-				pi.set(mi.x, mx.y, mx.z);
+				px.set(max.x, min.y, min.z);
+				pi.set(min.x, max.y, max.z);
 			}
 			case (0 + 2 + 0) -> {
-				px.set(mi.x, mx.y, mi.z);
-				pi.set(mx.x, mi.y, mx.z);
+				px.set(min.x, max.y, min.z);
+				pi.set(max.x, min.y, max.z);
 			}
 			case (1 + 2 + 0) -> {
-				px.set(mx.x, mx.y, mi.z);
-				pi.set(mi.x, mi.y, mx.z);
+				px.set(max.x, max.y, min.z);
+				pi.set(min.x, min.y, max.z);
 			}
 			case (0 + 0 + 4) -> {
-				px.set(mi.x, mi.y, mx.z);
-				pi.set(mx.x, mx.y, mi.z);
+				px.set(min.x, min.y, max.z);
+				pi.set(max.x, max.y, min.z);
 			}
 			case (1 + 0 + 4) -> {
-				px.set(mx.x, mi.y, mx.z);
-				pi.set(mi.x, mx.y, mi.z);
+				px.set(max.x, min.y, max.z);
+				pi.set(min.x, max.y, min.z);
 			}
 			case (0 + 2 + 4) -> {
-				px.set(mi.x, mx.y, mx.z);
-				pi.set(mx.x, mi.y, mi.z);
+				px.set(min.x, max.y, max.z);
+				pi.set(max.x, min.y, min.z);
 			}
 			case (1 + 2 + 4) -> {
-				px.set(mx.x, mx.y, mx.z);
-				pi.set(mi.x, mi.y, mi.z);
+				px.set(max.x, max.y, max.z);
+				pi.set(min.x, min.y, min.z);
 			}
 		}
 		
@@ -196,7 +201,7 @@ public class DbvtAabbMm {
 	}
 
 	public float ProjectMinimum(Vector3f v, int signs) {
-		Vector3f[] b = new Vector3f[] { mx, mi };
+		Vector3f[] b = new Vector3f[] {max, min};
 		Vector3f p = new Vector3f();
 		p.set(b[(signs >> 0) & 1].x,
 		      b[(signs >> 1) & 1].y,
@@ -204,24 +209,28 @@ public class DbvtAabbMm {
 		return p.dot(v);
 	}
 	 
-	public static boolean Intersect(DbvtAabbMm a, DbvtAabbMm b) {
-		return ((a.mi.x <= b.mx.x) &&
-		        (a.mx.x >= b.mi.x) &&
-		        (a.mi.y <= b.mx.y) &&
-		        (a.mx.y >= b.mi.y) &&
-		        (a.mi.z <= b.mx.z) &&
-		        (a.mx.z >= b.mi.z));
+	public static boolean intersects(DbvtAabbMm a, DbvtAabbMm b) {
+		final Vector3f aMin = a.min;
+		final Vector3f aMax = a.max;
+		final Vector3f bMax = b.max;
+		final Vector3f bMin = b.min;
+		return ((aMin.x <= bMax.x) &&
+		        (aMax.x >= bMin.x) &&
+		        (aMin.y <= bMax.y) &&
+		        (aMax.y >= bMin.y) &&
+		        (aMin.z <= bMax.z) &&
+		        (aMax.z >= bMin.z));
 	}
 
-	public static boolean Intersect(DbvtAabbMm a, DbvtAabbMm b, Transform xform) {
+	public static boolean intersects(DbvtAabbMm a, DbvtAabbMm b, Transform xform) {
 		Vector3f d0 = new Vector3f();
 		Vector3f d1 = new Vector3f();
 		Vector3f tmp = new Vector3f();
 
 		// JAVA NOTE: check
-		b.Center(d0);
+		b.center(d0);
 		xform.transform(d0);
-		d0.sub(a.Center(tmp));
+		d0.sub(a.center(tmp));
 
 		MatrixUtil.transposeTransform(d1, d0, xform.basis);
 
@@ -235,17 +244,17 @@ public class DbvtAabbMm {
 		return !(s0[0] > (s1[1])) && !(s0[1] < (s1[0]));
 	}
 
-	public static boolean Intersect(DbvtAabbMm a, Vector3f b) {
-		return ((b.x >= a.mi.x) &&
-		        (b.y >= a.mi.y) &&
-		        (b.z >= a.mi.z) &&
-		        (b.x <= a.mx.x) &&
-		        (b.y <= a.mx.y) &&
-		        (b.z <= a.mx.z));
+	public static boolean intersects(DbvtAabbMm a, Vector3f b) {
+		return ((b.x >= a.min.x) &&
+		        (b.y >= a.min.y) &&
+		        (b.z >= a.min.z) &&
+		        (b.x <= a.max.x) &&
+		        (b.y <= a.max.y) &&
+		        (b.z <= a.max.z));
 	}
 
-	public static boolean Intersect(DbvtAabbMm a, Vector3f org, Vector3f invdir, int[] signs) {
-		Vector3f[] bounds = new Vector3f[]{a.mi, a.mx};
+	public static boolean intersects(DbvtAabbMm a, Vector3f org, Vector3f invdir, int[] signs) {
+		Vector3f[] bounds = new Vector3f[]{a.min, a.max};
 		float txmin = (bounds[signs[0]].x - org.x) * invdir.x;
 		float txmax = (bounds[1 - signs[0]].x - org.x) * invdir.x;
 		float tymin = (bounds[signs[1]].y - org.y) * invdir.y;
@@ -274,44 +283,44 @@ public class DbvtAabbMm {
 		return (txmax > 0);
 	}
 
-	public static float Proximity(DbvtAabbMm a, DbvtAabbMm b) {
-		Vector3f d = new Vector3f();
-		Vector3f tmp = new Vector3f();
-
-		d.add(a.mi, a.mx);
-		tmp.add(b.mi, b.mx);
-		d.sub(tmp);
-		return Math.abs(d.x) + Math.abs(d.y) + Math.abs(d.z);
+	public static float proximity(DbvtAabbMm a, DbvtAabbMm b) {
+		final Vector3f aMin = a.min, aMax = a.max, bMin = b.min, bMax = b.max;
+		return  Math.abs((aMin.x + aMax.x) - (bMin.x + bMax.x)) +
+				Math.abs((aMin.y + aMax.y) - (bMin.y + bMax.y)) +
+				Math.abs((aMin.z + aMax.z) - (bMin.z + bMax.z));
 	}
 
-	public static void Merge(DbvtAabbMm a, DbvtAabbMm b, DbvtAabbMm r) {
+	public static void merge(DbvtAabbMm a, DbvtAabbMm b, DbvtAabbMm r) {
 		for (int i=0; i<3; i++) {
-			VectorUtil.coord(r.mi, i, Math.min(VectorUtil.coord(a.mi, i), VectorUtil.coord(b.mi, i)));
+			VectorUtil.coord(r.min, i, Math.min(VectorUtil.coord(a.min, i), VectorUtil.coord(b.min, i)));
 
-			VectorUtil.coord(r.mx, i, Math.max(VectorUtil.coord(a.mx, i), VectorUtil.coord(b.mx, i)));
+			VectorUtil.coord(r.max, i, Math.max(VectorUtil.coord(a.max, i), VectorUtil.coord(b.max, i)));
 		}
 	}
 
-	public static boolean NotEqual(DbvtAabbMm a, DbvtAabbMm b) {
-		return ((a.mi.x != b.mi.x) ||
-		        (a.mi.y != b.mi.y) ||
-		        (a.mi.z != b.mi.z) ||
-		        (a.mx.x != b.mx.x) ||
-		        (a.mx.y != b.mx.y) ||
-		        (a.mx.z != b.mx.z));
+	public static boolean notEqual(DbvtAabbMm a, DbvtAabbMm b) {
+		return ((a.min.x != b.min.x) ||
+		        (a.min.y != b.min.y) ||
+		        (a.min.z != b.min.z) ||
+		        (a.max.x != b.max.x) ||
+		        (a.max.y != b.max.y) ||
+		        (a.max.z != b.max.z));
 	}
 	
 	private void AddSpan(Vector3f d, float[] smi, int smi_idx, float[] smx, int smx_idx) {
 		for (int i=0; i<3; i++) {
 			if (VectorUtil.coord(d, i) < 0) {
-				smi[smi_idx] += VectorUtil.coord(mx, i) * VectorUtil.coord(d, i);
-				smx[smx_idx] += VectorUtil.coord(mi, i) * VectorUtil.coord(d, i);
+				smi[smi_idx] += VectorUtil.coord(max, i) * VectorUtil.coord(d, i);
+				smx[smx_idx] += VectorUtil.coord(min, i) * VectorUtil.coord(d, i);
 			}
 			else {
-				smi[smi_idx] += VectorUtil.coord(mi, i) * VectorUtil.coord(d, i);
-				smx[smx_idx] += VectorUtil.coord(mx, i) * VectorUtil.coord(d, i);
+				smi[smi_idx] += VectorUtil.coord(min, i) * VectorUtil.coord(d, i);
+				smx[smx_idx] += VectorUtil.coord(max, i) * VectorUtil.coord(d, i);
 			}
 		}
 	}
-	
+
+	public boolean intersects(DbvtAabbMm v) {
+		return this==v || DbvtAabbMm.intersects(this, v);
+	}
 }

@@ -23,6 +23,8 @@
 
 package com.bulletphysics.util.bvh.optimized;
 
+import com.bulletphysics.linearmath.VectorUtil;
+
 import javax.vecmath.Vector3f;
 import java.io.Serializable;
 
@@ -33,22 +35,36 @@ import java.io.Serializable;
  */
 class OptimizedBvhNode implements Serializable {
 
-
-    public final Vector3f aabbMinOrg = new Vector3f();
-    public final Vector3f aabbMaxOrg = new Vector3f();
+    /** aabb min/max */
+    public final Vector3f min = new Vector3f(), max = new Vector3f();
 
     public int escapeIndex;
 
-    // for child nodes
-    public int subPart;
-    public int triangleIndex;
+    public int part;
+    public int i;
+
+    public OptimizedBvhNode() {
+        min.set(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
+        max.set(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
+    }
+
+    public OptimizedBvhNode(Vector3f[] points, int partId, int triangleIndex) {
+        this();
+        for (Vector3f p : points) {
+            VectorUtil.setMin(min, p);
+            VectorUtil.setMax(max, p);
+        }
+        escapeIndex = -1;
+        part = partId;
+        i = triangleIndex;
+    }
 
     public void set(OptimizedBvhNode n) {
-        aabbMinOrg.set(n.aabbMinOrg);
-        aabbMaxOrg.set(n.aabbMaxOrg);
+        min.set(n.min);
+        max.set(n.max);
         escapeIndex = n.escapeIndex;
-        subPart = n.subPart;
-        triangleIndex = n.triangleIndex;
+        part = n.part;
+        i = n.i;
     }
 
 }

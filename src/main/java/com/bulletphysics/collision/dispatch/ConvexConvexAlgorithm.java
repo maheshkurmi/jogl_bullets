@@ -178,7 +178,7 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 			///Simplification, one object is simplified as a sphere
 			GjkConvexCast ccd1 = new GjkConvexCast(convex0, sphere1, voronoiSimplex);
 			//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
-			if (ccd1.calcTimeOfImpact(col0.getWorldTransform(tmpTrans1), col0.getInterpolationWorldTransform(tmpTrans2),
+			if (ccd1.timeOfImpact(col0.getWorldTransform(tmpTrans1), col0.getInterpolationWorldTransform(tmpTrans2),
 					col1.getWorldTransform(tmpTrans3), col1.getInterpolationWorldTransform(tmpTrans4), result)) {
 				// store result.m_fraction in both bodies
 
@@ -207,7 +207,7 @@ public class ConvexConvexAlgorithm extends CollisionAlgorithm {
 			///Simplification, one object is simplified as a sphere
 			GjkConvexCast ccd1 = new GjkConvexCast(sphere0, convex1, voronoiSimplex);
 			//ContinuousConvexCollision ccd(min0,min1,&voronoiSimplex,0);
-			if (ccd1.calcTimeOfImpact(col0.getWorldTransform(tmpTrans1), col0.getInterpolationWorldTransform(tmpTrans2),
+			if (ccd1.timeOfImpact(col0.getWorldTransform(tmpTrans1), col0.getInterpolationWorldTransform(tmpTrans2),
 					col1.getWorldTransform(tmpTrans3), col1.getInterpolationWorldTransform(tmpTrans4), result)) {
 				//store result.m_fraction in both bodies
 

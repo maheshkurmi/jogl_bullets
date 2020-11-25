@@ -47,7 +47,7 @@ public class DbvtLeafCollider extends Dbvt.ICollide {
 			DbvtProxy pb = (DbvtProxy) nb.data;
 			
 			//#if DBVT_BP_DISCRETPAIRS
-			if (DbvtAabbMm.Intersect(pa.aabb, pb.aabb))
+			if (DbvtAabbMm.intersects(pa.aabb, pb.aabb))
 			//#endif
 			{
 				//if(pa>pb) btSwap(pa,pb);

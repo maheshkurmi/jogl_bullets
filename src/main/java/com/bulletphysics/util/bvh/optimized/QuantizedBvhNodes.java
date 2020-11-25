@@ -86,20 +86,21 @@ public class QuantizedBvhNodes implements Serializable {
 	}
 	
 	public void set(int destId, QuantizedBvhNodes srcNodes, int srcId) {
-		assert (STRIDE == 4);
+		//assert (STRIDE == 4);
 
 		// save field access:
 		int[] buf = this.buf;
 		int[] srcBuf = srcNodes.buf;
-		
-		buf[destId*STRIDE+0] = srcBuf[srcId*STRIDE+0];
-		buf[destId*STRIDE+1] = srcBuf[srcId*STRIDE+1];
-		buf[destId*STRIDE+2] = srcBuf[srcId*STRIDE+2];
-		buf[destId*STRIDE+3] = srcBuf[srcId*STRIDE+3];
+
+		System.arraycopy(srcBuf, srcId*STRIDE, buf, destId*STRIDE,4);
+//		buf[destId*STRIDE+0] = srcBuf[srcId*STRIDE+0];
+//		buf[destId*STRIDE+1] = srcBuf[srcId*STRIDE+1];
+//		buf[destId*STRIDE+2] = srcBuf[srcId*STRIDE+2];
+//		buf[destId*STRIDE+3] = srcBuf[srcId*STRIDE+3];
 	}
 	
 	public void swap(int id1, int id2) {
-		assert (STRIDE == 4);
+		//assert (STRIDE == 4);
 		
 		// save field access:
 		int[] buf = this.buf;
@@ -172,37 +173,37 @@ public class QuantizedBvhNodes implements Serializable {
 		}
 	}
 	
-	private int getEscapeIndexOrTriangleIndex(int nodeId) {
+	private int escapeIndexOrTriangleIndex(int nodeId) {
 		return buf[nodeId*STRIDE+3];
 	}
 	
-	public void setEscapeIndexOrTriangleIndex(int nodeId, int value) {
+	public void escapeIndexOrTriangleIndex(int nodeId, int value) {
 		buf[nodeId*STRIDE+3] = value;
 	}
 	
-	public boolean isLeafNode(int nodeId) {
+	boolean isLeafNode(int nodeId) {
 		// skipindex is negative (internal node), triangleindex >=0 (leafnode)
-		return (getEscapeIndexOrTriangleIndex(nodeId) >= 0);
+		return (escapeIndexOrTriangleIndex(nodeId) >= 0);
 	}
 
-	public int getEscapeIndex(int nodeId) {
-		assert (!isLeafNode(nodeId));
-		return -getEscapeIndexOrTriangleIndex(nodeId);
+	int escapeIndex(int nodeId) {
+		//assert (!isLeafNode(nodeId));
+		return -escapeIndexOrTriangleIndex(nodeId);
 	}
 
-	public int getTriangleIndex(int nodeId) {
-		assert (isLeafNode(nodeId));
+	int triangleIndex(int nodeId) {
+		//assert (isLeafNode(nodeId));
 		// Get only the lower bits where the triangle index is stored
-		return (getEscapeIndexOrTriangleIndex(nodeId) & ~((~0) << (31 - OptimizedBvh.MAX_NUM_PARTS_IN_BITS)));
+		return (escapeIndexOrTriangleIndex(nodeId) & ~((~0) << (31 - OptimizedBvh.MAX_NUM_PARTS_IN_BITS)));
 	}
 
-	public int getPartId(int nodeId) {
-		assert (isLeafNode(nodeId));
+	int partId(int nodeId) {
+		//assert (isLeafNode(nodeId));
 		// Get only the highest bits where the part index is stored
-		return (getEscapeIndexOrTriangleIndex(nodeId) >>> (31 - OptimizedBvh.MAX_NUM_PARTS_IN_BITS));
+		return (escapeIndexOrTriangleIndex(nodeId) >>> (31 - OptimizedBvh.MAX_NUM_PARTS_IN_BITS));
 	}
 	
-	public static int getCoord(long vec, int index) {
+	static int coord(long vec, int index) {
 		return switch (index) {
 			case 0 -> (int) ((vec & 0x00000000FFFFL)) & 0xFFFF;
 			case 1 -> (int) ((vec & 0x0000FFFF0000L) >>> 16) & 0xFFFF;

@@ -72,7 +72,7 @@ public abstract class TriangleConvexcastCallback extends TriangleCallback {
 
 		CastResult castResult = new CastResult();
 		castResult.fraction = 1f;
-		if (convexCaster.calcTimeOfImpact(convexShapeFrom, convexShapeTo, triangleToWorld, triangleToWorld, castResult)) {
+		if (convexCaster.timeOfImpact(convexShapeFrom, convexShapeTo, triangleToWorld, triangleToWorld, castResult)) {
 			// add hit
 			if (castResult.normal.lengthSquared() > 0.0001f) {
 				if (castResult.fraction < hitFraction) {

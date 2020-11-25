@@ -27,7 +27,6 @@ import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.BulletStats;
 import com.bulletphysics.collision.broadphase.*;
 import com.bulletphysics.collision.dispatch.*;
-import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.narrowphase.PersistentManifold;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.simple.SphereShape;
@@ -133,36 +132,41 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 
     @Override
     public void debugDrawWorld() {
-        if (getDebugDrawer() != null && (getDebugDrawer().getDebugMode() & DebugDrawModes.DRAW_CONTACT_POINTS) != 0) {
-            int numManifolds = getDispatcher().getNumManifolds();
-            Vector3f color = new Vector3f();
-            color.set(0f, 0f, 0f);
+        final IDebugDraw drawer = getDebugDrawer();
+        final int debugMode = drawer.getDebugMode();
+
+        Vector3f color = new Vector3f();
+
+        if (drawer != null && (debugMode & DebugDrawModes.DRAW_CONTACT_POINTS) != 0) {
+            final Dispatcher dispatcher = dispatcher();
+            
+            int numManifolds = dispatcher.getNumManifolds();
+
+
             for (int i = 0; i < numManifolds; i++) {
-                PersistentManifold contactManifold = getDispatcher().getManifoldByIndexInternal(i);
+                PersistentManifold contactManifold = dispatcher.getManifoldByIndexInternal(i);
                 //btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
                 //btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
 
                 int numContacts = contactManifold.getNumContacts();
                 for (int j = 0; j < numContacts; j++) {
-                    ManifoldPoint cp = contactManifold.getContactPoint(j);
-                    getDebugDrawer().drawContactPoint(cp.positionWorldOnB, cp.normalWorldOnB, cp.getDistance(), cp.getLifeTime(), color);
+                    drawer.drawContactPoint(contactManifold.getContactPoint(j), color);
                 }
             }
         }
 
-        if (getDebugDrawer() != null && (getDebugDrawer().getDebugMode() & (DebugDrawModes.DRAW_WIREFRAME | DebugDrawModes.DRAW_AABB)) != 0) {
+        if ((debugMode & (DebugDrawModes.DRAW_WIREFRAME | DebugDrawModes.DRAW_AABB)) != 0) {
             int i;
 
             Transform tmpTrans = new Transform();
             Vector3f minAabb = new Vector3f();
             Vector3f maxAabb = new Vector3f();
-            Vector3f colorvec = new Vector3f();
 
             // todo: iterate over awake simulation islands!
-            for (i = 0; i < collisionObjects.size(); i++) {
+            final int n = collisionObjects.size();
+            for (i = 0; i < n; i++) {
                 CollisionObject colObj = collisionObjects.get(i);
-                if (getDebugDrawer() != null && (getDebugDrawer().getDebugMode() & DebugDrawModes.DRAW_WIREFRAME) != 0) {
-                    Vector3f color = new Vector3f();
+                if (drawer != null && (debugMode & DebugDrawModes.DRAW_WIREFRAME) != 0) {
                     color.set(255f, 255f, 255f);
                     switch (colObj.getActivationState()) {
                         case CollisionObject.ACTIVE_TAG -> color.set(255f, 255f, 255f);
@@ -175,47 +179,54 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 
                     debugDrawObject(colObj.getWorldTransform(tmpTrans), colObj.getCollisionShape(), color);
                 }
-                if (debugDrawer != null && (debugDrawer.getDebugMode() & DebugDrawModes.DRAW_AABB) != 0) {
-                    colorvec.set(1f, 0f, 0f);
+
+                if (this.debugDrawer != null && (this.debugDrawer.getDebugMode() & DebugDrawModes.DRAW_AABB) != 0) {
+                    color.set(1f, 0f, 0f);
                     colObj.getCollisionShape().getAabb(colObj.getWorldTransform(tmpTrans), minAabb, maxAabb);
-                    debugDrawer.drawAabb(minAabb, maxAabb, colorvec);
+                    this.debugDrawer.drawAabb(minAabb, maxAabb, color);
                 }
             }
 
-            Vector3f wheelColor = new Vector3f();
-            Vector3f wheelPosWS = new Vector3f();
-            Vector3f axle = new Vector3f();
-            Vector3f tmp = new Vector3f();
+            drawVehicles();
 
-            for (i = 0; i < vehicles.size(); i++) {
-                for (int v = 0; v < vehicles.get(i).getNumWheels(); v++) {
-                    wheelColor.set(0, 255, 255);
-                    if (vehicles.get(i).getWheelInfo(v).raycastInfo.isInContact) {
-                        wheelColor.set(0, 0, 255);
-                    } else {
-                        wheelColor.set(255, 0, 255);
-                    }
+            if (debugMode != 0) drawActions();
+        }
+    }
 
-                    wheelPosWS.set(vehicles.get(i).getWheelInfo(v).worldTransform.origin);
+    private void drawActions() {
+        for (ActionInterface action : actions)
+            action.debugDraw(this.debugDrawer);
+    }
 
-                    axle.set(
-                            vehicles.get(i).getWheelInfo(v).worldTransform.basis.getElement(0, vehicles.get(i).getRightAxis()),
-                            vehicles.get(i).getWheelInfo(v).worldTransform.basis.getElement(1, vehicles.get(i).getRightAxis()),
-                            vehicles.get(i).getWheelInfo(v).worldTransform.basis.getElement(2, vehicles.get(i).getRightAxis()));
+    private void drawVehicles() {
+        int i;
+        Vector3f wheelColor = new Vector3f();
+        Vector3f wheelPosWS = new Vector3f();
+        Vector3f axle = new Vector3f();
+        Vector3f tmp = new Vector3f();
 
-
-                    //m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_wheelAxleWS
-                    //debug wheels (cylinders)
-                    tmp.add(wheelPosWS, axle);
-                    debugDrawer.drawLine(wheelPosWS, tmp, wheelColor);
-                    debugDrawer.drawLine(wheelPosWS, vehicles.get(i).getWheelInfo(v).raycastInfo.contactPointWS, wheelColor);
+        for (i = 0; i < vehicles.size(); i++) {
+            for (int v = 0; v < vehicles.get(i).getNumWheels(); v++) {
+                wheelColor.set(0, 255, 255);
+                if (vehicles.get(i).getWheelInfo(v).raycastInfo.isInContact) {
+                    wheelColor.set(0, 0, 255);
+                } else {
+                    wheelColor.set(255, 0, 255);
                 }
-            }
 
-            if (getDebugDrawer() != null && getDebugDrawer().getDebugMode() != 0) {
-                for (i = 0; i < actions.size(); i++) {
-                    actions.get(i).debugDraw(debugDrawer);
-                }
+                wheelPosWS.set(vehicles.get(i).getWheelInfo(v).worldTransform.origin);
+
+                axle.set(
+                        vehicles.get(i).getWheelInfo(v).worldTransform.basis.getElement(0, vehicles.get(i).getRightAxis()),
+                        vehicles.get(i).getWheelInfo(v).worldTransform.basis.getElement(1, vehicles.get(i).getRightAxis()),
+                        vehicles.get(i).getWheelInfo(v).worldTransform.basis.getElement(2, vehicles.get(i).getRightAxis()));
+
+
+                //m_vehicles[i]->getWheelInfo(v).m_raycastInfo.m_wheelAxleWS
+                //debug wheels (cylinders)
+                tmp.add(wheelPosWS, axle);
+                this.debugDrawer.drawLine(wheelPosWS, tmp, wheelColor);
+                this.debugDrawer.drawLine(wheelPosWS, vehicles.get(i).getWheelInfo(v).raycastInfo.contactPointWS, wheelColor);
             }
         }
     }
@@ -223,13 +234,11 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
     @Override
     public void clearForces() {
         // todo: iterate over awake simulation islands!
-        for (int i = 0; i < collisionObjects.size(); i++) {
-            CollisionObject colObj = collisionObjects.get(i);
-
-            RigidBody body = RigidBody.upcast(colObj);
-            if (body != null) {
+        final int n = collisionObjects.size();
+        for (int i = 0; i < n; i++) {
+            RigidBody body = RigidBody.upcast(collisionObjects.get(i));
+            if (body != null)
                 body.clearForces();
-            }
         }
     }
 
@@ -238,7 +247,8 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
      */
     private void applyGravity() {
         // todo: iterate over awake simulation islands!
-        for (int i = 0; i < collisionObjects.size(); i++) {
+        final int n = collisionObjects.size();
+        for (int i = 0; i < n; i++) {
             CollisionObject colObj = collisionObjects.get(i);
 
             RigidBody body = RigidBody.upcast(colObj);
@@ -546,12 +556,12 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
 
             ObjectArrayList<TypedConstraint> constraintsPtr = getNumConstraints() != 0 ? sortedConstraints : null;
 
-            solverCallback.init(solverInfo, constraintSolver, constraintsPtr, sortedConstraints.size(), debugDrawer/*,m_stackAlloc*/, dispatcher1);
+            solverCallback.init(solverInfo, constraintSolver, constraintsPtr, sortedConstraints.size(), debugDrawer/*,m_stackAlloc*/, dispatcher);
 
-            constraintSolver.prepareSolve(getCollisionWorld().getNumCollisionObjects(), getCollisionWorld().getDispatcher().getNumManifolds());
+            constraintSolver.prepareSolve(getCollisionWorld().getNumCollisionObjects(), getCollisionWorld().dispatcher().getNumManifolds());
 
             // solve all the constraints for this island
-            islandManager.buildAndProcessIslands(getCollisionWorld().getDispatcher(), getCollisionWorld().getCollisionObjectArray(), solverCallback);
+            islandManager.buildAndProcessIslands(getCollisionWorld().dispatcher(), getCollisionWorld().getCollisionObjectArray(), solverCallback);
 
             constraintSolver.allSolved(solverInfo, debugDrawer/*, m_stackAlloc*/);
         } finally {
@@ -562,7 +572,7 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
     private void calculateSimulationIslands() {
         BulletStats.pushProfile("calculateSimulationIslands");
         try {
-            getSimulationIslandManager().updateActivationState(getCollisionWorld(), getCollisionWorld().getDispatcher());
+            getSimulationIslandManager().updateActivationState(getCollisionWorld(), getCollisionWorld().dispatcher());
 
             {
                 int i;
@@ -614,7 +624,7 @@ public class DiscreteDynamicsWorld extends DynamicsWorld {
                                 if (body.getCollisionShape().isConvex()) {
                                     BulletStats.gNumClampedCcdMotions++;
 
-                                    ClosestNotMeConvexResultCallback sweepResults = new ClosestNotMeConvexResultCallback(body, body.getWorldTransform(tmpTrans).origin, predictedTrans.origin, getBroadphase().getOverlappingPairCache(), getDispatcher());
+                                    ClosestNotMeConvexResultCallback sweepResults = new ClosestNotMeConvexResultCallback(body, body.getWorldTransform(tmpTrans).origin, predictedTrans.origin, broadphase().getOverlappingPairCache(), dispatcher());
                                     //ConvexShape convexShape = (ConvexShape)body.getCollisionShape();
                                     SphereShape tmpSphere = new SphereShape(body.getCcdSweptSphereRadius()); //btConvexShape* convexShape = static_cast<btConvexShape*>(body->getCollisionShape());
 

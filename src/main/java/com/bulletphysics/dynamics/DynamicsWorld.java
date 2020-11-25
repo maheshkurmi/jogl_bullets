@@ -162,7 +162,7 @@ public abstract class DynamicsWorld extends CollisionWorld {
         // rigidbody is dynamic if and only if mass is non zero, otherwise static
         boolean isDynamic = (mass != 0f);
 
-        Vector3f localInertia = new Vector3f(0f, 0f, 0f);
+        Vector3f localInertia = new Vector3f();
         if (isDynamic) {
             shape.calculateLocalInertia(mass, localInertia);
         }

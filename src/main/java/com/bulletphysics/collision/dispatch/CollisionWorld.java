@@ -42,6 +42,8 @@ import javax.vecmath.Matrix3f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
+import static com.bulletphysics.BulletGlobals.FLT_EPSILON;
+
 /**
  * CollisionWorld is interface and container for the collision detection.
  * 
@@ -52,18 +54,18 @@ public class CollisionWorld {
 	//protected final BulletStack stack = BulletStack.get();
 	
 	protected final ObjectArrayList<CollisionObject> collisionObjects = new ObjectArrayList<>();
-	protected final Dispatcher dispatcher1;
+	protected final Dispatcher dispatcher;
 	private final DispatcherInfo dispatchInfo = new DispatcherInfo();
 	//protected btStackAlloc*	m_stackAlloc;
-	private BroadphaseInterface broadphasePairCache;
+	private final BroadphaseInterface broadphase;
 	protected IDebugDraw debugDrawer;
 	
 	/**
 	 * This constructor doesn't own the dispatcher and paircache/broadphase.
 	 */
-	public CollisionWorld(Dispatcher dispatcher,BroadphaseInterface broadphasePairCache, CollisionConfiguration collisionConfiguration) {
-		this.dispatcher1 = dispatcher;
-		this.broadphasePairCache = broadphasePairCache;
+	public CollisionWorld(Dispatcher dispatcher, BroadphaseInterface broadphase, CollisionConfiguration collisionConfiguration) {
+		this.dispatcher = dispatcher;
+		this.broadphase = broadphase;
 	}
 	
 	public void destroy() {
@@ -76,8 +78,8 @@ public class CollisionWorld {
 				//
 				// only clear the cached algorithms
 				//
-				getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(bp, dispatcher1);
-				getBroadphase().destroyProxy(bp, dispatcher1);
+				broadphase().getOverlappingPairCache().cleanProxyFromPairs(bp, dispatcher);
+				broadphase().destroyProxy(bp, dispatcher);
 			}
 		}
 	}
@@ -101,14 +103,14 @@ public class CollisionWorld {
 		collisionObject.getCollisionShape().getAabb(trans, minAabb, maxAabb);
 
 		BroadphaseNativeType type = collisionObject.getCollisionShape().getShapeType();
-		collisionObject.setBroadphaseHandle(getBroadphase().createProxy(
+		collisionObject.setBroadphaseHandle(broadphase().createProxy(
 				minAabb,
 				maxAabb,
 				type,
 				collisionObject,
 				collisionFilterGroup,
 				collisionFilterMask,
-				dispatcher1, null));
+				dispatcher, null));
 	}
 
 	protected void performDiscreteCollisionDetection() {
@@ -120,18 +122,18 @@ public class CollisionWorld {
 
 			BulletStats.pushProfile("calculateOverlappingPairs");
 			try {
-				broadphasePairCache.calculateOverlappingPairs(dispatcher1);
+				broadphase.calculateOverlappingPairs(dispatcher);
 			}
 			finally {
 				BulletStats.popProfile();
 			}
 
-			Dispatcher dispatcher = getDispatcher();
+			Dispatcher dispatcher = dispatcher();
 			{
 				BulletStats.pushProfile("dispatchAllCollisionPairs");
 				try {
 					if (dispatcher != null) {
-						dispatcher.dispatchAllCollisionPairs(broadphasePairCache.getOverlappingPairCache(), dispatchInfo, dispatcher1);
+						dispatcher.dispatchAllCollisionPairs(broadphase.getOverlappingPairCache(), dispatchInfo, this.dispatcher);
 					}
 				}
 				finally {
@@ -153,8 +155,8 @@ public class CollisionWorld {
 				//
 				// only clear the cached algorithms
 				//
-				getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(bp, dispatcher1);
-				getBroadphase().destroyProxy(bp, dispatcher1);
+				broadphase().getOverlappingPairCache().cleanProxyFromPairs(bp, dispatcher);
+				broadphase().destroyProxy(bp, dispatcher);
 				collisionObject.setBroadphaseHandle(null);
 			}
 		}
@@ -163,20 +165,17 @@ public class CollisionWorld {
 		collisionObjects.remove(collisionObject);
 	}
 
-	public void setBroadphase(BroadphaseInterface pairCache) {
-		broadphasePairCache = pairCache;
-	}
 	
-	public BroadphaseInterface getBroadphase() {
-		return broadphasePairCache;
+	public BroadphaseInterface broadphase() {
+		return broadphase;
 	}
 	
 	public OverlappingPairCache getPairCache() {
-		return broadphasePairCache.getOverlappingPairCache();
+		return broadphase.getOverlappingPairCache();
 	}
 
-	public Dispatcher getDispatcher() {
-		return dispatcher1;
+	public Dispatcher dispatcher() {
+		return dispatcher;
 	}
 
 	public DispatcherInfo getDispatchInfo() {
@@ -187,25 +186,27 @@ public class CollisionWorld {
 
 	// JAVA NOTE: ported from 2.74, missing contact threshold stuff
 	private void updateSingleAabb(CollisionObject colObj) {
-		Vector3f minAabb = new Vector3f(), maxAabb = new Vector3f();
-		Vector3f tmp = new Vector3f();
+
 		Transform tmpTrans = new Transform();
 
+		Vector3f minAabb = new Vector3f(), maxAabb = new Vector3f();
 		colObj.getCollisionShape().getAabb(colObj.getWorldTransform(tmpTrans), minAabb, maxAabb);
+
 		// need to increase the aabb for contact thresholds
 		Vector3f contactThreshold = new Vector3f();
 		contactThreshold.set(BulletGlobals.getContactBreakingThreshold(), BulletGlobals.getContactBreakingThreshold(), BulletGlobals.getContactBreakingThreshold());
+
 		minAabb.sub(contactThreshold);
 		maxAabb.add(contactThreshold);
 
-		BroadphaseInterface bp = broadphasePairCache;
+		BroadphaseInterface bp = broadphase;
 
 		// moving objects should be moderately sized, probably something wrong if not
+		Vector3f tmp = new Vector3f();
 		tmp.sub(maxAabb, minAabb); // TODO: optimize
-		if (colObj.isStaticObject() || (tmp.lengthSquared() < 1e12f)) {
-			bp.setAabb(colObj.getBroadphaseHandle(), minAabb, maxAabb, dispatcher1);
-		}
-		else {
+		if (colObj.isStaticObject() || (tmp.lengthSquared() < 1f/FLT_EPSILON /*1e12f*/)) {
+			bp.setAabb(colObj.getBroadphaseHandle(), minAabb, maxAabb, dispatcher);
+		} else {
 			// something went wrong, investigate
 			// this assert is unwanted in 3D modelers (danger of loosing work)
 			colObj.setActivationState(CollisionObject.DISABLE_SIMULATION);
@@ -228,7 +229,6 @@ public class CollisionWorld {
 				CollisionObject colObj = collisionObjects.get(i);
 				if (colObj.isActive())
 					updateSingleAabb(colObj); // only update aabb of active objects
-
 			}
 		} finally {
 			BulletStats.popProfile();
@@ -271,7 +271,7 @@ public class CollisionWorld {
 			//btContinuousConvexCollision convexCaster(castShape,convexShape,&simplexSolver,0);
 			//#endif //#USE_SUBSIMPLEX_CONVEX_CAST
 
-			if (convexCaster.calcTimeOfImpact(rayFromTrans, rayToTrans, colObjWorldTransform, colObjWorldTransform, castResult)) {
+			if (convexCaster.timeOfImpact(rayFromTrans, rayToTrans, colObjWorldTransform, colObjWorldTransform, castResult)) {
 				//add hit
 				if (castResult.normal.lengthSquared() > eps*eps) {
 					if (castResult.fraction < resultCallback.closestHitFraction) {
@@ -401,7 +401,7 @@ public class CollisionWorld {
 			//ContinuousConvexCollision convexCaster1(castShape,convexShape,&simplexSolver,&gjkEpaPenetrationSolver);
 			//btSubsimplexConvexCast convexCaster3(castShape,convexShape,&simplexSolver);
 
-			if (((ConvexCast) new GjkConvexCast(castShape, convexShape, simplexSolver)).calcTimeOfImpact(convexFromTrans, convexToTrans, colObjWorldTransform, colObjWorldTransform, castResult)) {
+			if (((ConvexCast) new GjkConvexCast(castShape, convexShape, simplexSolver)).timeOfImpact(convexFromTrans, convexToTrans, colObjWorldTransform, colObjWorldTransform, castResult)) {
 				// add hit
 				if (castResult.normal.lengthSquared() > 0.0001f) {
 					if (castResult.fraction < resultCallback.closestHitFraction) {

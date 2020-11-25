@@ -199,8 +199,8 @@ public class CharacterDemo extends DemoApplication {
 
 	@Override
 	public void reset() {
-		world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(
-				ghostObject.getBroadphaseHandle(), getWorld().getDispatcher());
+		world.broadphase().getOverlappingPairCache().cleanProxyFromPairs(
+				ghostObject.getBroadphaseHandle(), world().dispatcher());
 
 		character.reset();
 		///WTF

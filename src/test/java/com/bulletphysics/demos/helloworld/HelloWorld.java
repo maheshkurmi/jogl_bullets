@@ -103,7 +103,7 @@ public class HelloWorld
 			// otherwise static
 			boolean isDynamic = (mass != 0f);
 
-			Vector3f localInertia = new Vector3f(0, 0, 0);
+			Vector3f localInertia = new Vector3f();
 			if (isDynamic) {
 				groundShape.calculateLocalInertia(mass, localInertia);
 			}
@@ -137,7 +137,7 @@ public class HelloWorld
 			// otherwise static
 			boolean isDynamic = (mass != 0f);
 
-			Vector3f localInertia = new Vector3f(0, 0, 0);
+			Vector3f localInertia = new Vector3f();
 			if (isDynamic) {
 				colShape.calculateLocalInertia(mass, localInertia);
 			}

@@ -63,7 +63,7 @@ public class SubsimplexConvexCast extends ConvexCast {
 		this.simplexSolver = simplexSolver;
 	}
 	
-	public boolean calcTimeOfImpact(Transform fromA, Transform toA, Transform fromB, Transform toB, CastResult result) {
+	public boolean timeOfImpact(Transform fromA, Transform toA, Transform fromB, Transform toB, CastResult result) {
 		Vector3f tmp = new Vector3f();
 		
 		simplexSolver.reset();

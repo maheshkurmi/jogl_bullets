@@ -465,9 +465,9 @@ public class VehicleDemo extends DemoApplication {
 		Transform tr = new Transform();
 		tr.setIdentity();
 		carChassis.setCenterOfMassTransform(tr);
-		carChassis.setLinearVelocity(new Vector3f(0, 0, 0));
-		carChassis.setAngularVelocity(new Vector3f(0, 0, 0));
-		world.getBroadphase().getOverlappingPairCache().cleanProxyFromPairs(carChassis.getBroadphaseHandle(), getWorld().getDispatcher());
+		carChassis.setLinearVelocity(new Vector3f());
+		carChassis.setAngularVelocity(new Vector3f());
+		world.broadphase().getOverlappingPairCache().cleanProxyFromPairs(carChassis.getBroadphaseHandle(), world().dispatcher());
 		if (vehicle != null) {
 			vehicle.resetSuspension();
 			for (int i = 0; i < vehicle.getNumWheels(); i++) {

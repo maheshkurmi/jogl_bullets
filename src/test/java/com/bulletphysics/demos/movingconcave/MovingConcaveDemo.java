@@ -43,13 +43,9 @@ import com.bulletphysics.extras.gimpact.GImpactMeshShape;
 import com.bulletphysics.linearmath.Transform;
 import com.bulletphysics.ui.DemoApplication;
 import com.bulletphysics.ui.JOGL;
-import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
-
-import static com.bulletphysics.ui.IGL.GL_COLOR_BUFFER_BIT;
-import static com.bulletphysics.ui.IGL.GL_DEPTH_BUFFER_BIT;
 
 /**
  * 
@@ -167,7 +163,7 @@ public class MovingConcaveDemo extends DemoApplication {
 			float mass = 4f;
 			Transform startTransform = new Transform();
 			startTransform.setIdentity();
-			Vector3f camPos = getCameraPosition();
+			Vector3f camPos = cameraPosition();
 			startTransform.origin.set(camPos);
 
 			RigidBody body = world.localCreateRigidBody(mass, startTransform, trimeshShape);
@@ -182,14 +178,14 @@ public class MovingConcaveDemo extends DemoApplication {
 			body.setWorldTransform(tr);
 
 			body.setLinearVelocity(linVel);
-			body.setAngularVelocity(new Vector3f(0f, 0f, 0f));
+			body.setAngularVelocity(new Vector3f());
 		}
 	}
 
 	@Override
 	public void keyboardCallback(char key) {
 		switch (key) {
-			case '.' -> shootTrimesh(getCameraTargetPosition());
+			case '.' -> shootTrimesh(cameraTarget());
 			default -> super.keyboardCallback(key);
 		}
 	}

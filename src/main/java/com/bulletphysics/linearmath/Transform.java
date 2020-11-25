@@ -50,6 +50,10 @@ public class Transform {
 	public final Vector3f origin = new Vector3f();
 
 	public Transform() {
+
+	}
+	public Transform(float x, float y, float z) {
+		origin.set(x,y,z);
 	}
 
 	public Transform(Matrix3f mat) {

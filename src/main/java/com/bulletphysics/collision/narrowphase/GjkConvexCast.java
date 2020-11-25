@@ -59,7 +59,7 @@ public class GjkConvexCast extends ConvexCast {
 		this.convexB = convexB;
 	}
 	
-	public boolean calcTimeOfImpact(Transform fromA, Transform toA, Transform fromB, Transform toB, CastResult result) {
+	public boolean timeOfImpact(Transform fromA, Transform toA, Transform fromB, Transform toB, CastResult result) {
 		simplexSolver.reset();
 
 		// compute linear velocity for this interval, to interpolate

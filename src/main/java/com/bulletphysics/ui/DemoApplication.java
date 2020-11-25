@@ -67,11 +67,6 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 		renderme();
 	}
 
-	@Override
-    public void keyboardCallbackUp(char key) {
-
-	}
-
 
 	@Override
     public void keyboardCallback(char key) {
@@ -217,7 +212,7 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 			}
 
 			case '.': {
-				shootBox(getCameraTargetPosition());
+				shootBox(cameraTarget());
 				break;
 			}
 
@@ -235,15 +230,10 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 				break;
 		}
 
-		if (getWorld() != null && getWorld().getDebugDrawer() != null) {
-			getWorld().getDebugDrawer().setDebugMode(debugMode);
+		if (world() != null && world().getDebugDrawer() != null) {
+			world().getDebugDrawer().setDebugMode(debugMode);
 		}
 
-		//LWJGL.postRedisplay();
-	}
-
-    @Override
-    public void specialKeyboardUp(int key) {
 		//LWJGL.postRedisplay();
 	}
 
@@ -255,11 +245,11 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 				break;
 			}
 			case KeyEvent.VK_END: {
-				int numObj = getWorld().getNumCollisionObjects();
+				int numObj = world().getNumCollisionObjects();
 				if (numObj != 0) {
-					CollisionObject obj = getWorld().getCollisionObjectArray().get(numObj - 1);
+					CollisionObject obj = world().getCollisionObjectArray().get(numObj - 1);
 
-					getWorld().removeCollisionObject(obj);
+					world().removeCollisionObject(obj);
 					RigidBody body = RigidBody.upcast(obj);
 					if (body != null && body.getMotionState() != null) {
 						//delete body->getMotionState();
@@ -303,7 +293,7 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 			float mass = 10f;
 			Transform startTransform = new Transform();
 			startTransform.setIdentity();
-			Vector3f camPos = new Vector3f(getCameraPosition());
+			Vector3f camPos = new Vector3f(cameraPosition());
 			startTransform.origin.set(camPos);
 
 			if (shootBoxShape == null) {
@@ -328,7 +318,7 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 			body.setWorldTransform(worldTrans);
 
 			body.setLinearVelocity(linVel);
-			body.setAngularVelocity(new Vector3f(0f, 0f, 0f));
+			body.setAngularVelocity(new Vector3f());
 
 			body.setCcdMotionThreshold(1f);
 			body.setCcdSweptSphereRadius(0.2f);
@@ -559,16 +549,16 @@ public abstract  class DemoApplication extends SpaceGraph3D {
 			//yStart += yIncr;
 			//#endif //BT_DEBUG_MEMORY_ALLOCATIONS
 
-			if (getWorld() != null) {
+			if (world() != null) {
 				buf.setLength(0);
 				buf.append("# objects = ");
-				FastFormat.append(buf, getWorld().getNumCollisionObjects());
+				FastFormat.append(buf, world().getNumCollisionObjects());
 				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 
 				buf.setLength(0);
 				buf.append("# pairs = ");
-				FastFormat.append(buf, getWorld().getBroadphase().getOverlappingPairCache().getNumOverlappingPairs());
+				FastFormat.append(buf, world().broadphase().getOverlappingPairCache().getNumOverlappingPairs());
 				drawString(buf, Math.round(xOffset), Math.round(yStart), TEXT_COLOR);
 				yStart += yIncr;
 

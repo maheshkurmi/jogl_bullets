@@ -108,7 +108,7 @@ public class BasicDemo extends DemoApplication {
 			// rigidbody is dynamic if and only if mass is non zero, otherwise static
 			boolean isDynamic = (mass != 0f);
 
-			Vector3f localInertia = new Vector3f(0, 0, 0);
+			Vector3f localInertia = new Vector3f();
 			if (isDynamic) {
 				groundShape.calculateLocalInertia(mass, localInertia);
 			}
@@ -139,7 +139,7 @@ public class BasicDemo extends DemoApplication {
 			// rigidbody is dynamic if and only if mass is non zero, otherwise static
 			boolean isDynamic = (mass != 0f);
 
-			Vector3f localInertia = new Vector3f(0, 0, 0);
+			Vector3f localInertia = new Vector3f();
 			if (isDynamic) {
 				colShape.calculateLocalInertia(mass, localInertia);
 			}
