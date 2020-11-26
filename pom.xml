@@ -18,7 +18,8 @@
     <dependencies>
         <dependency>
             <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all-noawt-main</artifactId>
+<!--            <artifactId>jogl-all-noawt-main</artifactId>-->
+            <artifactId>jogl-all-main</artifactId>
             <version>${jogl_version}</version>
         </dependency>
 
