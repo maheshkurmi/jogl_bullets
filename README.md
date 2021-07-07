@@ -1,10 +1,8 @@
-# jogl_bullets
-Jbullet Demo using jogl
+# JoBullet: JOGL + JBullet
+Started by: https://github.com/maheshkurmi/jogl_bullets
 
-Jbullet is java port of famous physics engine Bullet.
-Jogl is open gl library for java.
+JBullet is the Java port of the famous 3D Physics Engine, "Bullet".
 
-This is an attempt to port standard jbullet demo to jogl. 
+JOGL is an OpenGL library for java.
 
-jogl_bullet folder is ready to port eclipse project
 
